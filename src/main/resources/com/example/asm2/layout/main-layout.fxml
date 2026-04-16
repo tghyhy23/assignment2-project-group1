@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.Group?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.asm2.controllers.MainLayoutController"
+            prefWidth="1200" prefHeight="750"
+            stylesheets="@../styles/main-layout.css">
+
+    <top>
+        <HBox fx:id="titleBar" alignment="CENTER_LEFT" styleClass="title-bar">
+            <padding>
+                <Insets top="8" right="12" bottom="8" left="12"/>
+            </padding>
+
+            <Label text="BidBlitz" styleClass="title-bar-label"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <HBox spacing="6">
+                <!-- Minimize -->
+                <Button onAction="#handleMinimize" styleClass="window-button">
+                    <graphic>
+                        <StackPane scaleX="0.75" scaleY="0.75">
+                            <SVGPath content="M5 12h14" styleClass="window-icon"/>
+                        </StackPane>
+                    </graphic>
+                </Button>
+
+                <!-- Maximize / Restore -->
+                <Button onAction="#handleMaximize" styleClass="window-button">
+                    <graphic>
+                        <StackPane>
+                            <Group fx:id="maximizeGraphic" scaleX="0.75" scaleY="0.75">
+                                <children>
+                                    <SVGPath fx:id="maximizePath1" content="M15 3h6v6" styleClass="window-icon"/>
+                                    <SVGPath fx:id="maximizePath2" content="m21 3-7 7" styleClass="window-icon"/>
+                                    <SVGPath fx:id="maximizePath3" content="m3 21 7-7" styleClass="window-icon"/>
+                                    <SVGPath fx:id="maximizePath4" content="M9 21H3v-6" styleClass="window-icon"/>
+                                </children>
+                            </Group>
+                        </StackPane>
+                    </graphic>
+                </Button>
+
+                <!-- Close -->
+                <Button onAction="#handleClose" styleClass="window-button-close">
+                    <graphic>
+                        <StackPane scaleX="0.75" scaleY="0.75">
+                            <children>
+                                <SVGPath content="M18 6 6 18" styleClass="window-icon"/>
+                                <SVGPath content="m6 6 12 12" styleClass="window-icon"/>
+                            </children>
+                        </StackPane>
+                    </graphic>
+                </Button>
+            </HBox>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox prefWidth="68" spacing="8" styleClass="sidebar">
+
+            <Label text="Client App" styleClass="app-title"/>
+            <Label text="Management System" styleClass="app-subtitle"/>
+
+            <Button text="Dashboard"
+                    maxWidth="Infinity"
+                    styleClass="nav-button"
+                    onAction="#showDashboard"/>
+
+            <Button text="Customers"
+                    maxWidth="Infinity"
+                    styleClass="nav-button"
+                    onAction="#showCustomers"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Label text="Admin User" styleClass="footer-user"/>
+        </VBox>
+    </left>
+
+    <center>
+        <AnchorPane fx:id="contentArea" styleClass="content-area"/>
+    </center>
+
+</BorderPane>
