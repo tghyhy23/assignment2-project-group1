@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.asm2.controllers.SidebarController"
+      prefWidth="68" spacing="8" styleClass="sidebar"
+      stylesheets="@../styles/layout/sidebar.css">
+
+    <Label text="Client App" styleClass="app-title"/>
+    <Label text="Management System" styleClass="app-subtitle"/>
+
+    <Button text="Dashboard"
+            maxWidth="Infinity"
+            styleClass="nav-button"
+            onAction="#showDashboard"/>
+
+    <Button text="Customers"
+            maxWidth="Infinity"
+            styleClass="nav-button"
+            onAction="#showCustomers"/>
+
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <Label text="Admin User" styleClass="footer-user"/>
+</VBox>
