@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.Region?>
@@ -8,23 +9,73 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.example.asm2.controllers.SidebarController"
-      prefWidth="68" spacing="8" styleClass="sidebar"
+      prefWidth="92"
+      minWidth="92"
+      maxWidth="92"
+      spacing="10"
+      styleClass="sidebar"
       stylesheets="@../styles/layout/sidebar.css">
 
-    <Label text="Client App" styleClass="app-title"/>
-    <Label text="Management System" styleClass="app-subtitle"/>
+    <padding>
+        <Insets top="14" right="10" bottom="14" left="10"/>
+    </padding>
 
-    <Button text="Dashboard"
+    <!-- Brand -->
+    <VBox spacing="2" styleClass="brand-box">
+        <Label text="BB" styleClass="brand-logo"/>
+        <Label text="BidBlitz" styleClass="brand-title"/>
+    </VBox>
+
+    <!-- Main navigation -->
+    <Button fx:id="dashboardButton"
+            text="Home"
+            contentDisplay="TOP"
             maxWidth="Infinity"
+            prefHeight="72"
             styleClass="nav-button"
             onAction="#showDashboard"/>
 
-    <Button text="Customers"
+    <Button fx:id="auctionsButton"
+            text="Auctions"
+            contentDisplay="TOP"
             maxWidth="Infinity"
+            prefHeight="72"
             styleClass="nav-button"
-            onAction="#showCustomers"/>
+            onAction="#showAuctions"/>
+
+    <Button fx:id="itemsButton"
+            text="Items"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="72"
+            styleClass="nav-button"
+            onAction="#showItems"/>
+
+    <Button fx:id="paymentsButton"
+            text="Payments"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="72"
+            styleClass="nav-button"
+            onAction="#showPayments"/>
+
+    <Button fx:id="reportsButton"
+            text="Reports"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="72"
+            styleClass="nav-button"
+            onAction="#showReports"/>
 
     <Region VBox.vgrow="ALWAYS"/>
 
-    <Label text="Admin User" styleClass="footer-user"/>
+    <Button fx:id="profileButton"
+            text="Profile"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="72"
+            styleClass="nav-button nav-button-bottom"
+            onAction="#showProfile"/>
+
+    <Label text="Admin" styleClass="footer-user"/>
 </VBox>
