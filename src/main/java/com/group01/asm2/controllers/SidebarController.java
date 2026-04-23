@@ -1,6 +1,6 @@
-package com.example.asm2.controllers;
+package com.group01.asm2.controllers;
 
-import com.example.asm2.services.NavigationService;
+import com.group01.asm2.services.NavigationService;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 
@@ -16,14 +16,14 @@ public class SidebarController {
     @FXML
     private void showDashboard() {
         if (contentArea != null) {
-            NavigationService.loadPage(contentArea, "/com/example/asm2/views/dashboard-view.fxml");
+            NavigationService.loadPage(contentArea, "/com/group01/asm2/views/dashboard-view.fxml");
         }
     }
 
     @FXML
     private void showCustomers() {
         if (contentArea != null) {
-            NavigationService.loadPage(contentArea, "/com/example/asm2/views/customers-view.fxml");
+            NavigationService.loadPage(contentArea, "/com/group01/asm2/views/customers-view.fxml");
         }
     }
 }

@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.asm2.controllers.CustomersController"
+      fx:controller="com.group01.asm2.controllers.CustomersController"
       spacing="16"
       stylesheets="@../styles/customers.css"
       styleClass="customers-root">

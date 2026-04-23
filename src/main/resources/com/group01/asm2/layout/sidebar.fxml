@@ -7,7 +7,7 @@
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.asm2.controllers.SidebarController"
+      fx:controller="com.group01.asm2.controllers.SidebarController"
       prefWidth="68" spacing="8" styleClass="sidebar"
       stylesheets="@../styles/layout/sidebar.css">
 

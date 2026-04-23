@@ -1,4 +1,4 @@
-package com.example.asm2.services;
+package com.group01.asm2.services;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

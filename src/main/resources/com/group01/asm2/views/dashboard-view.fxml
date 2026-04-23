@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.asm2.controllers.DashboardController"
+      fx:controller="com.group01.asm2.controllers.DashboardController"
       spacing="20"
       stylesheets="@../styles/dashboard.css"
       styleClass="dashboard-root">

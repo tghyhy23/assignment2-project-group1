@@ -1,4 +1,4 @@
-package com.example.asm2.controllers;
+package com.group01.asm2.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuButton; // Đã thêm dòng import này

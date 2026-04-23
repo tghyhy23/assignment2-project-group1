@@ -15,7 +15,7 @@
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.asm2.controllers.NavbarController"
+      fx:controller="com.group01.asm2.controllers.NavbarController"
       stylesheets="@../styles/layout/navbar.css"
       styleClass="navbar-container"
       spacing="6">

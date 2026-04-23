@@ -1,4 +1,4 @@
-package com.example.asm2.controllers;
+package com.group01.asm2.controllers;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;

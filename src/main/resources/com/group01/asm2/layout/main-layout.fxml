@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.BorderPane?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.asm2.controllers.MainLayoutController"
+            fx:controller="com.group01.asm2.controllers.MainLayoutController"
             prefWidth="1200" prefHeight="750"
             stylesheets="@../styles/layout/main-layout.css">
 

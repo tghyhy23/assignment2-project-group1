@@ -1,4 +1,4 @@
-package com.example.asm2;
+package com.group01.asm2;
 
 public class Launcher {
     public static void main(String[] args) {
