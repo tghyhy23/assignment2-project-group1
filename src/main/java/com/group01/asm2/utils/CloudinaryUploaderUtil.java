@@ -7,30 +7,23 @@ import java.io.File;
 import java.util.Map;
 
 public class CloudinaryUploaderUtil {
+    public static String uploadImage(File file){
+        try {
+            Cloudinary cloudinary = CloudinaryConfig.getClient();
 
-  public static String uploadImage(File file){
+            Map result = cloudinary.uploader().upload(
+                  file,
+                  Map.of(
+                      "folder", "asm2",
+                      "resource_type", "auto"
+                  )
+              );
 
-    try {
-
-      Cloudinary cloudinary =
-          CloudinaryConfig.getClient();
-
-      Map result =
-          cloudinary.uploader().upload(
-              file,
-              Map.of(
-                  "folder", "asm2",
-                  "resource_type", "auto"
-              )
-          );
-
-      return result.get("secure_url").toString();
-
-    } catch (Exception e){
-
-      throw new RuntimeException(
-          "Cloudinary upload failed: " + e.getMessage()
-      );
+            return result.get("secure_url").toString();
+        } catch (Exception e){
+            throw new RuntimeException(
+                "Cloudinary upload failed: " + e.getMessage()
+            );
+        }
     }
-  }
 }

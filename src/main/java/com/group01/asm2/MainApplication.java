@@ -1,5 +1,6 @@
 package com.group01.asm2;
 
+import com.group01.asm2.db.PostgreSQLInitializer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -28,6 +29,7 @@ public class MainApplication extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+        PostgreSQLInitializer.init();
+        launch(args); // JavaFX
     }
 }
