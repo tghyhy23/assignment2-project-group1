@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.group01.asm2.controllers.AuctionsController"
+      spacing="16"
+      stylesheets="@../styles/auctions.css"
+      styleClass="auctions-root">
+
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <Label text="Auction History" styleClass="page-title"/>
+    <Label text="Auction History" styleClass="page-subtitle"/>
+
+</VBox>

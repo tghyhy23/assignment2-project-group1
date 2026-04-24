@@ -18,6 +18,6 @@ public class MainLayoutController {
             sidebarController.setContentArea(contentArea);
         }
 
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/dashboard-view.fxml");
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/explore-view.fxml");
     }
 }

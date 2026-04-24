@@ -17,10 +17,10 @@ public class SidebarController {
     private AnchorPane contentArea;
 
     @FXML private Button dashboardButton;
+    @FXML private Button bidsHistoryButton;
     @FXML private Button auctionsButton;
-    @FXML private Button itemsButton;
-    @FXML private Button paymentsButton;
-    @FXML private Button reportsButton;
+//    @FXML private Button paymentsButton;
+//    @FXML private Button reportsButton;
     @FXML private Button profileButton;
 
     public void setContentArea(AnchorPane contentArea) {
@@ -30,10 +30,10 @@ public class SidebarController {
     @FXML
     private void initialize() {
         dashboardButton.setGraphic(createDashboardIcon());
-        auctionsButton.setGraphic(createGavelIcon());
-        itemsButton.setGraphic(createBoxIcon());
-        paymentsButton.setGraphic(createWalletIcon());
-        reportsButton.setGraphic(createChartIcon());
+        bidsHistoryButton.setGraphic(createGavelIcon());
+        auctionsButton.setGraphic(createBoxIcon());
+//        paymentsButton.setGraphic(createWalletIcon());
+//        reportsButton.setGraphic(createChartIcon());
         profileButton.setGraphic(createUserIcon());
 
         setActiveButton(dashboardButton);
@@ -42,10 +42,10 @@ public class SidebarController {
     private void setActiveButton(Button activeButton) {
         Button[] buttons = {
                 dashboardButton,
+                bidsHistoryButton,
                 auctionsButton,
-                itemsButton,
-                paymentsButton,
-                reportsButton,
+//                paymentsButton,
+//                reportsButton,
                 profileButton
         };
 
@@ -61,31 +61,35 @@ public class SidebarController {
     @FXML
     private void showDashboard() {
         setActiveButton(dashboardButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/explore-view.fxml");
+    }
+
+    @FXML
+    private void showBidsHistory() {
+        setActiveButton(bidsHistoryButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/bids_history-view.fxml");
     }
 
     @FXML
     private void showAuctions() {
         setActiveButton(auctionsButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/auctions-view.fxml");
     }
 
-    @FXML
-    private void showItems() {
-        setActiveButton(itemsButton);
-    }
-
-    @FXML
-    private void showPayments() {
-        setActiveButton(paymentsButton);
-    }
-
-    @FXML
-    private void showReports() {
-        setActiveButton(reportsButton);
-    }
+//    @FXML
+//    private void showPayments() {
+//        setActiveButton(paymentsButton);
+//    }
+//
+//    @FXML
+//    private void showReports() {
+//        setActiveButton(reportsButton);
+//    }
 
     @FXML
     private void showProfile() {
         setActiveButton(profileButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/profile-view.fxml");
     }
 
     // =========================

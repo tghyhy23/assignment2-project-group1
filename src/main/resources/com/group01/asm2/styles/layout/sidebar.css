@@ -29,32 +29,34 @@
 
 .nav-button {
     -fx-background-color: transparent;
-    -fx-background-radius: 16px;
-    -fx-border-radius: 16px;
-    -fx-text-fill: #c6d0ea;
-    -fx-font-size: 11px;
-    -fx-font-weight: 600;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0;
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 8px;
+    -fx-font-weight: 500;
     -fx-alignment: center;
     -fx-content-display: top;
-    -fx-graphic-text-gap: 6;
-    -fx-padding: 10 6 10 6;
+    -fx-graphic-text-gap: 2;
+    -fx-padding: 6 0 6 0;
     -fx-cursor: hand;
 }
 
 .nav-button:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-color: rgba(255,255,255,0.04);
     -fx-text-fill: white;
 }
 
 .nav-button.active {
-    -fx-background-color: linear-gradient(to bottom right, #5c7cff, #6b5cff);
-    -fx-effect: dropshadow(gaussian, rgba(91, 124, 255, 0.35), 12, 0.25, 0, 2);
-    -fx-text-fill: white;
+    -fx-background-color: #1f2937;
+    -fx-background-radius: 0;
+    -fx-border-color: #7c6cff;
+    -fx-border-width: 0 0 0 3;
+    -fx-border-radius: 0;
+    -fx-text-fill: #8b7cff;
+    -fx-effect: none;
 }
 
-.nav-button-bottom {
-    -fx-opacity: 0.95;
-}
 
 .footer-user {
     -fx-text-fill: #9ba7c7;
