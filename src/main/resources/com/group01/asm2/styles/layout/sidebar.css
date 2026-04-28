@@ -66,3 +66,19 @@
     -fx-max-width: Infinity;
     -fx-padding: 6 0 0 0;
 }
+
+.icon-shape {
+    -fx-fill: transparent;
+    -fx-stroke: #DCE6FF;
+    -fx-stroke-width: 2;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
+.nav-button:hover .icon-shape {
+    -fx-stroke: white;
+}
+
+.nav-button.active .icon-shape {
+    -fx-stroke: #8b7cff;
+}
