@@ -9,63 +9,57 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.group01.asm2.controllers.SidebarController"
-      prefWidth="92"
-      minWidth="92"
-      maxWidth="92"
-      spacing="10"
+      prefWidth="60"
+      minWidth="60"
+      maxWidth="60"
+      spacing="6"
       styleClass="sidebar"
       stylesheets="@../styles/layout/sidebar.css">
 
     <padding>
-        <Insets top="14" right="10" bottom="14" left="10"/>
+        <Insets top="14" right="0" bottom="14" left="0"/>
     </padding>
-
-    <!-- Brand -->
-    <VBox spacing="2" styleClass="brand-box">
-        <Label text="BB" styleClass="brand-logo"/>
-        <Label text="BidBlitz" styleClass="brand-title"/>
-    </VBox>
 
     <!-- Main navigation -->
     <Button fx:id="dashboardButton"
-            text="Home"
+            text="Explore"
             contentDisplay="TOP"
             maxWidth="Infinity"
-            prefHeight="72"
+            prefHeight="48"
             styleClass="nav-button"
             onAction="#showDashboard"/>
 
-    <Button fx:id="auctionsButton"
-            text="Auctions"
+    <Button fx:id="bidsHistoryButton"
+            text="Bid History"
             contentDisplay="TOP"
             maxWidth="Infinity"
-            prefHeight="72"
+            prefHeight="48"
+            styleClass="nav-button"
+            onAction="#showBidsHistory"/>
+
+    <Button fx:id="auctionsButton"
+            text="Auction"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="48"
             styleClass="nav-button"
             onAction="#showAuctions"/>
 
-    <Button fx:id="itemsButton"
-            text="Items"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="72"
-            styleClass="nav-button"
-            onAction="#showItems"/>
+<!--    <Button fx:id="paymentsButton"-->
+<!--            text="Payments"-->
+<!--            contentDisplay="TOP"-->
+<!--            maxWidth="Infinity"-->
+<!--            prefHeight="48"-->
+<!--            styleClass="nav-button"-->
+<!--            onAction="#showPayments"/>-->
 
-    <Button fx:id="paymentsButton"
-            text="Payments"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="72"
-            styleClass="nav-button"
-            onAction="#showPayments"/>
-
-    <Button fx:id="reportsButton"
-            text="Reports"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="72"
-            styleClass="nav-button"
-            onAction="#showReports"/>
+<!--    <Button fx:id="reportsButton"-->
+<!--            text="Reports"-->
+<!--            contentDisplay="TOP"-->
+<!--            maxWidth="Infinity"-->
+<!--            prefHeight="48"-->
+<!--            styleClass="nav-button"-->
+<!--            onAction="#showReports"/>-->
 
     <Region VBox.vgrow="ALWAYS"/>
 
@@ -73,8 +67,8 @@
             text="Profile"
             contentDisplay="TOP"
             maxWidth="Infinity"
-            prefHeight="72"
-            styleClass="nav-button nav-button-bottom"
+            prefHeight="48"
+            styleClass="nav-button"
             onAction="#showProfile"/>
 
     <Label text="Admin" styleClass="footer-user"/>
