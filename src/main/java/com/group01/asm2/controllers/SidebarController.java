@@ -119,23 +119,16 @@ public class SidebarController {
     }
 
     private StackPane createDashboardIcon() {
-        Rectangle r1 = new Rectangle(6, 8);
-        Rectangle r2 = new Rectangle(6, 4);
-        Rectangle r3 = new Rectangle(6, 8);
-        Rectangle r4 = new Rectangle(6, 4);
+        // Icon Explore (Compass)
+        Circle c1 = new Circle(12, 12, 10); // cx="12" cy="12" r="10"
 
-        for (Rectangle r : new Rectangle[]{r1, r2, r3, r4}) {
-            r.setArcWidth(2);
-            r.setArcHeight(2);
-            styleStroke(r);
-        }
+        SVGPath p1 = new SVGPath();
+        p1.setContent("m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z");
 
-        r1.setTranslateX(-4); r1.setTranslateY(-3);
-        r2.setTranslateX(4);  r2.setTranslateY(-5);
-        r3.setTranslateX(4);  r3.setTranslateY(3);
-        r4.setTranslateX(-4); r4.setTranslateY(5);
+        styleStroke(c1);
+        styleStroke(p1);
 
-        return wrap(r1, r2, r3, r4);
+        return wrap(c1, p1);
     }
 
     private StackPane createGavelIcon() {

@@ -9,7 +9,7 @@
             stylesheets="@../styles/layout/main-layout.css">
 
     <top>
-        <fx:include source="navbar.fxml" />
+        <fx:include fx:id="navbar" source="navbar.fxml" />
     </top>
 
     <left>
