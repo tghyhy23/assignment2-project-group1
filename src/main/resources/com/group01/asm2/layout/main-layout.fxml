@@ -6,7 +6,8 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group01.asm2.controllers.MainLayoutController"
             prefWidth="1200" prefHeight="750"
-            stylesheets="@../styles/layout/main-layout.css">
+            stylesheets="@../styles/layout/main-layout.css"
+            style="-fx-background-color: transparent;">
 
     <top>
         <fx:include fx:id="navbar" source="navbar.fxml" />
