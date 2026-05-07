@@ -57,7 +57,8 @@
             maxWidth="Infinity"
             prefHeight="72"
             styleClass="nav-button"
-            onAction="#showPayments"/>
+            onAction="#showPayments"
+    />
 
     <Button fx:id="reportsButton"
             text="Reports"
@@ -65,7 +66,8 @@
             maxWidth="Infinity"
             prefHeight="72"
             styleClass="nav-button"
-            onAction="#showReports"/>
+            onAction="#showReports"
+    />
 
     <Region VBox.vgrow="ALWAYS"/>
 
