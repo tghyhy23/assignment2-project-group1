@@ -1,10 +1,14 @@
 package com.group01.asm2.controllers;
 
+import com.group01.asm2.services.NavigationService;
 import javafx.fxml.FXML;
-import javafx.scene.control.MenuButton; // Đã thêm dòng import này
+import javafx.scene.control.MenuButton;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
+import javafx.geometry.Point2D;
+import javafx.scene.control.Tooltip;
 
 public class NavbarController {
 
@@ -29,15 +33,70 @@ public class NavbarController {
     private double xOffset;
     private double yOffset;
 
-    // Đã gộp 2 hàm initialize() lại làm 1
+    // Vùng chứa nội dung chính để thay đổi các trang
+    private AnchorPane contentArea;
+
+    // Setter để tiêm (inject) contentArea từ MainController vào
+    public void setContentArea(AnchorPane contentArea) {
+        this.contentArea = contentArea;
+    }
+
     @FXML
     public void initialize() {
         enableWindowDrag();
 
+        // 1. Create Tooltip with styleClass
+        Tooltip profileTooltip = new Tooltip("Account manager for user");
+        profileTooltip.getStyleClass().add("custom-tooltip");
+
         if (avatarMenu != null) {
-            avatarMenu.setOnMouseEntered(event -> avatarMenu.show());
+            // Hover in: turn on Tooltip
+            avatarMenu.setOnMouseEntered(event -> {
+                // If menubar is shown -> turn off Tooltip
+                if (avatarMenu.isShowing()) return;
+
+                if (avatarMenu.getScene() != null && avatarMenu.getScene().getWindow() != null) {
+                    Point2D p = avatarMenu.localToScreen(
+                            avatarMenu.getLayoutBounds().getMinX(),
+                            avatarMenu.getLayoutBounds().getMaxY()
+                    );
+
+                    if (p != null) {
+                        profileTooltip.show(avatarMenu, p.getX() - 60, p.getY() + 5);
+                    }
+                }
+            });
+
+            // 3. Hover out: hide Tooltip
+            avatarMenu.setOnMouseExited(event -> {
+                profileTooltip.hide();
+            });
+
+            // Click -> turn off Tooltip
+            avatarMenu.showingProperty().addListener((observable, wasShowing, isNowShowing) -> {
+                if (isNowShowing) {
+                    profileTooltip.hide();
+                }
+            });
         }
     }
+
+    // =========================
+    // Xử lý Navigation
+    // =========================
+
+    @FXML
+    private void handleGoToProfile() {
+        if (contentArea != null) {
+            NavigationService.loadPage(contentArea, "/com/group01/asm2/views/profile-view.fxml");
+        } else {
+            System.err.println("Lỗi: contentArea chưa được khởi tạo trong NavbarController!");
+        }
+    }
+
+    // =========================
+    // Xử lý Window Controls
+    // =========================
 
     private void enableWindowDrag() {
         titleBar.setOnMousePressed(event -> {

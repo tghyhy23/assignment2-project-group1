@@ -4,7 +4,13 @@
     -fx-border-color: #1f2937;
     -fx-border-width: 0 0 1 0; /* Chỉ kẻ vạch dưới cùng */
 }
-
+.custom-tooltip {
+    -fx-background-color: #374151; /* Màu xám tối hợp với theme */
+    -fx-text-fill: #e5e7eb; /* Chữ màu sáng */
+    -fx-font-size: 12px;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 4;
+}
 /* Tầng 1: Window Bar */
 .title-bar {
     -fx-background-color: transparent; /* Lấy màu nền của container */
@@ -104,6 +110,45 @@
 .avatar-menu .arrow {
     -fx-padding: 0;
     -fx-background-color: transparent;
+}
+
+/* ========================================= */
+/* === STYLE CHO PHẦN MENU XỔ XUỐNG (CONTEXT MENU) === */
+/* ========================================= */
+
+/* Cái khung bọc ngoài của Menu */
+.context-menu {
+    -fx-background-color: #1f2937; /* Màu xám tối trùng với ô search */
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(255, 255, 255, 0.08); /* Viền mờ nhẹ */
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-padding: 4 0 4 0; /* Cách trên dưới một chút cho thoáng */
+}
+
+/* Từng dòng chữ trong Menu (My Profile, Settings...) */
+.context-menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 8 24 8 16; /* Trên, Phải, Dưới, Trái */
+}
+
+/* Chỉnh màu chữ cho các dòng MenuItem */
+.context-menu .menu-item .label {
+    -fx-text-fill: #e5e7eb; /* Màu chữ sáng */
+    -fx-font-size: 12px;
+    -fx-alignment: center-left;
+}
+
+/* Hiệu ứng khi lướt chuột qua từng dòng */
+.context-menu .menu-item:focused,
+.context-menu .menu-item:hover {
+    -fx-background-color: #374151; /* Đổi màu nền khi hover */
+}
+
+/* Giữ cho chữ vẫn sáng khi hover */
+.context-menu .menu-item:focused .label,
+.context-menu .menu-item:hover .label {
+    -fx-text-fill: #ffffff;
 }
 
 /* === WINDOW CONTROLS === */

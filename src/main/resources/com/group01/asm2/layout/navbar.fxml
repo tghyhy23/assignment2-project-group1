@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.Group?>
+<?import javafx.scene.control.Tooltip?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -109,8 +110,7 @@
                     <SVGPath content="M17.925 20.056a6 6 0 0 0-11.851.001 M8 11 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0 M2 12 a10 10 0 1 0 20 0 a10 10 0 1 0 -20 0" styleClass="tool-icon"/>
                 </graphic>
                 <items>
-                    <MenuItem text="My Profile"/>
-                    <MenuItem text="Settings"/>
+                    <MenuItem text="My Profile" onAction="#handleGoToProfile"/>
                     <MenuItem text="Sign out"/>
                 </items>
             </MenuButton>

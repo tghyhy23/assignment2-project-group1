@@ -5,6 +5,8 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 
 public class MainLayoutController {
+    @FXML
+    private NavbarController navbarController;
 
     @FXML
     private AnchorPane contentArea;
@@ -17,7 +19,10 @@ public class MainLayoutController {
         if (sidebarController != null) {
             sidebarController.setContentArea(contentArea);
         }
+        if (navbarController != null) {
+            navbarController.setContentArea(contentArea);
+        }
 
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/dashboard-view.fxml");
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/explore-view.fxml");
     }
 }
