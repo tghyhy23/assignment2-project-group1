@@ -70,6 +70,4 @@
             prefHeight="48"
             styleClass="nav-button"
             onAction="#showProfile"/>
-
-    <Label text="Admin" styleClass="footer-user"/>
 </VBox>

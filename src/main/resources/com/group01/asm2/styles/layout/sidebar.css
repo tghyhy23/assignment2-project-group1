@@ -2,6 +2,20 @@
     -fx-background-color: #111827;
     -fx-border-color: rgba(255,255,255,0.08);
     -fx-border-width: 0 1 0 0;
+    -fx-background-radius: 0 0 0 8px;
+}
+
+.window-root.maximized .sidebar {
+    -fx-background-radius: 0;
+}
+
+.content-area {
+    -fx-background-radius: 0 0 8px 0;
+}
+
+/* Trả về góc vuông khi phóng to */
+.window-root.maximized .content-area {
+    -fx-background-radius: 0;
 }
 
 .brand-box {
@@ -57,15 +71,6 @@
     -fx-effect: none;
 }
 
-
-.footer-user {
-    -fx-text-fill: #9ba7c7;
-    -fx-font-size: 11px;
-    -fx-font-weight: 700;
-    -fx-alignment: center;
-    -fx-max-width: Infinity;
-    -fx-padding: 6 0 0 0;
-}
 
 .icon-shape {
     -fx-fill: transparent;

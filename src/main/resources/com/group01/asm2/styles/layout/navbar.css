@@ -1,31 +1,24 @@
 /* Container bọc ngoài cùng */
 .navbar-container {
     -fx-background-color: #111827;
+    -fx-background-radius: 8px 8px 0 0;
     -fx-border-color: #1f2937;
-    -fx-border-width: 0 0 1 0; /* Chỉ kẻ vạch dưới cùng */
+    -fx-border-width: 0 0 1 0;
 }
+
 .custom-tooltip {
-    -fx-background-color: #374151; /* Màu xám tối hợp với theme */
-    -fx-text-fill: #e5e7eb; /* Chữ màu sáng */
+    -fx-background-color: #374151;
+    -fx-text-fill: #e5e7eb;
     -fx-font-size: 12px;
     -fx-padding: 6 10 6 10;
     -fx-background-radius: 4;
 }
-/* Tầng 1: Window Bar */
-.title-bar {
-    -fx-background-color: transparent; /* Lấy màu nền của container */
-    -fx-cursor: default; /* Có thể đổi thành move nếu muốn user biết có thể kéo */
-}
 
+/* === TÊN APP & LOGO === */
 .title-bar-label {
-    -fx-text-fill: #9ca3af; /* Chuyển sang màu xám nhạt cho giống các app desktop */
-    -fx-font-size: 12px;
-    -fx-font-weight: normal; /* Bỏ in đậm đi cho thanh thoát */
-}
-
-/* Tầng 2: Toolbar */
-.app-toolbar {
-    -fx-background-color: transparent;
+    -fx-text-fill: #e5e7eb; /* Chữ sáng hơn xíu khi lên 1 hàng */
+    -fx-font-size: 16px;    /* Tăng size nhẹ cho cân xứng logo */
+    -fx-font-weight: bold;
 }
 
 .logo-icon {
@@ -36,8 +29,8 @@
 .search-box {
     -fx-background-color: #1f2937;
     -fx-background-radius: 6;
-    -fx-padding: 2 16 2 16;
-    -fx-pref-width: 600px;
+    -fx-padding: 4 16 4 16;
+    -fx-pref-width: 450px; /* Thu gọn một xíu để nhường chỗ cho tool */
 }
 
 .search-box:hover, .search-box:focused {
@@ -52,8 +45,8 @@
     -fx-background-color: transparent;
     -fx-text-fill: white;
     -fx-prompt-text-fill: #9ca3af;
-    -fx-font-size: 14px;
-    -fx-pref-width: 360px;
+    -fx-font-size: 12px;
+    -fx-pref-width: 300px;
 }
 
 .search-field:focused {
@@ -71,81 +64,59 @@
     -fx-cursor: hand;
     -fx-padding: 4;
     -fx-background-radius: 50%;
-
-    -fx-background-radius: 50%;
-    -fx-alignment: center; /* Canh giữa icon */
-    -fx-padding: 0;
+    -fx-alignment: center;
 }
 
 .tool-button:hover, .avatar-menu:hover, .avatar-menu:showing {
     -fx-background-color: #374151;
 }
 
-.avatar-menu > .label {
-    -fx-padding: 0;
-    -fx-alignment: center;
-}
-
-.avatar-menu .arrow-button,
-.avatar-menu .arrow {
-    -fx-padding: 0;
-    -fx-background-color: transparent;
-}
-
 .tool-icon {
-    -fx-fill: transparent;         /* Bỏ tô màu khối đặc */
-    -fx-stroke: #d1d5db;           /* Chuyển màu xám sang nét viền */
-    -fx-stroke-width: 1.5;           /* Độ dày của nét giống bản gốc */
-    -fx-stroke-line-cap: round;    /* Làm bo tròn các đầu nối */
+    -fx-fill: transparent;
+    -fx-stroke: #d1d5db;
+    -fx-stroke-width: 1.5;
+    -fx-stroke-line-cap: round;
     -fx-stroke-line-join: round;
-
     -fx-scale-x: 0.75;
     -fx-scale-y: 0.75;
 }
 
 /* Ẩn mũi tên mặc định của MenuButton */
-.avatar-menu .arrow-button {
-    -fx-padding: 0;
-}
-.avatar-menu .arrow {
-    -fx-padding: 0;
-    -fx-background-color: transparent;
-}
+.avatar-menu > .label { -fx-padding: 0; -fx-alignment: center; }
+.avatar-menu .arrow-button { -fx-padding: 0; }
+.avatar-menu .arrow { -fx-padding: 0; -fx-background-color: transparent; }
 
-/* ========================================= */
-/* === STYLE CHO PHẦN MENU XỔ XUỐNG (CONTEXT MENU) === */
-/* ========================================= */
-
-/* Cái khung bọc ngoài của Menu */
+/* === CONTEXT MENU === */
 .context-menu {
-    -fx-background-color: #1f2937; /* Màu xám tối trùng với ô search */
+    -fx-background-color: #1f2937;
     -fx-background-radius: 6;
-    -fx-border-color: rgba(255, 255, 255, 0.08); /* Viền mờ nhẹ */
+    -fx-border-color: rgba(255, 255, 255, 0.08);
     -fx-border-width: 1;
     -fx-border-radius: 6;
-    -fx-padding: 4 0 4 0; /* Cách trên dưới một chút cho thoáng */
+    -fx-padding: 4;
+    -fx-translate-y: 4px;
 }
 
-/* Từng dòng chữ trong Menu (My Profile, Settings...) */
 .context-menu .menu-item {
     -fx-background-color: transparent;
-    -fx-padding: 8 24 8 16; /* Trên, Phải, Dưới, Trái */
+    -fx-padding: 8 24 8 16;
+    -fx-border-radius: 2px; /* Bo góc nhẹ cho viền */
+    -fx-background-radius: 2px; /* Bo góc nền để khớp với viền */
+
 }
 
-/* Chỉnh màu chữ cho các dòng MenuItem */
 .context-menu .menu-item .label {
-    -fx-text-fill: #e5e7eb; /* Màu chữ sáng */
+    -fx-text-fill: #e5e7eb;
     -fx-font-size: 12px;
     -fx-alignment: center-left;
 }
 
-/* Hiệu ứng khi lướt chuột qua từng dòng */
 .context-menu .menu-item:focused,
 .context-menu .menu-item:hover {
-    -fx-background-color: #374151; /* Đổi màu nền khi hover */
+    -fx-background-color: #374151;
+
 }
 
-/* Giữ cho chữ vẫn sáng khi hover */
 .context-menu .menu-item:focused .label,
 .context-menu .menu-item:hover .label {
     -fx-text-fill: #ffffff;
@@ -155,7 +126,7 @@
 .window-button,
 .window-button-close {
     -fx-background-color: transparent;
-    -fx-pref-width: 32px;
+    -fx-pref-width: 36px;
     -fx-pref-height: 28px;
     -fx-padding: 4;
     -fx-cursor: hand;
@@ -174,4 +145,37 @@
     -fx-fill: transparent;
     -fx-stroke: white;
     -fx-stroke-width: 1.8;
+}
+
+.window-root {
+    -fx-background-color: transparent; /* Root ngoài cùng nên trong suốt */
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-color: #374151; /* Viền xám mờ */
+    -fx-border-width: 1px;
+    /* Hiệu ứng đổ bóng cho app khi floating (thu nhỏ) */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 2);
+}
+
+.window-root.maximized {
+    -fx-background-radius: 0;
+    -fx-border-width: 0;
+    -fx-effect: null;
+}
+
+/* Trạng thái phóng to: Góc vuông */
+.navbar-container.maximized {
+    -fx-background-radius: 0;
+}
+
+.content-view {
+    /* Đặt màu nền mặc định cho các trang là trắng/sáng */
+    -fx-background-color: #ffffff;
+    /* Khi thu nhỏ, trang nội dung cũng phải bo 2 góc dưới 8px */
+    -fx-background-radius: 0 0 6px 6px;
+}
+
+/* Khi phóng to, trang nội dung trả về góc vuông */
+.window-root.maximized .content-view {
+    -fx-background-radius: 0;
 }
