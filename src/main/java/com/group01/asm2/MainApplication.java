@@ -33,3 +33,34 @@ public class MainApplication extends Application {
         launch(args); // JavaFX
     }
 }
+
+
+//package com.group01.asm2;
+//
+//import javafx.application.Application;
+//import javafx.fxml.FXMLLoader;
+//import javafx.scene.Scene;
+//import javafx.stage.Stage;
+//
+//public class MainApplication extends Application {
+//
+//    @Override
+//    public void start(Stage stage) throws Exception {
+//        FXMLLoader loader = new FXMLLoader(
+//                getClass().getResource("/com/group01/asm2/views/login.fxml")
+//        );
+//
+//        Scene scene = new Scene(loader.load());
+//
+//        stage.setTitle("BidBlitz");
+//        stage.setScene(scene);
+//        stage.setMinWidth(1000);
+//        stage.setMinHeight(650);
+//        stage.centerOnScreen();
+//        stage.show();
+//    }
+//
+//    public static void main(String[] args) {
+//        launch();
+//    }
+//}

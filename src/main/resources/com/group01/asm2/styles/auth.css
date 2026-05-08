@@ -1,0 +1,408 @@
+/* =========================
+   Root
+========================= */
+
+.auth-root {
+    -fx-background-color: #020617;
+    -fx-font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+/* =========================
+   Left Brand Panel
+========================= */
+
+.auth-left-panel {
+    -fx-background-color: linear-gradient(to bottom right, #0f172a, #111827, #1e1b4b);
+    -fx-padding: 50;
+}
+
+.brand-title {
+    -fx-text-fill: white;
+    -fx-font-size: 46px;
+    -fx-font-weight: 800;
+    -fx-letter-spacing: 1px;
+}
+
+.brand-subtitle {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 17px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-line-spacing: 4px;
+}
+
+.brand-feature-card {
+    -fx-background-color: rgba(255, 255, 255, 0.07);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255, 255, 255, 0.12);
+    -fx-border-radius: 18;
+    -fx-padding: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.32), 24, 0.2, 0, 8);
+}
+
+.feature-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+}
+
+.feature-text {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 14px;
+    -fx-line-spacing: 3px;
+}
+
+/* =========================
+   Right Panel
+========================= */
+
+.auth-right-panel {
+    -fx-background-color: #020617;
+    -fx-padding: 50;
+    -fx-pref-width: 600;
+}
+
+.auth-card {
+    -fx-background-color: #111827;
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 24;
+    -fx-padding: 38;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 32, 0.25, 0, 14);
+}
+
+.auth-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 30px;
+    -fx-font-weight: 800;
+}
+
+.auth-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 14px;
+}
+
+/* =========================
+   Inputs
+========================= */
+
+.input-label {
+    -fx-text-fill: #d1d5db;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.auth-input {
+    -fx-background-color: #020617;
+    -fx-background-radius: 12;
+    -fx-border-color: #263244;
+    -fx-border-radius: 12;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #64748b;
+    -fx-padding: 13 15;
+    -fx-font-size: 14px;
+}
+
+.auth-input:focused {
+    -fx-border-color: #38bdf8;
+    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.25), 12, 0.2, 0, 0);
+}
+
+/* =========================
+   ComboBox
+========================= */
+
+.auth-combo {
+    -fx-background-color: #020617;
+    -fx-background-radius: 14;
+    -fx-border-color: #263244;
+    -fx-border-radius: 14;
+    -fx-padding: 6 10;
+    -fx-cursor: hand;
+}
+
+.auth-combo:hover {
+    -fx-border-color: #38bdf8;
+}
+
+.auth-combo:focused {
+    -fx-border-color: #38bdf8;
+    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.25), 12, 0.2, 0, 0);
+}
+
+/* Selected value text */
+.auth-combo .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 14px;
+    -fx-padding: 8 10;
+}
+
+/* Arrow icon */
+.auth-combo .arrow {
+    -fx-background-color: #cbd5e1;
+}
+
+/* Dropdown popup background */
+.combo-box-popup .list-view {
+    -fx-background-color: #020617;
+    -fx-border-color: #263244;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 4;
+}
+
+/* Dropdown items */
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: #020617;
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 14px;
+    -fx-padding: 12 14;
+}
+
+/* Hover item */
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #1e293b;
+    -fx-text-fill: #ffffff;
+}
+
+/* Selected item */
+.combo-box-popup .list-view .list-cell:selected {
+    -fx-background-color: #0284c7;
+    -fx-text-fill: #ffffff;
+}
+
+/* =========================
+   Checkbox and Links
+========================= */
+
+.auth-checkbox {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+}
+
+.auth-checkbox .box {
+    -fx-background-color: #020617;
+    -fx-border-color: #334155;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.auth-checkbox:selected .mark {
+    -fx-background-color: white;
+}
+
+.auth-checkbox:selected .box {
+    -fx-background-color: #38bdf8;
+    -fx-border-color: #38bdf8;
+}
+
+.auth-link {
+    -fx-text-fill: #38bdf8;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-border-color: transparent;
+    -fx-underline: false;
+}
+
+.auth-link:hover {
+    -fx-text-fill: #7dd3fc;
+    -fx-underline: true;
+}
+
+/* =========================
+   Button
+========================= */
+
+.primary-button {
+    -fx-background-color: linear-gradient(to right, #0284c7, #2563eb);
+    -fx-background-radius: 14;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-padding: 14 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.35), 18, 0.25, 0, 6);
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to right, #0369a1, #1d4ed8);
+    -fx-translate-y: -1;
+}
+
+.primary-button:pressed {
+    -fx-translate-y: 1;
+}
+
+/* =========================
+   Messages
+========================= */
+
+.error-message {
+    -fx-text-fill: #fb7185;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.success-message {
+    -fx-text-fill: #4ade80;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.bottom-text {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+}
+
+/* =========================
+   DatePicker
+========================= */
+
+.auth-date-picker {
+    -fx-background-color: #020617;
+    -fx-background-radius: 14;
+    -fx-border-color: #263244;
+    -fx-border-radius: 14;
+}
+
+.auth-date-picker .text-field {
+    -fx-background-color: #020617;
+    -fx-background-radius: 14 0 0 14;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #64748b;
+    -fx-padding: 12 15;
+    -fx-font-size: 14px;
+}
+
+.auth-date-picker .arrow-button {
+    -fx-background-color: #020617;
+    -fx-background-radius: 0 14 14 0;
+    -fx-border-color: transparent;
+    -fx-padding: 12;
+}
+
+.auth-date-picker .arrow-button .arrow {
+    -fx-background-color: #cbd5e1;
+}
+
+.auth-date-picker:hover {
+    -fx-border-color: #38bdf8;
+}
+
+.auth-date-picker:focused {
+    -fx-border-color: #38bdf8;
+    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.25), 12, 0.2, 0, 0);
+}
+
+/* =========================
+   Compact Sign Up Card
+========================= */
+
+.signup-card {
+    -fx-padding: 28 36 26 36;
+}
+
+.signup-card .auth-title {
+    -fx-font-size: 28px;
+}
+
+.signup-card .auth-subtitle {
+    -fx-font-size: 13px;
+}
+
+.signup-card .input-label {
+    -fx-font-size: 12px;
+}
+
+.signup-card .auth-input {
+    -fx-padding: 10 14;
+    -fx-font-size: 13px;
+    -fx-pref-height: 46;
+    -fx-min-height: 46;
+    -fx-max-height: 46;
+}
+
+.signup-card .auth-combo {
+    -fx-padding: 4 10;
+    -fx-pref-height: 46;
+    -fx-min-height: 46;
+    -fx-max-height: 46;
+}
+
+.signup-card .auth-combo .list-cell {
+    -fx-padding: 6 10;
+    -fx-font-size: 13px;
+}
+
+.signup-card .auth-date-picker {
+    -fx-pref-height: 46;
+    -fx-min-height: 46;
+    -fx-max-height: 46;
+}
+
+.signup-card .auth-date-picker .text-field {
+    -fx-padding: 10 14;
+    -fx-font-size: 13px;
+}
+
+.signup-card .auth-date-picker .arrow-button {
+    -fx-padding: 10;
+}
+
+.signup-card .primary-button {
+    -fx-padding: 12 18;
+    -fx-font-size: 14px;
+}
+
+.signup-card .bottom-text,
+.signup-card .auth-link {
+    -fx-font-size: 12px;
+}
+
+/* DatePicker popup */
+.date-picker-popup {
+    -fx-background-color: #111827;
+    -fx-border-color: #263244;
+}
+
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #020617;
+}
+
+.date-picker-popup .month-year-pane .label {
+    -fx-text-fill: #f8fafc;
+}
+
+.date-picker-popup .spinner .button {
+    -fx-background-color: transparent;
+}
+
+.date-picker-popup .spinner .button .left-arrow,
+.date-picker-popup .spinner .button .right-arrow {
+    -fx-background-color: #cbd5e1;
+}
+
+.date-picker-popup .calendar-grid {
+    -fx-background-color: #111827;
+}
+
+.date-picker-popup .day-cell {
+    -fx-background-color: #111827;
+    -fx-text-fill: #e5e7eb;
+    -fx-border-color: #1f2937;
+}
+
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #1e293b;
+}
+
+.date-picker-popup .day-cell:selected {
+    -fx-background-color: #0284c7;
+    -fx-text-fill: white;
+}
+
+.date-picker-popup .previous-month,
+.date-picker-popup .next-month {
+    -fx-text-fill: #64748b;
+}
