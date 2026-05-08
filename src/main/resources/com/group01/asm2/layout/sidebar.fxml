@@ -12,12 +12,12 @@
       prefWidth="60"
       minWidth="60"
       maxWidth="60"
-      spacing="6"
+      spacing="0"
       styleClass="sidebar"
       stylesheets="@../styles/layout/sidebar.css">
 
     <padding>
-        <Insets top="14" right="0" bottom="14" left="0"/>
+        <Insets top="0" right="0" bottom="0" left="0"/>
     </padding>
 
     <!-- Main navigation -->
@@ -25,7 +25,7 @@
             text="Explore"
             contentDisplay="TOP"
             maxWidth="Infinity"
-            prefHeight="48"
+            prefHeight="50"
             styleClass="nav-button"
             onAction="#showDashboard"/>
 
@@ -33,7 +33,7 @@
             text="Bid History"
             contentDisplay="TOP"
             maxWidth="Infinity"
-            prefHeight="48"
+            prefHeight="50"
             styleClass="nav-button"
             onAction="#showBidsHistory"/>
 
@@ -41,7 +41,7 @@
             text="Auction"
             contentDisplay="TOP"
             maxWidth="Infinity"
-            prefHeight="48"
+            prefHeight="50"
             styleClass="nav-button"
             onAction="#showAuctions"/>
 
@@ -67,7 +67,7 @@
             text="Profile"
             contentDisplay="TOP"
             maxWidth="Infinity"
-            prefHeight="48"
+            prefHeight="50"
             styleClass="nav-button"
             onAction="#showProfile"/>
 </VBox>

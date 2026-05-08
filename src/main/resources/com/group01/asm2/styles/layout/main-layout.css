@@ -3,15 +3,20 @@
 }
 
 .content-area {
-    -fx-background-color: #f4f7fb;
-    -fx-background-radius: 0 0 6px 0;
+    -fx-background-color: #1f2937;
+    -fx-background-radius: 0 0 4px 0;
+    -fx-background-insets: 0;
 }
 
 .content-area > * {
-    -fx-background-radius: 0 0 6px 0;
+
+    -fx-background-radius: 0 0 4px 0;
+    -fx-background-insets: 0;
 }
 
 .window-root.maximized .content-area,
 .window-root.maximized .content-area > * {
+
     -fx-background-radius: 0;
+    -fx-background-insets: 0;
 }

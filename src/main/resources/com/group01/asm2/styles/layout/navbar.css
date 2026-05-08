@@ -1,9 +1,7 @@
 /* Container bọc ngoài cùng */
 .navbar-container {
     -fx-background-color: #111827;
-    -fx-background-radius: 8px 8px 0 0;
-    -fx-border-color: #1f2937;
-    -fx-border-width: 0 0 1 0;
+    -fx-background-radius: 4px 4px 0 0;
 }
 
 .custom-tooltip {
@@ -165,17 +163,5 @@
 
 /* Trạng thái phóng to: Góc vuông */
 .navbar-container.maximized {
-    -fx-background-radius: 0;
-}
-
-.content-view {
-    /* Đặt màu nền mặc định cho các trang là trắng/sáng */
-    -fx-background-color: #ffffff;
-    /* Khi thu nhỏ, trang nội dung cũng phải bo 2 góc dưới 8px */
-    -fx-background-radius: 0 0 6px 6px;
-}
-
-/* Khi phóng to, trang nội dung trả về góc vuông */
-.window-root.maximized .content-view {
     -fx-background-radius: 0;
 }

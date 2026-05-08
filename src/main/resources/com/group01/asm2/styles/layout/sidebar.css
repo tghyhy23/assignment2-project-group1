@@ -1,20 +1,9 @@
 .sidebar {
     -fx-background-color: #111827;
-    -fx-border-color: rgba(255,255,255,0.08);
-    -fx-border-width: 0 1 0 0;
-    -fx-background-radius: 0 0 0 8px;
+    -fx-background-radius: 0 0 0 4px;
 }
 
 .window-root.maximized .sidebar {
-    -fx-background-radius: 0;
-}
-
-.content-area {
-    -fx-background-radius: 0 0 8px 0;
-}
-
-/* Trả về góc vuông khi phóng to */
-.window-root.maximized .content-area {
     -fx-background-radius: 0;
 }
 
@@ -62,7 +51,6 @@
 }
 
 .nav-button.active {
-    -fx-background-color: #1f2937;
     -fx-background-radius: 0;
     -fx-border-color: #7c6cff;
     -fx-border-width: 0 0 0 3;

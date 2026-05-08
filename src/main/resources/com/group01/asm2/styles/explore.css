@@ -1,6 +1,6 @@
 /* Màu nền tổng thể của trang Explore */
 .explore-root {
-    -fx-background-color: #1f2937;
+-fx-background-color: #1f2937;
 }
 
 /* Tiêu đề góc trái trên */
@@ -87,7 +87,7 @@
 
 .feature-title {
     -fx-text-fill: white;
-    -fx-font-size: 22px;
+    -fx-font-size: 24px;
     -fx-font-family: "Segoe UI", Arial, sans-serif;
     -fx-padding: 0 0 5 0; /* Thu nhỏ khoảng cách dưới */
 }
@@ -119,14 +119,14 @@
 /* Thông tin trạng thái */
 .feature-status {
     -fx-text-fill: white;
-    -fx-font-size: 15px;
+    -fx-font-size: 14px;
     -fx-padding: 8 0 0 0;
 }
 
 .badge-top-seller {
     -fx-background-color: rgba(255, 255, 255, 0.1);
     -fx-text-fill: #acb2b8;
-    -fx-font-size: 11px;
+    -fx-font-size: 12px;
     -fx-padding: 2 6 2 6;
     -fx-background-radius: 2;
     -fx-max-width: -Infinity;
@@ -137,7 +137,7 @@
 /* ======================================= */
 .original-price {
     -fx-text-fill: #acb2b8;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-strikethrough: false; /* Đã gỡ bỏ gạch ngang vì đây là Giá khởi điểm */
 }
 
@@ -152,8 +152,8 @@
 /* ======================================= */
 .dot {
     -fx-background-color: rgba(255, 255, 255, 0.2);
-    -fx-pref-width: 15px;
-    -fx-pref-height: 9px;
+    -fx-pref-width: 14px;
+    -fx-pref-height: 8px;
     -fx-background-radius: 2;
     -fx-cursor: hand;
 }
