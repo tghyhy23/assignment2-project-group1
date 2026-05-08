@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group01.asm2.controllers.LoginController"
+            prefWidth="1100"
+            prefHeight="720"
+            stylesheets="@../styles/auth.css"
+            styleClass="auth-root">
+
+    <children>
+        <HBox AnchorPane.topAnchor="0"
+              AnchorPane.bottomAnchor="0"
+              AnchorPane.leftAnchor="0"
+              AnchorPane.rightAnchor="0">
+
+            <!-- LEFT BRAND SECTION -->
+            <VBox styleClass="auth-left-panel"
+                  prefWidth="500"
+                  alignment="CENTER"
+                  spacing="22">
+
+                <Label text="BidBlitz" styleClass="brand-title"/>
+
+                <Label text="Auction smarter. Bid faster. Win better."
+                       styleClass="brand-subtitle"
+                       wrapText="true"
+                       maxWidth="340"/>
+            </VBox>
+
+            <!-- RIGHT LOGIN SECTION -->
+            <VBox styleClass="auth-right-panel"
+                  alignment="CENTER">
+
+                <VBox styleClass="auth-card"
+                      spacing="18"
+                      maxWidth="430">
+
+                    <VBox spacing="6">
+                        <Label text="Welcome Back" styleClass="auth-title"/>
+                        <Label text="Login to continue using BidBlitz"
+                               styleClass="auth-subtitle"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Email Address" styleClass="input-label"/>
+                        <TextField fx:id="emailField"
+                                   promptText="Enter your email"
+                                   styleClass="auth-input"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Password" styleClass="input-label"/>
+                        <PasswordField fx:id="passwordField"
+                                       promptText="Enter your password"
+                                       styleClass="auth-input"/>
+                    </VBox>
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <CheckBox fx:id="rememberMeCheckBox"
+                                  text="Remember me"
+                                  styleClass="auth-checkbox"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <Hyperlink text="Forgot password?"
+                                   styleClass="auth-link"/>
+                    </HBox>
+
+                    <Label fx:id="messageLabel"
+                           text=""
+                           styleClass="error-message"
+                           wrapText="true"/>
+
+                    <Button text="Login"
+                            onAction="#handleLogin"
+                            maxWidth="Infinity"
+                            styleClass="primary-button"/>
+
+                    <HBox alignment="CENTER" spacing="5">
+                        <Label text="Don't have an account?"
+                               styleClass="bottom-text"/>
+                        <Hyperlink text="Sign up"
+                                   onAction="#goToSignup"
+                                   styleClass="auth-link"/>
+                    </HBox>
+
+                </VBox>
+            </VBox>
+
+        </HBox>
+    </children>
+</AnchorPane>
