@@ -1,0 +1,167 @@
+/* Màu nền tổng thể của trang Explore */
+.explore-root {
+    -fx-background-color: #1f2937;
+}
+
+/* Tiêu đề góc trái trên */
+.section-title {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 2, 0, 1, 1);
+}
+
+/* ======================================= */
+/* 1. NÚT MŨI TÊN (CAROUSEL ARROWS)        */
+/* ======================================= */
+.carousel-arrow {
+    -fx-background-color: transparent;
+    -fx-pref-width: 50px;
+    -fx-pref-height: 100px;
+    -fx-cursor: hand;
+}
+
+.arrow-icon {
+    -fx-fill: rgba(255, 255, 255, 0.4);
+    -fx-scale-x: 2.5;
+    -fx-scale-y: 2.5;
+}
+
+.carousel-arrow:hover .arrow-icon {
+    -fx-fill: white;
+    -fx-scale-x: 2.8;
+    -fx-scale-y: 2.8;
+}
+
+/* Hiệu ứng khi bấm chuột: Lún và mờ đi một chút */
+.carousel-arrow:pressed .arrow-icon {
+    -fx-fill: rgba(255, 255, 255, 0.6);
+    -fx-scale-x: 2.4;
+    -fx-scale-y: 2.4;
+    -fx-translate-y: 2px;
+}
+
+/* ======================================= */
+/* 2. MAIN FEATURE CARD & BACKGROUNDS      */
+/* ======================================= */
+.feature-card {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 15, 0, 0, 5);
+}
+
+/* Vùng chứa ảnh chính mặc định */
+.feature-main-image {
+    -fx-background-color: #202d39;
+}
+
+/* MÀU GIẢ LẬP ẢNH - SẢN PHẨM 1 */
+.p1-main { -fx-background-color: linear-gradient(to right, #b92b27, #1565C0); }
+.p1-t1 { -fx-background-color: #2a475e; }
+.p1-t2 { -fx-background-color: #171a21; }
+.p1-t3 { -fx-background-color: #3d4450; }
+.p1-t4 { -fx-background-color: #202d39; }
+
+/* MÀU GIẢ LẬP ẢNH - SẢN PHẨM 2 */
+.p2-main { -fx-background-color: linear-gradient(to right, #fcee0a, #00f0ff); }
+.p2-t1 { -fx-background-color: #b2a600; }
+.p2-t2 { -fx-background-color: #00a8b2; }
+.p2-t3 { -fx-background-color: #807700; }
+.p2-t4 { -fx-background-color: #007880; }
+
+/* MÀU GIẢ LẬP ẢNH - SẢN PHẨM 3 */
+.p3-main { -fx-background-color: linear-gradient(to right, #cda34f, #222222); }
+.p3-t1 { -fx-background-color: #8f7237; }
+.p3-t2 { -fx-background-color: #52411f; }
+.p3-t3 { -fx-background-color: #333333; }
+.p3-t4 { -fx-background-color: #111111; }
+
+
+/* ======================================= */
+/* 3. KHU VỰC THÔNG TIN (BÊN PHẢI)         */
+/* ======================================= */
+.feature-info-panel {
+    -fx-background-color: #0f1922;
+    -fx-padding: 20 20 15 20;
+    -fx-spacing: 12;
+}
+
+.feature-title {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-padding: 0 0 5 0; /* Thu nhỏ khoảng cách dưới */
+}
+
+/* THÊM STYLE CHO SỐ LƯỢNG BIDS */
+.bids-label {
+    -fx-text-fill: #a4d007;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 15 0;
+}
+
+/* Lưới 4 ảnh Thumbnails nhỏ */
+.feature-thumbnails {
+    -fx-pref-height: 160px;
+}
+
+.thumb {
+    -fx-cursor: hand;
+}
+
+/* Hiệu ứng hover có viền trắng sáng lên giống Steam */
+.thumb:hover {
+    -fx-opacity: 1.0;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 1.5;
+}
+
+/* Thông tin trạng thái */
+.feature-status {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-padding: 8 0 0 0;
+}
+
+.badge-top-seller {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-text-fill: #acb2b8;
+    -fx-font-size: 11px;
+    -fx-padding: 2 6 2 6;
+    -fx-background-radius: 2;
+    -fx-max-width: -Infinity;
+}
+
+/* ======================================= */
+/* 4. CỤM GIÁ TIỀN                           */
+/* ======================================= */
+.original-price {
+    -fx-text-fill: #acb2b8;
+    -fx-font-size: 13px;
+    -fx-strikethrough: false; /* Đã gỡ bỏ gạch ngang vì đây là Giá khởi điểm */
+}
+
+.final-price {
+    -fx-text-fill: #a4d007;
+    -fx-font-size: 18px; /* Tăng kích thước cho nổi bật */
+    -fx-font-weight: bold;
+}
+
+/* ======================================= */
+/* 5. CHẤM CHUYỂN TRANG (PAGINATION)       */
+/* ======================================= */
+.dot {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-pref-width: 15px;
+    -fx-pref-height: 9px;
+    -fx-background-radius: 2;
+    -fx-cursor: hand;
+}
+
+.dot:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.4);
+}
+
+.dot.active {
+    -fx-background-color: rgba(255, 255, 255, 0.8);
+}
