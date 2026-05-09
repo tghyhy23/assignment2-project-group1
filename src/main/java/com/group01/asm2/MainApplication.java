@@ -1,6 +1,7 @@
 package com.group01.asm2;
 
 import com.group01.asm2.db.PostgreSQLInitializer;
+import com.group01.asm2.seeds.DatabaseSeeder;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -53,7 +54,9 @@ public class MainApplication extends Application {
     public static void main(String[] args) {
         // Khởi tạo Database trước khi chạy giao diện
         try {
-            PostgreSQLInitializer.init();
+            PostgreSQLInitializer.initSchema();
+            DatabaseSeeder.seedAll();
+
         } catch (Exception e) {
             System.err.println("Lỗi khởi tạo Database: " + e.getMessage());
         }
