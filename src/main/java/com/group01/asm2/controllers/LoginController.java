@@ -17,13 +17,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-/**
- * @author <your group number>
- */
 public class LoginController {
-
     @FXML
-    private TextField emailField;
+    private TextField usernameField;
 
     @FXML
     private PasswordField passwordField;
@@ -38,14 +34,12 @@ public class LoginController {
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        String email = emailField.getText();
+        String username = usernameField.getText();
         String password = passwordField.getText();
 
         try {
-            Person loggedInUser = authService.login(email, password);
-
+            Person loggedInUser = authService.login(username, password);
             showSuccess("Login successful. Welcome back, " + loggedInUser.getFullName() + "!");
-
             navigateAfterLogin(event, loggedInUser);
 
         } catch (AppException exception) {

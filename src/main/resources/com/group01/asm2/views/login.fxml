@@ -47,9 +47,9 @@
                     </VBox>
 
                     <VBox spacing="8">
-                        <Label text="Email Address" styleClass="input-label"/>
-                        <TextField fx:id="emailField"
-                                   promptText="Enter your email"
+                        <Label text="Username" styleClass="input-label"/>
+                        <TextField fx:id="usernameField"
+                                   promptText="Enter your username"
                                    styleClass="auth-input"/>
                     </VBox>
 

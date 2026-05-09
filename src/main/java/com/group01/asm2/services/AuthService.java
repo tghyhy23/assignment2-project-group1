@@ -23,14 +23,12 @@ public class AuthService {
         seedDemoAccounts();
     }
 
-    public Person login(String emailInput, String passwordInput) {
-        String email = normalizeEmail(emailInput);
-
+    public Person login(String usernameInput, String passwordInput) {
         if (passwordInput == null || passwordInput.isBlank()) {
             throw AppException.validation("Password is required.");
         }
 
-        DemoAccount demoAccount = demoAccounts.get(email);
+        DemoAccount demoAccount = demoAccounts.get(usernameInput);
 
         if (demoAccount == null) {
             throw AppException.authentication("Invalid email or password.");

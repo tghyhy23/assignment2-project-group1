@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group01.asm2.controllers.AuthLayoutController"
+            prefWidth="1200"
+            prefHeight="750"
+            stylesheets="@../styles/layout/main-layout.css"
+            style="-fx-background-color: transparent;">
+
+    <top>
+        <fx:include fx:id="navbar" source="navbar.fxml"/>
+    </top>
+
+    <center>
+        <AnchorPane fx:id="contentArea" styleClass="content-area"/>
+    </center>
+
+</BorderPane>
