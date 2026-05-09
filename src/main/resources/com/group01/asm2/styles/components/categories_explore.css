@@ -1,0 +1,103 @@
+/* ======================================= */
+/* 1. TIÊU ĐỀ & CHUNG                      */
+/* ======================================= */
+.categories-container {
+    -fx-padding: 0 0 20 0; /* Cách một chút ở dưới */
+}
+
+.section-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 2, 0, 1, 1);
+    -fx-padding: 0 0 0 50;
+}
+
+/* ======================================= */
+/* 2. NÚT MŨI TÊN (CAROUSEL ARROWS)        */
+/* ======================================= */
+.carousel-arrow {
+    -fx-background-color: transparent;
+    -fx-pref-width: 50px;
+    -fx-pref-height: 100px;
+    -fx-cursor: hand;
+}
+
+.arrow-icon {
+    -fx-fill: rgba(255, 255, 255, 0.4);
+    -fx-scale-x: 2.5;
+    -fx-scale-y: 2.5;
+}
+
+.carousel-arrow:hover .arrow-icon {
+    -fx-fill: white;
+    -fx-scale-x: 2.8;
+    -fx-scale-y: 2.8;
+}
+
+.carousel-arrow:pressed .arrow-icon {
+    -fx-fill: rgba(255, 255, 255, 0.6);
+    -fx-scale-x: 2.4;
+    -fx-scale-y: 2.4;
+    -fx-translate-y: 2px;
+}
+
+/* ======================================= */
+/* 3. CHẤM CHUYỂN TRANG (PAGINATION DOTS)  */
+/* QUAN TRỌNG: Dùng -fx-fill thay vì background-color */
+/* ======================================= */
+.dot {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+        -fx-pref-width: 14px;
+        -fx-pref-height: 8px;
+        -fx-background-radius: 2;
+        -fx-cursor: hand;
+}
+
+.dot:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.4);
+}
+
+.dot.active {
+    -fx-background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* ======================================= */
+/* 4. THẺ DANH MỤC & HOVER ANIMATION       */
+/* ======================================= */
+.category-card-root {
+    -fx-min-width: 240px; /* Thẻ to ra bề ngang (nhích ra phía mũi tên) */
+    -fx-min-height: 220px; /* Thẻ thấp lại */
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 5);
+}
+
+.category-image-container {
+    -fx-background-radius: 4;
+}
+
+/* Các màu nền Gradient giả lập */
+.cat-bg-1 { -fx-background-color: linear-gradient(to bottom right, #2b7095, #122938); }
+.cat-bg-2 { -fx-background-color: linear-gradient(to bottom right, #513075, #1a1b3f); }
+.cat-bg-3 { -fx-background-color: linear-gradient(to bottom right, #244b60, #0d1e2b); }
+.cat-bg-4 { -fx-background-color: linear-gradient(to bottom right, #546a78, #2a3c48); }
+
+
+/* Container chứa chữ */
+.category-title-container {
+    -fx-background-color: white;
+    -fx-background-radius: 2;
+    -fx-padding: 8 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 2);
+    -fx-max-width: 160px;
+    -fx-max-height: 34px;
+    -fx-alignment: center;
+}
+
+.category-name {
+    -fx-text-fill: #1a4a6e;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}

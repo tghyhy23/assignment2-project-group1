@@ -10,7 +10,7 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.group01.asm2.controllers.BidsHistoryController"
       spacing="16"
-      stylesheets="@../styles/bids_history.css"
+      stylesheets="@../styles/views/bids_history.css"
       styleClass="bids-root">
 
     <padding>
