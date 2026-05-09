@@ -1062,3 +1062,36 @@
 .modal-scroll-pane .scroll-bar:vertical .track {
     -fx-background-color: transparent;
 }
+
+/* Tùy chỉnh ScrollPane trang Profile */
+.profile-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+/* Đổi viewport thành trong suốt để ăn màu Main Layout (#0b1120) */
+.profile-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Khử màu nền container bên trong */
+.profile-container {
+    -fx-background-color: transparent;
+}
+
+/* Làm đẹp thanh cuộn dọc (Scrollbar) theo phong cách Dark Theme */
+.profile-scroll .scroll-bar:vertical {
+    -fx-background-color: #0b1120; /* Màu nền app */
+    -fx-pref-width: 12px;
+}
+
+.profile-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #3b4b5e;
+    -fx-background-radius: 6px;
+}
+
+.profile-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #556a84;
+}

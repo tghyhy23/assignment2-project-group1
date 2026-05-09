@@ -116,6 +116,7 @@ public class SidebarController {
         shape.setFill(Color.TRANSPARENT);
         shape.setStroke(Color.web("#DCE6FF"));
         shape.setStrokeWidth(1.8);
+        shape.getStyleClass().add("icon-shape");
     }
 
     private StackPane createDashboardIcon() {

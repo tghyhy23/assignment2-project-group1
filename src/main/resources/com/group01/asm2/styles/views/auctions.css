@@ -1,0 +1,85 @@
+/* =========================
+   Root
+========================= */
+.auctions-root {
+    -fx-background-color: #0b1120;
+    -fx-font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+/* =========================
+   Typography
+========================= */
+.page-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+}
+
+.page-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+}
+
+/* =========================
+   Content Container
+========================= */
+.content-card {
+    -fx-background-color: #111827;
+    -fx-background-radius: 22;
+    -fx-border-radius: 22;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1;
+    -fx-padding: 22;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 18, 0.15, 0, 7);
+}
+
+/* =========================
+   Modern Tables
+========================= */
+.modern-table {
+    -fx-background-color: transparent;
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+}
+
+.modern-table .column-header-background {
+    -fx-background-color: #1e293b;
+    -fx-background-radius: 14 14 0 0;
+}
+
+.modern-table .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 10 8;
+}
+
+.modern-table .column-header .label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+}
+
+.modern-table .table-row-cell {
+    -fx-background-color: #0f172a;
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.04) transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.modern-table .table-row-cell:odd {
+    -fx-background-color: #111827;
+}
+
+.modern-table .table-row-cell:selected {
+    -fx-background-color: rgba(56, 189, 248, 0.18);
+}
+
+.modern-table .table-cell {
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 12px;
+    -fx-padding: 10 8;
+    -fx-alignment: CENTER;
+    -fx-text-alignment: CENTER;
+}
