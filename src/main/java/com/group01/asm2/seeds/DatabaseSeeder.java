@@ -15,9 +15,9 @@ public final class DatabaseSeeder {
             new PersonSeed()
             // Later:
             // new AuctionSeed(),
+            // new ItemSeed(),
             // new BidSeed(),
-            // new TransactionSeed(),
-            // new TopUpRequestSeed()
+            // new TransactionSeed()
         );
 
         Connection conn = null;
@@ -31,7 +31,6 @@ public final class DatabaseSeeder {
             }
 
             conn.commit();
-
             System.out.println("Database seed completed successfully.");
 
         } catch (Exception e) {

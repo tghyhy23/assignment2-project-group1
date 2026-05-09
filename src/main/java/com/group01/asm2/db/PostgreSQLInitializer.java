@@ -36,7 +36,7 @@ public final class PostgreSQLInitializer {
                 phone VARCHAR(30),
                 username VARCHAR(80) NOT NULL,
 
-                password_hash TEXT NOT NULL,
+                password TEXT NOT NULL,
 
                 role VARCHAR(40) NOT NULL CHECK (
                     role IN (

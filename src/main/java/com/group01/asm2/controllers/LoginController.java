@@ -39,6 +39,16 @@ public class LoginController {
 
         try {
             Person loggedInUser = authService.login(username, password);
+
+            System.out.println("===== LOGIN SUCCESS =====");
+            System.out.println("ID: " + loggedInUser.getId());
+            System.out.println("Full name: " + loggedInUser.getFullName());
+            System.out.println("Username: " + loggedInUser.getUsername());
+            System.out.println("Email: " + loggedInUser.getEmail());
+            System.out.println("Role: " + loggedInUser.getRole());
+            System.out.println("Password hash: " + loggedInUser.getpassword());
+            System.out.println("=========================");
+
             showSuccess("Login successful. Welcome back, " + loggedInUser.getFullName() + "!");
             navigateAfterLogin(event, loggedInUser);
 
@@ -56,27 +66,11 @@ public class LoginController {
     }
 
     private void navigateAfterLogin(ActionEvent event, Person loggedInUser) {
-        UserRole role = loggedInUser.getRole();
-
-        if (role == UserRole.AUCTION_ADMINISTRATOR) {
-            showSuccess("Auction administrator login successful.");
-            // Later:
-            // switchScene(event, "/com/group01/asm2/views/auction-management.fxml", "Cannot open Auction Management page.");
-            return;
-        }
-
-        if (role == UserRole.SYSTEM_ADMINISTRATOR) {
-            showSuccess("System administrator login successful.");
-            // Later:
-            // switchScene(event, "/com/group01/asm2/views/system-management.fxml", "Cannot open System Management page.");
-            return;
-        }
-
-        if (role == UserRole.BUYER || role == UserRole.SELLER) {
-            showSuccess("User login successful.");
-            // Later:
-            // switchScene(event, "/com/group01/asm2/views/explore.fxml", "Cannot open Explore page.");
-        }
+        switchScene(
+            event,
+            "/com/group01/asm2/layout/main-layout.fxml",
+            "Cannot open the main page."
+        );
     }
 
     private void switchScene(ActionEvent event, String fxmlPath, String errorMessage) {

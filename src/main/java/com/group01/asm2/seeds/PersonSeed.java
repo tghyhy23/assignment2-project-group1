@@ -15,7 +15,7 @@ public class PersonSeed implements Seeder {
 
     @Override
     public void seed(Connection conn) throws Exception {
-        insertMockPerson(
+        insertPerson(
             conn,
             "Buyer One",
             LocalDate.of(2000, 1, 15),
@@ -28,7 +28,7 @@ public class PersonSeed implements Seeder {
             0
         );
 
-        insertMockPerson(
+        insertPerson(
             conn,
             "Buyer Two",
             LocalDate.of(2001, 5, 20),
@@ -41,7 +41,7 @@ public class PersonSeed implements Seeder {
             0
         );
 
-        insertMockPerson(
+        insertPerson(
             conn,
             "Seller One",
             LocalDate.of(1998, 8, 10),
@@ -54,7 +54,7 @@ public class PersonSeed implements Seeder {
             12
         );
 
-        insertMockPerson(
+        insertPerson(
             conn,
             "Auction Admin",
             LocalDate.of(1995, 3, 12),
@@ -67,7 +67,7 @@ public class PersonSeed implements Seeder {
             0
         );
 
-        insertMockPerson(
+        insertPerson(
             conn,
             "System Admin",
             LocalDate.of(1992, 11, 2),
@@ -81,7 +81,7 @@ public class PersonSeed implements Seeder {
         );
     }
 
-    private void insertMockPerson(
+    private void insertPerson(
         Connection conn,
         String fullName,
         LocalDate dateOfBirth,
@@ -100,7 +100,7 @@ public class PersonSeed implements Seeder {
                 email,
                 phone,
                 username,
-                password_hash,
+                password,
                 role,
                 balance,
                 rating,
@@ -110,23 +110,28 @@ public class PersonSeed implements Seeder {
             WHERE NOT EXISTS (
                 SELECT 1
                 FROM persons
-                WHERE LOWER(email) = LOWER(?)
+                WHERE LOWER(username) = LOWER(?)
+                   OR LOWER(email) = LOWER(?)
             )
         """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            String normalizedEmail = email.trim().toLowerCase();
+            String normalizedUsername = username.trim().toLowerCase();
+
             ps.setString(1, fullName);
             ps.setDate(2, Date.valueOf(dateOfBirth));
-            ps.setString(3, email.trim().toLowerCase());
+            ps.setString(3, normalizedEmail);
             ps.setString(4, phone);
-            ps.setString(5, username.trim().toLowerCase());
+            ps.setString(5, normalizedUsername);
             ps.setString(6, PasswordHasher.hash(DEFAULT_PASSWORD));
             ps.setString(7, role.name());
             ps.setBigDecimal(8, balance);
             ps.setDouble(9, rating);
             ps.setInt(10, completedSalesCount);
 
-            ps.setString(11, email.trim().toLowerCase());
+            ps.setString(11, normalizedUsername);
+            ps.setString(12, normalizedEmail);
 
             ps.executeUpdate();
         }

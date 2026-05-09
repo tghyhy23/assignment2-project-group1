@@ -12,7 +12,7 @@ public class Person {
     private String email;
     private String phone;
     private String username;
-    private String passwordHash;
+    private String password;
     private UserRole role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -21,7 +21,7 @@ public class Person {
     }
 
     public Person(Integer id, String fullName, LocalDate dateOfBirth, String email, String phone,
-                  String username, String passwordHash, UserRole role,
+                  String username, String password, UserRole role,
                   LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.fullName = fullName;
@@ -29,7 +29,7 @@ public class Person {
         this.email = email;
         this.phone = phone;
         this.username = username;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.role = role;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -107,12 +107,12 @@ public class Person {
         this.username = username;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getpassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setpassword(String password) {
+        this.password = password;
     }
 
     public UserRole getRole() {

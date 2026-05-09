@@ -20,10 +20,10 @@ public class User extends Person {
     }
 
     public User(Integer id, String fullName, LocalDate dateOfBirth, String email, String phone,
-                String username, String passwordHash, UserRole role,
+                String username, String password, UserRole role,
                 LocalDateTime createdAt, LocalDateTime updatedAt,
                 BigDecimal balance, double rating, int completedSalesCount) {
-        super(id, fullName, dateOfBirth, email, phone, username, passwordHash,
+        super(id, fullName, dateOfBirth, email, phone, username, password,
             validateUserRole(role), createdAt, updatedAt);
 
         this.balance = balance != null ? balance : BigDecimal.ZERO;
