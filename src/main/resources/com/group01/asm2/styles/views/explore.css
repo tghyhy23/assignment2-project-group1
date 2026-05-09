@@ -1,0 +1,54 @@
+/* ======================================= */
+/* TÙY CHỈNH SCROLLPANE CHO TRANG EXPLORE  */
+/* ======================================= */
+.explore-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+/* Khử màu nền mặc định của viewport bên trong ScrollPane */
+.explore-scroll > .viewport {
+    -fx-background-color: #1f2937; /* Trùng với màu nền của explore-root */
+}
+
+/* (Tùy chọn) Làm đẹp thanh cuộn dọc (Scrollbar) theo phong cách Dark Theme */
+.explore-scroll .scroll-bar:vertical {
+    -fx-background-color: #1f2937;
+    -fx-pref-width: 12px;
+}
+
+.explore-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #3b4b5e;
+    -fx-background-radius: 6px;
+}
+
+.explore-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #556a84;
+}
+
+/* ======================================= */
+/* 6. WELCOME BANNER ANNOUNCEMENT          */
+/* ======================================= */
+.welcome-banner {
+    /* Nền Gradient chéo, bạn có thể thay đổi mã màu nếu muốn đổi tông */
+    -fx-background-color: linear-gradient(to right bottom, #1e3c72, #2a5298);
+    -fx-background-radius: 4px; /* Bo góc nhẹ cho giống các card khác */
+    -fx-min-height: 500px; /* Độ cao choán ngợp của banner */
+}
+
+/* Chữ tiêu đề to */
+.banner-title {
+    -fx-text-fill: white;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    /* Hiệu ứng viền bóng đen mỏng giúp chữ nổi bần bật trên nền màu */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 2, 0, 1, 1);
+}
+
+/* Chữ mô tả nhỏ phía dưới */
+.banner-subtitle {
+    -fx-text-fill: rgba(255, 255, 255, 0.85); /* Trắng hơi mờ */
+    -fx-font-size: 16px;
+}

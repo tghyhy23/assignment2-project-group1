@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.group01.asm2.controllers.FeatureController"
+      stylesheets="@../../styles/components/feature.css"
+      spacing="10">
+
+    <Label text="Featured &amp; Recommended" styleClass="section-title"/>
+
+    <HBox alignment="CENTER" spacing="0" VBox.vgrow="ALWAYS" maxHeight="400">
+
+        <Button styleClass="carousel-arrow" onAction="#handlePrevSlide">
+            <graphic>
+                <SVGPath content="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" styleClass="arrow-icon"/>
+            </graphic>
+        </Button>
+
+        <HBox styleClass="feature-card" HBox.hgrow="ALWAYS">
+
+            <StackPane fx:id="mainImagePane" styleClass="feature-main-image" HBox.hgrow="ALWAYS" />
+
+            <VBox styleClass="feature-info-panel" prefWidth="380" minWidth="380">
+                <Label fx:id="featureTitle" text="Tên sản phẩm" styleClass="feature-title" wrapText="true" minHeight="-Infinity"/>
+
+                <Label fx:id="bidsCountLabel" text="0 Bids" styleClass="bids-label"/>
+
+                <GridPane minHeight="160" hgap="8" vgap="8" styleClass="feature-thumbnails">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50"/>
+                        <ColumnConstraints percentWidth="50"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints percentHeight="50"/>
+                        <RowConstraints percentHeight="50"/>
+                    </rowConstraints>
+
+                    <StackPane fx:id="thumb1" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="thumb"/>
+                    <StackPane fx:id="thumb2" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="thumb"/>
+                    <StackPane fx:id="thumb3" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="thumb"/>
+                    <StackPane fx:id="thumb4" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="thumb"/>
+                </GridPane>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <VBox spacing="4" alignment="CENTER_LEFT">
+                    <Label fx:id="originalPrice" text="Original Price: 0đ" styleClass="original-price"/>
+                    <Label fx:id="finalPrice" text="Current Price: 0đ" styleClass="final-price"/>
+                </VBox>
+            </VBox>
+        </HBox>
+
+        <Button styleClass="carousel-arrow" onAction="#handleNextSlide">
+            <graphic>
+                <SVGPath content="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" styleClass="arrow-icon"/>
+            </graphic>
+        </Button>
+    </HBox>
+
+    <HBox fx:id="paginationContainer" alignment="CENTER" spacing="4" styleClass="pagination-dots">
+        <padding><Insets top="10"/></padding>
+    </HBox>
+
+</VBox>

@@ -13,7 +13,6 @@ import javafx.stage.Popup;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 public class ProfileController {
 
@@ -395,7 +394,7 @@ public class ProfileController {
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getStyleClass().add("profile-dialog");
         dialogPane.getStylesheets().add(
-                getClass().getResource("/com/group01/asm2/styles/profile.css").toExternalForm()
+                getClass().getResource("/com/group01/asm2/styles/views/profile.css").toExternalForm()
         );
 
         ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
@@ -478,7 +477,7 @@ public class ProfileController {
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getStyleClass().add("profile-dialog");
         dialogPane.getStylesheets().add(
-                getClass().getResource("/com/group01/asm2/styles/profile.css").toExternalForm()
+                getClass().getResource("/com/group01/asm2/styles/views/profile.css").toExternalForm()
         );
 
         ButtonType submitButtonType = new ButtonType("Submit Request", ButtonBar.ButtonData.OK_DONE);

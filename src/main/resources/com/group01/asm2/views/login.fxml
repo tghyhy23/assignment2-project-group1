@@ -9,7 +9,7 @@
             fx:controller="com.group01.asm2.controllers.LoginController"
             prefWidth="1100"
             prefHeight="720"
-            stylesheets="@../styles/auth.css"
+            stylesheets="@../styles/views/auth.css"
             styleClass="auth-root">
 
     <children>

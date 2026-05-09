@@ -17,7 +17,7 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group01.asm2.controllers.ProfileController"
-            stylesheets="@../styles/profile.css"
+            stylesheets="@../styles/views/profile.css"
             styleClass="profile-root">
 
     <center>

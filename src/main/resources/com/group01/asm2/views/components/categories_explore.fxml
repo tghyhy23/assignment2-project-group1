@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.group01.asm2.controllers.CategoriesController"
+      stylesheets="@../../styles/components/categories_explore.css"
+      spacing="10" styleClass="categories-container">
+
+    <Label text="BROWSE BY CATEGORY" styleClass="section-title"/>
+
+    <HBox alignment="CENTER" spacing="0" VBox.vgrow="ALWAYS">
+
+        <Button styleClass="carousel-arrow" onAction="#handlePrevSlide">
+            <graphic>
+                <SVGPath content="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" styleClass="arrow-icon"/>
+            </graphic>
+        </Button>
+
+        <HBox fx:id="categoryItemsContainer" spacing="20" HBox.hgrow="ALWAYS" alignment="CENTER">
+        </HBox>
+
+        <Button styleClass="carousel-arrow" onAction="#handleNextSlide">
+            <graphic>
+                <SVGPath content="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" styleClass="arrow-icon"/>
+            </graphic>
+        </Button>
+    </HBox>
+
+    <HBox fx:id="paginationContainer" alignment="CENTER" spacing="4" styleClass="pagination-dots">
+        <padding>
+            <Insets top="10"/>
+        </padding>
+    </HBox>
+
+</VBox>
