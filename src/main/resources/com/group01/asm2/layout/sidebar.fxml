@@ -45,22 +45,6 @@
             styleClass="nav-button"
             onAction="#showAuctions"/>
 
-<!--    <Button fx:id="paymentsButton"-->
-<!--            text="Payments"-->
-<!--            contentDisplay="TOP"-->
-<!--            maxWidth="Infinity"-->
-<!--            prefHeight="48"-->
-<!--            styleClass="nav-button"-->
-<!--            onAction="#showPayments"/>-->
-
-<!--    <Button fx:id="reportsButton"-->
-<!--            text="Reports"-->
-<!--            contentDisplay="TOP"-->
-<!--            maxWidth="Infinity"-->
-<!--            prefHeight="48"-->
-<!--            styleClass="nav-button"-->
-<!--            onAction="#showReports"/>-->
-
     <Region VBox.vgrow="ALWAYS"/>
 
     <Button fx:id="profileButton"

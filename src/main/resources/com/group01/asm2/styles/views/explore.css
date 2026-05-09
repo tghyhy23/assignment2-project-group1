@@ -10,12 +10,12 @@
 
 /* Khử màu nền mặc định của viewport bên trong ScrollPane */
 .explore-scroll > .viewport {
-    -fx-background-color: #1f2937; /* Trùng với màu nền của explore-root */
+    -fx-background-color: transparent; /* Trùng với màu nền của explore-root */
 }
 
 /* (Tùy chọn) Làm đẹp thanh cuộn dọc (Scrollbar) theo phong cách Dark Theme */
 .explore-scroll .scroll-bar:vertical {
-    -fx-background-color: #1f2937;
+    -fx-background-color: #0b1120;
     -fx-pref-width: 12px;
 }
 

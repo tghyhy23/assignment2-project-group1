@@ -1,6 +1,8 @@
 package com.group01.asm2.controllers;
 
 import javafx.beans.binding.Bindings;
+import com.group01.asm2.utils.ScrollUtils;
+import javafx.scene.control.ScrollPane;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -142,6 +144,7 @@ public class ProfileController {
 
     @FXML private HBox summaryRow;
     @FXML private HBox walletPanelRow;
+    @FXML private ScrollPane profileScrollPane;
 
     // =========================
     // Mock User Data
@@ -168,6 +171,7 @@ public class ProfileController {
 
     @FXML
     public void initialize() {
+        ScrollUtils.makeSmooth(profileScrollPane);
         loadMockData();
         setupProfileHeader();
         setupTables();

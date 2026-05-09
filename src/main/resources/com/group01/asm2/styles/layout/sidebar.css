@@ -52,10 +52,10 @@
 
 .nav-button.active {
     -fx-background-radius: 0;
-    -fx-border-color: #7c6cff;
+    -fx-border-color: #38bdf8;
     -fx-border-width: 0 0 0 3;
     -fx-border-radius: 0;
-    -fx-text-fill: #8b7cff;
+    -fx-text-fill: #38bdf8;
     -fx-effect: none;
 }
 
@@ -73,5 +73,5 @@
 }
 
 .nav-button.active .icon-shape {
-    -fx-stroke: #8b7cff;
+    -fx-stroke: #38bdf8;
 }

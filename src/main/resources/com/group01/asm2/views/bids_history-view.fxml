@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
@@ -18,7 +17,18 @@
     </padding>
 
     <Label text="Bid History" styleClass="page-title"/>
-    <Label text="Bid History" styleClass="page-subtitle"/>
+    <Label text="View and track your current and past bids." styleClass="page-subtitle"/>
 
+    <VBox styleClass="content-card" VBox.vgrow="ALWAYS">
+        <TableView fx:id="bidsTable" styleClass="modern-table">
+            <columns>
+                <TableColumn fx:id="bidItemNameColumn" text="Item Name" prefWidth="200"/>
+                <TableColumn fx:id="bidMyAmountColumn" text="My Bid" prefWidth="120"/>
+                <TableColumn fx:id="bidHighestAmountColumn" text="Current Highest" prefWidth="120"/>
+                <TableColumn fx:id="bidStatusColumn" text="Status" prefWidth="100"/>
+                <TableColumn fx:id="bidDateColumn" text="Date" prefWidth="120"/>
+            </columns>
+        </TableView>
+    </VBox>
 
 </VBox>
