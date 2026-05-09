@@ -1,14 +1,16 @@
 package com.group01.asm2.controllers;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Popup;
 
 import java.time.LocalDateTime;
@@ -21,10 +23,28 @@ public class ProfileController {
     // =========================
 
     @FXML private Label avatarLabel;
+    @FXML private Label statusLabel;
     @FXML private Label fullNameLabel;
-    @FXML private Label emailLabel;
     @FXML private Label roleLabel;
+    @FXML private Label emailLabel;
     @FXML private Label ratingLabel;
+    @FXML private Label phoneLabel;
+    @FXML private Label dateOfBirthLabel;
+    @FXML private Label addressLabel;
+    @FXML private Label joinedDateLabel;
+    @FXML private StackPane editProfileOverlay;
+    @FXML private Label modalAvatarLabel;
+    @FXML private Label modalNamePreviewLabel;
+    @FXML private Label modalEmailPreviewLabel;
+    @FXML private TextField editFullNameField;
+    @FXML private TextField editEmailField;
+    @FXML private TextField editPhoneField;
+    @FXML private TextField editDateOfBirthField;
+    @FXML private TextField editAddressField;
+    @FXML private TextField editRoleField;
+    @FXML private VBox editProfileModal;
+    @FXML private Button editProfileButton;
+    @FXML private ScrollPane editProfileModalScrollPane;
 
     // =========================
     // Summary Labels
@@ -37,20 +57,13 @@ public class ProfileController {
     @FXML private Label summaryRatingLabel;
 
     // =========================
-    // Overview
+    // Wallet
     // =========================
 
     @FXML private Label selectedTabTitleLabel;
-    @FXML private Label overviewBalanceLabel;
+    @FXML private Label walletBalanceLabel;
     @FXML private Label topUpStatusLabel;
     @FXML private Label recentAuctionStatusLabel;
-
-    // =========================
-    // Notification
-    // =========================
-
-    @FXML private Button notificationButton;
-    @FXML private Label notificationCountLabel;
 
     // =========================
     // Tabs
@@ -61,13 +74,17 @@ public class ProfileController {
     // =========================
     // Listings Table
     // =========================
-
-    @FXML private TableView<Listing> listingsTable;
-    @FXML private TableColumn<Listing, String> listingItemNameColumn;
-    @FXML private TableColumn<Listing, String> listingStartingPriceColumn;
-    @FXML private TableColumn<Listing, String> listingCurrentBidColumn;
-    @FXML private TableColumn<Listing, String> listingStatusColumn;
-    @FXML private TableColumn<Listing, String> listingCreatedDateColumn;
+    @FXML private TextField listingSearchField;
+    @FXML private TilePane listingsCardContainer;
+    @FXML private Button categoryAllButton;
+    @FXML private Button categoryElectronicsButton;
+    @FXML private Button categoryFashionButton;
+    @FXML private Button categoryCollectiblesButton;
+    @FXML private Button categoryHomeButton;
+    @FXML private Button categoryBooksButton;
+    @FXML private Button categoryOtherButton;
+    private String selectedListingCategory = "All";
+    @FXML private VBox addListingModal;
 
     // =========================
     // Bids Table
@@ -105,32 +122,46 @@ public class ProfileController {
     // =========================
     // Activity Table
     // =========================
-
     @FXML private TableView<ActivityLog> activityTable;
     @FXML private TableColumn<ActivityLog, String> activityDateTimeColumn;
     @FXML private TableColumn<ActivityLog, String> activityActionColumn;
     @FXML private TableColumn<ActivityLog, String> activityDescriptionColumn;
 
     // =========================
+    // Add Item Overlay
+    // =========================
+    @FXML private StackPane addListingOverlay;
+
+    @FXML private TextField addListingNameField;
+    @FXML private ComboBox<String> addListingCategoryComboBox;
+    @FXML private TextField addListingStartingPriceField;
+    @FXML private TextField addListingCurrentBidField;
+    @FXML private ComboBox<String> addListingStatusComboBox;
+    @FXML private TextField addListingIconField;
+    @FXML private Label addListingErrorLabel;
+
+    @FXML private HBox summaryRow;
+    @FXML private HBox walletPanelRow;
+
+    // =========================
     // Mock User Data
     // =========================
 
-    private String fullName = "Huyen Tran";
-    private String email = "huyen@example.com";
+    private String fullName = "Sophia Bennett";
+    private String email = "sophia.bennett@bidblitz.com";
     private String role = "User";
-    private String phone = "0912 345 678";
+    private String phone = "+84 912 345 678";
+    private String dateOfBirth = "15 March 2003";
     private String address = "District 7, Ho Chi Minh City";
-    private double balance = 2450.00;
-    private double rating = 4.8;
+    private String joinedDate = "12 January 2025";
+    private String rating = "4.8 / 5.0";
+    private double balance = 1250.75;
 
     private final ObservableList<Listing> listings = FXCollections.observableArrayList();
     private final ObservableList<Bid> bids = FXCollections.observableArrayList();
     private final ObservableList<WatchlistItem> watchlist = FXCollections.observableArrayList();
     private final ObservableList<Transaction> transactions = FXCollections.observableArrayList();
     private final ObservableList<ActivityLog> activities = FXCollections.observableArrayList();
-    private final ObservableList<NotificationItem> notifications = FXCollections.observableArrayList();
-
-    private Popup notificationPopup;
 
     private final DateTimeFormatter dateTimeFormatter =
             DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
@@ -141,7 +172,23 @@ public class ProfileController {
         setupProfileHeader();
         setupTables();
         setupTabSwitching();
-        setupNotificationPopup();
+        setupResponsiveEditProfileButton();
+        setupResponsiveEditProfileModal();
+
+        fitTabPaneToSelectedContent();
+        makeTableResponsive(bidsTable);
+        makeTableResponsive(watchlistTable);
+        makeTableResponsive(transactionsTable);
+        makeTableResponsive(activityTable);
+        setupListingsCards();
+
+        setupAddListingModal();
+        setupAddListingModalSize();
+        setupResponsiveLayout();
+
+        listingSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterListings();
+        });
     }
 
     // =========================
@@ -150,9 +197,14 @@ public class ProfileController {
 
     private void loadMockData() {
         listings.addAll(
-                new Listing("Vintage Film Camera", "$120.00", "$310.00", "Active", "02 May 2026"),
-                new Listing("Mechanical Keyboard", "$80.00", "$145.00", "Active", "03 May 2026"),
-                new Listing("Designer Handbag", "$250.00", "$420.00", "Under Review", "05 May 2026")
+                new Listing("iPhone 13 Pro", "Electronics", 450.00, 620.00, "Active", "2026-05-01", "📱"),
+                new Listing("Vintage Denim Jacket", "Fashion", 35.00, 58.00, "Active", "2026-05-02", "👕"),
+                new Listing("Rare Pokémon Card", "Collectibles", 80.00, 145.00, "Pending", "2026-05-03", "🎴"),
+                new Listing("Modern Desk Lamp", "Home", 20.00, 32.00, "Sold", "2026-05-04", "💡"),
+                new Listing("Java Programming Book", "Books", 15.00, 24.00, "Closed", "2026-05-05", "📚"),
+                new Listing("Wireless Keyboard", "Electronics", 25.00, 41.00, "Active", "2026-05-06", "⌨️"),
+                new Listing("Handmade Tote Bag", "Fashion", 18.00, 29.00, "Pending", "2026-05-07", "👜"),
+                new Listing("Mystery Auction Box", "Other", 10.00, 19.00, "Active", "2026-05-08", "📦")
         );
 
         bids.addAll(
@@ -183,53 +235,71 @@ public class ProfileController {
                 new ActivityLog("03 May 2026, 11:00", "Listed item", "Listed Mechanical Keyboard for auction."),
                 new ActivityLog("02 May 2026, 20:15", "Updated profile", "Updated phone number and address.")
         );
-
-        notifications.addAll(
-                new NotificationItem("Top-up request approved", "Your $500.00 top-up request has been approved.", true),
-                new NotificationItem("Top-up request rejected", "Your previous top-up request was rejected by admin.", true),
-                new NotificationItem("Auction won", "You won the auction for Smart Watch.", true),
-                new NotificationItem("Outbid on watched item", "Someone placed a higher bid on Vintage Camera.", true),
-                new NotificationItem("Auction ending soon", "Antique Desk Lamp is ending in less than 3 hours.", true),
-                new NotificationItem("Payment processed", "Your payment for Smart Watch has been processed.", true),
-                new NotificationItem("Listing moderated", "Your Designer Handbag listing is under admin review.", true)
-        );
     }
 
     private void setupProfileHeader() {
         fullNameLabel.setText(fullName);
         emailLabel.setText(email);
         roleLabel.setText(role);
-        ratingLabel.setText(String.format("%.1f / 5.0", rating));
-        summaryRatingLabel.setText(String.format("%.1f", rating));
+        phoneLabel.setText(phone);
+        dateOfBirthLabel.setText(dateOfBirth);
+        addressLabel.setText(address);
+        joinedDateLabel.setText(joinedDate);
+        ratingLabel.setText("★ " + rating);
+
+        statusLabel.setText("Verified User");
 
         updateAvatar();
-        updateBalanceLabels();
-
-        totalBidsLabel.setText(String.valueOf(bids.size()));
-        wonAuctionsLabel.setText(String.valueOf(countWonAuctions()));
-        activeListingsLabel.setText(String.valueOf(countActiveListings()));
-        notificationCountLabel.setText(String.valueOf(countUnreadNotifications()));
     }
 
     private void updateAvatar() {
-        String[] nameParts = fullName.trim().split("\\s+");
-
-        if (nameParts.length >= 2) {
-            avatarLabel.setText(
-                    nameParts[0].substring(0, 1).toUpperCase()
-                            + nameParts[nameParts.length - 1].substring(0, 1).toUpperCase()
-            );
-        } else if (!fullName.isBlank()) {
-            avatarLabel.setText(fullName.substring(0, 1).toUpperCase());
-        } else {
+        if (fullName == null || fullName.trim().isEmpty()) {
             avatarLabel.setText("U");
+            return;
         }
+
+        String[] nameParts = fullName.trim().split("\\s+");
+        StringBuilder initials = new StringBuilder();
+
+        for (String part : nameParts) {
+            if (!part.isEmpty()) {
+                initials.append(Character.toUpperCase(part.charAt(0)));
+            }
+
+            if (initials.length() == 2) {
+                break;
+            }
+        }
+
+        avatarLabel.setText(initials.toString());
+    }
+
+    private void setupResponsiveEditProfileButton() {
+        editProfileButton.setMinWidth(Button.USE_PREF_SIZE);
+        editProfileButton.setPrefWidth(Button.USE_COMPUTED_SIZE);
+        editProfileButton.setMaxWidth(Double.MAX_VALUE);
+    }
+
+    private void setupResponsiveEditProfileModal() {
+        editProfileModalScrollPane.maxWidthProperty().bind(
+                editProfileOverlay.widthProperty().multiply(0.72)
+        );
+
+        editProfileModalScrollPane.maxHeightProperty().bind(
+                editProfileOverlay.heightProperty().multiply(0.86)
+        );
+
+        editProfileModal.prefWidthProperty().bind(
+                editProfileModalScrollPane.widthProperty().subtract(24)
+        );
+
+        editProfileModal.setMaxHeight(Region.USE_PREF_SIZE);
     }
 
     private void updateBalanceLabels() {
         String formattedBalance = String.format("$%,.2f", balance);
         balanceLabel.setText(formattedBalance);
-        overviewBalanceLabel.setText(formattedBalance);
+        walletBalanceLabel.setText(formattedBalance);
     }
 
     private int countWonAuctions() {
@@ -256,38 +326,75 @@ public class ProfileController {
         return count;
     }
 
-    private int countUnreadNotifications() {
-        int count = 0;
-
-        for (NotificationItem notification : notifications) {
-            if (notification.isUnread()) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
     // =========================
     // Table Setup
     // =========================
 
     private void setupTables() {
-        setupListingsTable();
         setupBidsTable();
         setupWatchlistTable();
         setupTransactionsTable();
         setupActivityTable();
     }
 
-    private void setupListingsTable() {
-        listingItemNameColumn.setCellValueFactory(new PropertyValueFactory<>("itemName"));
-        listingStartingPriceColumn.setCellValueFactory(new PropertyValueFactory<>("startingPrice"));
-        listingCurrentBidColumn.setCellValueFactory(new PropertyValueFactory<>("currentBid"));
-        listingStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-        listingCreatedDateColumn.setCellValueFactory(new PropertyValueFactory<>("createdDate"));
+    private void fitTabPaneToSelectedContent() {
+        profileTabPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene == null) return;
 
-        listingsTable.setItems(listings);
+            profileTabPane.applyCss();
+            profileTabPane.layout();
+
+            Runnable updateHeight = () -> {
+                Tab selectedTab = profileTabPane.getSelectionModel().getSelectedItem();
+                if (selectedTab == null || selectedTab.getContent() == null) return;
+
+                Node content = selectedTab.getContent();
+
+                content.applyCss();
+                content.autosize();
+
+                Node tabHeaderArea = profileTabPane.lookup(".tab-header-area");
+
+                double headerHeight = tabHeaderArea == null
+                        ? 0
+                        : tabHeaderArea.getBoundsInParent().getHeight();
+
+                double contentHeight = content.prefHeight(profileTabPane.getWidth());
+
+                profileTabPane.setMinHeight(headerHeight + contentHeight);
+                profileTabPane.setPrefHeight(headerHeight + contentHeight);
+                profileTabPane.setMaxHeight(headerHeight + contentHeight);
+            };
+
+            updateHeight.run();
+
+            profileTabPane.getSelectionModel()
+                    .selectedItemProperty()
+                    .addListener((tabObs, oldTab, newTab) -> updateHeight.run());
+
+            profileTabPane.widthProperty()
+                    .addListener((widthObs, oldWidth, newWidth) -> updateHeight.run());
+        });
+    }
+
+    private void makeTableResponsive(TableView<?> table) {
+        // Make columns fill 100% of available table width
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // Remove ugly empty placeholder text
+        table.setPlaceholder(new Label(""));
+
+        // Let table height depend on real row count, not screen height
+        table.setFixedCellSize(48);
+
+        table.prefHeightProperty().bind(
+                Bindings.size(table.getItems())
+                        .multiply(table.getFixedCellSize())
+                        .add(52)
+        );
+
+        table.setMinHeight(Region.USE_PREF_SIZE);
+        table.setMaxHeight(Region.USE_PREF_SIZE);
     }
 
     private void setupBidsTable() {
@@ -388,81 +495,59 @@ public class ProfileController {
 
     @FXML
     private void handleOpenEditProfile() {
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Edit Profile");
+        editFullNameField.setText(fullName);
+        editEmailField.setText(email);
+        editPhoneField.setText(phone);
+        editDateOfBirthField.setText(dateOfBirth);
+        editAddressField.setText(address);
+        editRoleField.setText(role);
 
-        DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.getStyleClass().add("profile-dialog");
-        dialogPane.getStylesheets().add(
-                getClass().getResource("/com/group01/asm2/styles/views/profile.css").toExternalForm()
-        );
+        modalNamePreviewLabel.setText(fullName);
+        modalEmailPreviewLabel.setText(email);
+        modalAvatarLabel.setText(createInitials(fullName));
 
-        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        editProfileOverlay.setVisible(true);
+        editProfileOverlay.setManaged(true);
+    }
 
-        dialogPane.getButtonTypes().addAll(saveButtonType, cancelButtonType);
+    @FXML
+    private void handleCloseEditProfile() {
+        editProfileOverlay.setVisible(false);
+        editProfileOverlay.setManaged(false);
+    }
 
-        TextField nameField = createTextField(fullName);
-        TextField phoneField = createTextField(phone);
-        TextField addressField = createTextField(address);
+    @FXML
+    private void handleSaveEditProfile() {
+        fullName = editFullNameField.getText().trim();
+        email = editEmailField.getText().trim();
+        phone = editPhoneField.getText().trim();
+        dateOfBirth = editDateOfBirthField.getText().trim();
+        address = editAddressField.getText().trim();
 
-        TextField roleField = createTextField(role);
-        roleField.setDisable(true);
+        setupProfileHeader();
 
-        TextField emailField = createTextField(email);
-        emailField.setDisable(true);
+        handleCloseEditProfile();
+    }
 
-        TextField ratingField = createTextField(String.format("%.1f / 5.0", rating));
-        ratingField.setDisable(true);
+    private String createInitials(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return "U";
+        }
 
-        Label errorLabel = new Label();
-        errorLabel.getStyleClass().add("error-label");
+        String[] parts = name.trim().split("\\s+");
+        StringBuilder initials = new StringBuilder();
 
-        VBox content = new VBox(12);
-        content.getStyleClass().add("dialog-card");
-        content.setPadding(new Insets(20));
-
-        Label title = new Label("Edit Profile Information");
-        title.getStyleClass().add("dialog-title");
-
-        Label subtitle = new Label("You can update your name, phone and address. Role, email and rating are read-only.");
-        subtitle.getStyleClass().add("dialog-subtitle");
-
-        content.getChildren().addAll(
-                title,
-                subtitle,
-                createFieldGroup("Full Name", nameField),
-                createFieldGroup("Phone", phoneField),
-                createFieldGroup("Address", addressField),
-                createFieldGroup("Role", roleField),
-                createFieldGroup("Email", emailField),
-                createFieldGroup("Rating", ratingField),
-                errorLabel
-        );
-
-        dialogPane.setContent(content);
-
-        Node saveButton = dialogPane.lookupButton(saveButtonType);
-        saveButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
-            if (nameField.getText().trim().isEmpty()) {
-                errorLabel.setText("Full name cannot be empty.");
-                event.consume();
-                return;
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                initials.append(Character.toUpperCase(part.charAt(0)));
             }
 
-            fullName = nameField.getText().trim();
-            phone = phoneField.getText().trim();
-            address = addressField.getText().trim();
+            if (initials.length() == 2) {
+                break;
+            }
+        }
 
-            fullNameLabel.setText(fullName);
-            updateAvatar();
-
-            addActivity("Updated profile", "Updated profile information.");
-
-            dialog.close();
-        });
-
-        dialog.showAndWait();
+        return initials.toString();
     }
 
     // =========================
@@ -477,7 +562,7 @@ public class ProfileController {
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getStyleClass().add("profile-dialog");
         dialogPane.getStylesheets().add(
-                getClass().getResource("/com/group01/asm2/styles/views/profile.css").toExternalForm()
+                getClass().getResource("/com/group01/asm2/styles/profile.css").toExternalForm()
         );
 
         ButtonType submitButtonType = new ButtonType("Submit Request", ButtonBar.ButtonData.OK_DONE);
@@ -538,15 +623,6 @@ public class ProfileController {
                 addActivity("Requested top-up",
                         String.format("Requested a top-up of $%,.2f. Waiting for admin approval.", amount));
 
-                notifications.add(0, new NotificationItem(
-                        "Top-up request submitted",
-                        String.format("Your $%,.2f top-up request is waiting for admin approval.", amount),
-                        true
-                ));
-
-                notificationCountLabel.setText(String.valueOf(countUnreadNotifications()));
-                setupNotificationPopup();
-
                 dialog.close();
 
             } catch (NumberFormatException exception) {
@@ -556,60 +632,6 @@ public class ProfileController {
         });
 
         dialog.showAndWait();
-    }
-
-    // =========================
-    // Notification Dropdown
-    // =========================
-
-    private void setupNotificationPopup() {
-        notificationPopup = new Popup();
-        notificationPopup.setAutoHide(true);
-
-        VBox popupContent = new VBox(10);
-        popupContent.getStyleClass().add("notification-popup");
-        popupContent.setPrefWidth(340);
-
-        Label title = new Label("Notifications");
-        title.getStyleClass().add("notification-title");
-
-        popupContent.getChildren().add(title);
-
-        for (NotificationItem notification : notifications) {
-            VBox itemBox = new VBox(4);
-            itemBox.getStyleClass().add("notification-item");
-
-            Label notificationTitle = new Label(notification.getTitle());
-            notificationTitle.getStyleClass().add("notification-item-title");
-
-            Label message = new Label(notification.getMessage());
-            message.getStyleClass().add("notification-item-message");
-
-            itemBox.getChildren().addAll(notificationTitle, message);
-            popupContent.getChildren().add(itemBox);
-        }
-
-        notificationPopup.getContent().clear();
-        notificationPopup.getContent().add(popupContent);
-    }
-
-    @FXML
-    private void handleToggleNotifications() {
-        if (notificationPopup.isShowing()) {
-            notificationPopup.hide();
-        } else {
-            notificationPopup.show(
-                    notificationButton,
-                    notificationButton.localToScreen(0, 0).getX() - 300,
-                    notificationButton.localToScreen(0, 0).getY() + 42
-            );
-
-            for (NotificationItem notification : notifications) {
-                notification.setUnread(false);
-            }
-
-            notificationCountLabel.setText("0");
-        }
     }
 
     // =========================
@@ -632,53 +654,24 @@ public class ProfileController {
         return group;
     }
 
+    private VBox createComboFieldGroup(String labelText, ComboBox<String> comboBox) {
+        Label label = new Label(labelText);
+        label.getStyleClass().add("field-label");
+
+        VBox group = new VBox(6);
+        group.getChildren().addAll(label, comboBox);
+
+        return group;
+    }
+
     private void addActivity(String action, String description) {
         String now = LocalDateTime.now().format(dateTimeFormatter);
         activities.add(0, new ActivityLog(now, action, description));
     }
 
     // =========================
-    // Simple Model Classes
-    // You can move these to separate model files later.
-    // Example package:
-    // src/main/java/com/group01/asm2/models/
+    // Model Classes
     // =========================
-
-    public static class Listing {
-        private final SimpleStringProperty itemName;
-        private final SimpleStringProperty startingPrice;
-        private final SimpleStringProperty currentBid;
-        private final SimpleStringProperty status;
-        private final SimpleStringProperty createdDate;
-
-        public Listing(String itemName, String startingPrice, String currentBid, String status, String createdDate) {
-            this.itemName = new SimpleStringProperty(itemName);
-            this.startingPrice = new SimpleStringProperty(startingPrice);
-            this.currentBid = new SimpleStringProperty(currentBid);
-            this.status = new SimpleStringProperty(status);
-            this.createdDate = new SimpleStringProperty(createdDate);
-        }
-
-        public String getItemName() {
-            return itemName.get();
-        }
-
-        public String getStartingPrice() {
-            return startingPrice.get();
-        }
-
-        public String getCurrentBid() {
-            return currentBid.get();
-        }
-
-        public String getStatus() {
-            return status.get();
-        }
-
-        public String getCreatedDate() {
-            return createdDate.get();
-        }
-    }
 
     public static class Bid {
         private final SimpleStringProperty itemName;
@@ -806,31 +799,457 @@ public class ProfileController {
         }
     }
 
-    public static class NotificationItem {
-        private final String title;
-        private final String message;
-        private boolean unread;
+    //My Listing
+    private void setupListingsCards() {
+        updateCategoryChipStyles();
+        filterListings();
+    }
 
-        public NotificationItem(String title, String message, boolean unread) {
-            this.title = title;
-            this.message = message;
-            this.unread = unread;
+    private void filterListings() {
+        listingsCardContainer.getChildren().clear();
+
+        String keyword = listingSearchField.getText() == null
+                ? ""
+                : listingSearchField.getText().trim().toLowerCase();
+
+        for (Listing listing : listings) {
+            boolean matchesSearch = listing.getItemName().toLowerCase().contains(keyword);
+
+            boolean matchesCategory = selectedListingCategory.equals("All")
+                    || listing.getCategory().equalsIgnoreCase(selectedListingCategory);
+
+            if (matchesSearch && matchesCategory) {
+                listingsCardContainer.getChildren().add(createListingCard(listing));
+            }
+        }
+    }
+
+    private VBox createListingCard(Listing listing) {
+        VBox card = new VBox(12);
+        card.getStyleClass().add("listing-card");
+
+        double containerWidth = listingsCardContainer.getWidth();
+
+        double cardWidth;
+
+        if (containerWidth >= 1200) {
+            cardWidth = (containerWidth - 90) / 6;
+        } else if (containerWidth >= 950) {
+            cardWidth = (containerWidth - 72) / 5;
+        } else if (containerWidth >= 720) {
+            cardWidth = (containerWidth - 54) / 4;
+        } else if (containerWidth >= 520) {
+            cardWidth = (containerWidth - 36) / 3;
+        } else {
+            cardWidth = (containerWidth - 18) / 2;
         }
 
-        public String getTitle() {
-            return title;
+        card.setPrefWidth(cardWidth);
+        card.setMinWidth(cardWidth);
+        card.setMaxWidth(cardWidth);
+        StackPane imagePlaceholder = new StackPane();
+        imagePlaceholder.getStyleClass().add("item-image-placeholder");
+
+        Label iconLabel = new Label(listing.getIcon());
+        iconLabel.getStyleClass().add("item-placeholder-icon");
+        imagePlaceholder.getChildren().add(iconLabel);
+
+        Label titleLabel = new Label(listing.getItemName());
+        titleLabel.getStyleClass().add("item-title");
+        titleLabel.setWrapText(true);
+
+        Label categoryLabel = new Label(listing.getCategory());
+        categoryLabel.getStyleClass().add("item-category-text");
+
+        Label startingPriceLabel = new Label("Starting price");
+        startingPriceLabel.getStyleClass().add("price-label");
+
+        Label startingPriceValue = new Label(formatPrice(listing.getStartingPrice()));
+        startingPriceValue.getStyleClass().add("starting-price-value");
+
+        VBox startingPriceBox = new VBox(3, startingPriceLabel, startingPriceValue);
+
+        Label currentPriceLabel = new Label("Current bid");
+        currentPriceLabel.getStyleClass().add("price-label");
+
+        Label currentPriceValue = new Label(formatPrice(listing.getCurrentPrice()));
+        currentPriceValue.getStyleClass().add("current-price-value");
+
+        VBox currentPriceBox = new VBox(3, currentPriceLabel, currentPriceValue);
+
+        HBox priceRow = new HBox(28, startingPriceBox, currentPriceBox);
+        priceRow.setAlignment(Pos.CENTER_LEFT);
+
+        Label statusPill = new Label(listing.getStatus());
+        statusPill.getStyleClass().addAll("listing-status-pill", getStatusStyleClass(listing.getStatus()));
+
+        Label createdDateLabel = new Label("Created: " + listing.getCreatedDate());
+        createdDateLabel.getStyleClass().add("created-date-text");
+
+        HBox bottomRow = new HBox(10, statusPill, createdDateLabel);
+        bottomRow.setAlignment(Pos.CENTER_LEFT);
+
+        card.getChildren().addAll(
+                imagePlaceholder,
+                titleLabel,
+                categoryLabel,
+                priceRow,
+                bottomRow
+        );
+
+        return card;
+    }
+
+    private void setupAddListingModal() {
+        addListingCategoryComboBox.getItems().setAll(
+                "Electronics",
+                "Fashion",
+                "Collectibles",
+                "Home",
+                "Books",
+                "Other"
+        );
+
+        addListingStatusComboBox.getItems().setAll(
+                "Active",
+                "Pending",
+                "Sold",
+                "Closed"
+        );
+
+        addListingCategoryComboBox.setValue("Electronics");
+        addListingStatusComboBox.setValue("Active");
+    }
+
+    private void setupAddListingModalSize() {
+        addListingModal.prefWidthProperty().bind(
+                addListingOverlay.widthProperty().multiply(0.55)
+        );
+
+        addListingModal.maxHeightProperty().set(Region.USE_PREF_SIZE);
+    }
+
+    private String formatPrice(double price) {
+        return String.format("$%.2f", price);
+    }
+
+    private String getStatusStyleClass(String status) {
+        return switch (status.toLowerCase()) {
+            case "active" -> "status-active";
+            case "pending" -> "status-pending";
+            case "sold" -> "status-sold";
+            case "closed" -> "status-closed";
+            default -> "status-closed";
+        };
+    }
+
+    @FXML
+    private void handleCategoryAll() {
+        selectedListingCategory = "All";
+        updateCategoryChipStyles();
+        filterListings();
+    }
+
+    @FXML
+    private void handleCategoryElectronics() {
+        selectedListingCategory = "Electronics";
+        updateCategoryChipStyles();
+        filterListings();
+    }
+
+    @FXML
+    private void handleCategoryFashion() {
+        selectedListingCategory = "Fashion";
+        updateCategoryChipStyles();
+        filterListings();
+    }
+
+    @FXML
+    private void handleCategoryCollectibles() {
+        selectedListingCategory = "Collectibles";
+        updateCategoryChipStyles();
+        filterListings();
+    }
+
+    @FXML
+    private void handleCategoryHome() {
+        selectedListingCategory = "Home";
+        updateCategoryChipStyles();
+        filterListings();
+    }
+
+    @FXML
+    private void handleCategoryBooks() {
+        selectedListingCategory = "Books";
+        updateCategoryChipStyles();
+        filterListings();
+    }
+
+    @FXML
+    private void handleCategoryOther() {
+        selectedListingCategory = "Other";
+        updateCategoryChipStyles();
+        filterListings();
+    }
+
+    private void updateCategoryChipStyles() {
+        Button[] categoryButtons = {
+                categoryAllButton,
+                categoryElectronicsButton,
+                categoryFashionButton,
+                categoryCollectiblesButton,
+                categoryHomeButton,
+                categoryBooksButton,
+                categoryOtherButton
+        };
+
+        for (Button button : categoryButtons) {
+            button.getStyleClass().remove("category-chip-active");
         }
 
-        public String getMessage() {
-            return message;
+        switch (selectedListingCategory) {
+            case "All" -> categoryAllButton.getStyleClass().add("category-chip-active");
+            case "Electronics" -> categoryElectronicsButton.getStyleClass().add("category-chip-active");
+            case "Fashion" -> categoryFashionButton.getStyleClass().add("category-chip-active");
+            case "Collectibles" -> categoryCollectiblesButton.getStyleClass().add("category-chip-active");
+            case "Home" -> categoryHomeButton.getStyleClass().add("category-chip-active");
+            case "Books" -> categoryBooksButton.getStyleClass().add("category-chip-active");
+            case "Other" -> categoryOtherButton.getStyleClass().add("category-chip-active");
+        }
+    }
+
+    @FXML
+    private void handleAddListing() {
+        clearAddListingForm();
+
+        addListingOverlay.setVisible(true);
+        addListingOverlay.setManaged(true);
+    }
+
+    @FXML
+    private void handleCloseAddListing() {
+        addListingOverlay.setVisible(false);
+        addListingOverlay.setManaged(false);
+    }
+
+    @FXML
+    private void handleSubmitAddListing() {
+        String itemName = addListingNameField.getText().trim();
+        String category = addListingCategoryComboBox.getValue();
+        String status = addListingStatusComboBox.getValue();
+        String icon = addListingIconField.getText().trim();
+
+        if (itemName.isEmpty()) {
+            addListingErrorLabel.setText("Item name is required.");
+            return;
         }
 
-        public boolean isUnread() {
-            return unread;
+        if (category == null || category.isEmpty()) {
+            addListingErrorLabel.setText("Please select a category.");
+            return;
         }
 
-        public void setUnread(boolean unread) {
-            this.unread = unread;
+        if (status == null || status.isEmpty()) {
+            addListingErrorLabel.setText("Please select a status.");
+            return;
+        }
+
+        double startingPrice;
+        double currentBid;
+
+        try {
+            startingPrice = Double.parseDouble(addListingStartingPriceField.getText().trim());
+            currentBid = Double.parseDouble(addListingCurrentBidField.getText().trim());
+        } catch (NumberFormatException exception) {
+            addListingErrorLabel.setText("Starting price and current bid must be valid numbers.");
+            return;
+        }
+
+        if (startingPrice <= 0 || currentBid <= 0) {
+            addListingErrorLabel.setText("Prices must be greater than 0.");
+            return;
+        }
+
+        if (currentBid < startingPrice) {
+            addListingErrorLabel.setText("Current bid cannot be lower than starting price.");
+            return;
+        }
+
+        if (icon.isEmpty()) {
+            icon = "📦";
+        }
+
+        String createdDate = LocalDateTime.now().toLocalDate().toString();
+
+        Listing newListing = new Listing(
+                itemName,
+                category,
+                startingPrice,
+                currentBid,
+                status,
+                createdDate,
+                icon
+        );
+
+        listings.add(0, newListing);
+
+        selectedListingCategory = "All";
+        updateCategoryChipStyles();
+        filterListings();
+
+        activeListingsLabel.setText(String.valueOf(countActiveListings()));
+
+        addActivity(
+                "Listed item",
+                "Created a new listing for " + itemName + "."
+        );
+
+        handleCloseAddListing();
+    }
+
+    private void clearAddListingForm() {
+        addListingNameField.clear();
+        addListingStartingPriceField.clear();
+        addListingCurrentBidField.clear();
+        addListingIconField.clear();
+        addListingErrorLabel.setText("");
+
+        addListingCategoryComboBox.setValue("Electronics");
+        addListingStatusComboBox.setValue("Active");
+    }
+
+    private static class Listing {
+        private final String itemName;
+        private final String category;
+        private final double startingPrice;
+        private final double currentPrice;
+        private final String status;
+        private final String createdDate;
+        private final String icon;
+
+        public Listing(String itemName,
+                       String category,
+                       double startingPrice,
+                       double currentPrice,
+                       String status,
+                       String createdDate,
+                       String icon) {
+            this.itemName = itemName;
+            this.category = category;
+            this.startingPrice = startingPrice;
+            this.currentPrice = currentPrice;
+            this.status = status;
+            this.createdDate = createdDate;
+            this.icon = icon;
+        }
+
+        public String getItemName() {
+            return itemName;
+        }
+
+        public String getCategory() {
+            return category;
+        }
+
+        public double getStartingPrice() {
+            return startingPrice;
+        }
+
+        public double getCurrentPrice() {
+            return currentPrice;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public String getCreatedDate() {
+            return createdDate;
+        }
+
+        public String getIcon() {
+            return icon;
+        }
+    }
+
+    private void setupResponsiveLayout() {
+        setupResponsiveSummaryCards();
+        setupResponsiveWalletPanels();
+        setupResponsiveListingCards();
+        setupResponsiveModals();
+    }
+
+    private void setupResponsiveSummaryCards() {
+        if (summaryRow == null) return;
+
+        summaryRow.widthProperty().addListener((observable, oldValue, newValue) -> {
+            double availableWidth = newValue.doubleValue();
+            double cardWidth = (availableWidth - 64) / 5;
+
+            for (javafx.scene.Node node : summaryRow.getChildren()) {
+                if (node instanceof Region region) {
+                    region.setPrefWidth(cardWidth);
+                    region.setMaxWidth(Double.MAX_VALUE);
+                }
+            }
+        });
+    }
+
+    private void setupResponsiveWalletPanels() {
+        if (walletPanelRow == null) return;
+
+        walletPanelRow.widthProperty().addListener((observable, oldValue, newValue) -> {
+            double availableWidth = newValue.doubleValue();
+            double panelWidth = (availableWidth - 32) / 3;
+
+            for (javafx.scene.Node node : walletPanelRow.getChildren()) {
+                if (node instanceof Region region) {
+                    region.setPrefWidth(panelWidth);
+                    region.setMaxWidth(Double.MAX_VALUE);
+                }
+            }
+        });
+    }
+
+    private void setupResponsiveListingCards() {
+        if (listingsCardContainer == null) return;
+
+        listingsCardContainer.widthProperty().addListener((observable, oldValue, newValue) -> {
+            filterListings();
+        });
+    }
+
+    private void setupResponsiveModals() {
+        if (addListingOverlay != null && addListingModal != null) {
+            addListingModal.prefWidthProperty().bind(
+                    addListingOverlay.widthProperty().multiply(0.55)
+            );
+
+            addListingModal.minWidthProperty().bind(
+                    addListingOverlay.widthProperty().multiply(0.38)
+            );
+
+            addListingModal.maxWidthProperty().bind(
+                    addListingOverlay.widthProperty().multiply(0.70)
+            );
+
+            addListingModal.setMaxHeight(Region.USE_PREF_SIZE);
+        }
+
+        if (editProfileOverlay != null && editProfileModal != null) {
+            editProfileModal.prefWidthProperty().bind(
+                    editProfileOverlay.widthProperty().multiply(0.50)
+            );
+
+            editProfileModal.minWidthProperty().bind(
+                    editProfileOverlay.widthProperty().multiply(0.35)
+            );
+
+            editProfileModal.maxWidthProperty().bind(
+                    editProfileOverlay.widthProperty().multiply(0.65)
+            );
+
+            editProfileModal.setMaxHeight(Region.USE_PREF_SIZE);
         }
     }
 }
