@@ -8,286 +8,692 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.GridPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.group01.asm2.controllers.ProfileController"
-            stylesheets="@../styles/profile.css"
-            styleClass="profile-root">
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.group01.asm2.controllers.ProfileController"
+           stylesheets="@../styles/profile.css"
+           styleClass="profile-root">
 
-    <center>
-        <ScrollPane fitToWidth="true"
-                    hbarPolicy="NEVER"
-                    vbarPolicy="AS_NEEDED"
-                    styleClass="profile-scroll">
+    <!-- =========================
+         Main Profile Page Content
+    ========================== -->
+    <ScrollPane fitToWidth="true"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED"
+                styleClass="profile-scroll">
 
-            <VBox spacing="24" styleClass="profile-container">
+        <VBox spacing="24" styleClass="profile-container">
 
-                <!-- =========================
-                     Top Header Row
-                ========================== -->
-                <HBox spacing="16" styleClass="top-row">
-                    <VBox spacing="4">
-                        <Label text="Profile" styleClass="page-title"/>
-                        <Label text="Manage your BidBlitz account, auctions, transactions and notifications."
-                               styleClass="page-subtitle"/>
-                    </VBox>
+            <!-- =========================
+                 Top Header Row
+            ========================== -->
+            <HBox spacing="16" styleClass="top-row">
+                <VBox spacing="4">
+                    <Label text="Profile" styleClass="page-title"/>
+                    <Label text="Manage your BidBlitz account, auctions, transactions and notifications."
+                           styleClass="page-subtitle"/>
+                </VBox>
 
-                    <Region HBox.hgrow="ALWAYS"/>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
 
-                    <!-- Notification Bar -->
-                    <StackPane>
-                        <Button fx:id="notificationButton"
-                                text="🔔"
-                                onAction="#handleToggleNotifications"
-                                styleClass="notification-button"/>
+            <!-- =========================
+                 Profile Header Card
+            ========================= -->
+            <HBox spacing="24"
+                  alignment="CENTER_LEFT"
+                  styleClass="profile-header-card">
 
-                        <Label fx:id="notificationCountLabel"
-                               text="7"
-                               styleClass="notification-count"
-                               StackPane.alignment="TOP_RIGHT"/>
+                <!-- Left: Avatar Area -->
+                <VBox spacing="10"
+                      alignment="CENTER"
+                      styleClass="profile-avatar-section">
+
+                    <StackPane styleClass="avatar-gradient-circle">
+                        <Label fx:id="avatarLabel"
+                               text=""
+                               styleClass="avatar-initials"/>
                     </StackPane>
-                </HBox>
 
-                <!-- =========================
-                     Profile Header Card
-                ========================== -->
-                <HBox spacing="22" styleClass="profile-header-card">
+                    <Label fx:id="statusLabel"
+                           text=""
+                           styleClass="verified-pill"/>
+                </VBox>
 
-                    <StackPane styleClass="avatar-circle">
-                        <Label fx:id="avatarLabel" text="HT" styleClass="avatar-text"/>
-                    </StackPane>
+                <!-- Middle: User Information + Owner Details -->
+                <HBox spacing="40"
+                      alignment="CENTER_LEFT"
+                      HBox.hgrow="ALWAYS"
+                      styleClass="profile-middle-section">
 
-                    <VBox spacing="8" HBox.hgrow="ALWAYS">
-                        <HBox spacing="10">
+                    <!-- Left: Top user information -->
+                    <VBox spacing="14"
+                          styleClass="profile-basic-info">
+
+                        <!-- Name + Role -->
+                        <HBox spacing="12"
+                              alignment="CENTER_LEFT">
+
                             <Label fx:id="fullNameLabel"
-                                   text="Huyen Tran"
-                                   styleClass="profile-name"/>
+                                   text=""
+                                   styleClass="profile-full-name"/>
 
                             <Label fx:id="roleLabel"
-                                   text="User"
+                                   text=""
                                    styleClass="role-pill"/>
                         </HBox>
 
-                        <Label fx:id="emailLabel"
-                               text="huyen@example.com"
-                               styleClass="profile-email"/>
+                        <!-- Email + Rating -->
+                        <HBox spacing="12"
+                              alignment="CENTER_LEFT">
 
-                        <HBox spacing="10">
-                            <Label text="Rating" styleClass="small-label"/>
+                            <Label fx:id="emailLabel"
+                                   text=""
+                                   styleClass="profile-email"/>
+
                             <Label fx:id="ratingLabel"
-                                   text="4.8 / 5.0"
+                                   text=""
                                    styleClass="rating-pill"/>
                         </HBox>
+
+                        <!-- Owner only label -->
+                        <HBox spacing="8"
+                              alignment="CENTER_LEFT"
+                              styleClass="owner-only-row">
+
+                            <Label text="🔒"
+                                   styleClass="owner-lock-icon"/>
+
+                            <Label text="Owner only information"
+                                   styleClass="owner-only-title"/>
+                        </HBox>
+
                     </VBox>
 
-                    <Button text="Edit Profile"
-                            onAction="#handleOpenEditProfile"
-                            styleClass="primary-button"/>
-                </HBox>
+                    <!-- Right: Private details in 2-column flex style -->
+                    <HBox spacing="14"
+                          alignment="CENTER_LEFT"
+                          styleClass="private-details-flex">
 
-                <!-- =========================
-                     Account Summary Cards
-                ========================== -->
-                <HBox spacing="16" styleClass="summary-row">
+                        <!-- Column 1 -->
+                        <VBox spacing="12"
+                              styleClass="private-details-column">
 
-                    <VBox spacing="8" styleClass="summary-card">
-                        <Label text="Current Balance" styleClass="summary-title"/>
-                        <Label fx:id="balanceLabel" text="0.00" styleClass="summary-value"/>
-                        <Label text="Available for bidding" styleClass="summary-note"/>
-                    </VBox>
+                            <VBox spacing="4"
+                                  styleClass="private-info-box">
+                                <Label text="Phone"
+                                       styleClass="private-info-label"/>
+                                <Label fx:id="phoneLabel"
+                                       text=""
+                                       styleClass="private-info-value"/>
+                            </VBox>
 
-                    <VBox spacing="8" styleClass="summary-card">
-                        <Label text="Total Bids" styleClass="summary-title"/>
-                        <Label fx:id="totalBidsLabel" text="24" styleClass="summary-value"/>
-                        <Label text="Across all auctions" styleClass="summary-note"/>
-                    </VBox>
+                            <VBox spacing="4"
+                                  styleClass="private-info-box">
+                                <Label text="Address"
+                                       styleClass="private-info-label"/>
+                                <Label fx:id="addressLabel"
+                                       text=""
+                                       wrapText="true"
+                                       styleClass="private-info-value"/>
+                            </VBox>
 
-                    <VBox spacing="8" styleClass="summary-card">
-                        <Label text="Won Auctions" styleClass="summary-title"/>
-                        <Label fx:id="wonAuctionsLabel" text="5" styleClass="summary-value"/>
-                        <Label text="Completed wins" styleClass="summary-note"/>
-                    </VBox>
-
-                    <VBox spacing="8" styleClass="summary-card">
-                        <Label text="Active Listings" styleClass="summary-title"/>
-                        <Label fx:id="activeListingsLabel" text="3" styleClass="summary-value"/>
-                        <Label text="Currently selling" styleClass="summary-note"/>
-                    </VBox>
-
-                    <VBox spacing="8" styleClass="summary-card">
-                        <Label text="Rating" styleClass="summary-title"/>
-                        <Label fx:id="summaryRatingLabel" text="4.8" styleClass="summary-value"/>
-                        <Label text="Buyer &amp; seller score" styleClass="summary-note"/>
-                    </VBox>
-
-                </HBox>
-
-                <!-- =========================
-                     Main Tabs
-                ========================== -->
-                <VBox spacing="16" styleClass="content-card">
-
-                    <HBox spacing="10">
-                        <VBox spacing="4">
-                            <Label fx:id="selectedTabTitleLabel"
-                                   text="Overview"
-                                   styleClass="section-title"/>
-                            <Label text="View and manage your account information."
-                                   styleClass="section-subtitle"/>
                         </VBox>
+
+                        <!-- Column 2 -->
+                        <VBox spacing="12"
+                              styleClass="private-details-column">
+
+                            <VBox spacing="4"
+                                  styleClass="private-info-box">
+                                <Label text="Date of Birth"
+                                       styleClass="private-info-label"/>
+                                <Label fx:id="dateOfBirthLabel"
+                                       text=""
+                                       styleClass="private-info-value"/>
+                            </VBox>
+
+                            <VBox spacing="4"
+                                  styleClass="private-info-box">
+                                <Label text="Joined Date"
+                                       styleClass="private-info-label"/>
+                                <Label fx:id="joinedDateLabel"
+                                       text=""
+                                       styleClass="private-info-value"/>
+                            </VBox>
+
+                        </VBox>
+
                     </HBox>
 
-                    <TabPane fx:id="profileTabPane"
-                             tabClosingPolicy="UNAVAILABLE"
-                             styleClass="profile-tab-pane">
+                </HBox>
 
-                        <!-- Overview -->
-                        <Tab text="Overview">
-                            <VBox spacing="18" styleClass="tab-content">
+                <!-- Right: Edit Button -->
+                <VBox alignment="TOP_RIGHT"
+                      styleClass="profile-action-section">
 
-                                <HBox spacing="16">
-                                    <VBox spacing="8" styleClass="overview-panel">
-                                        <Label text="Account Balance" styleClass="panel-title"/>
-                                        <Label fx:id="overviewBalanceLabel"
-                                               text="0.00"
-                                               styleClass="big-money-label"/>
-                                        <Label text="Your balance is used to place bids. Top-up requests require admin approval."
-                                               styleClass="panel-description"/>
-                                    </VBox>
+                    <Button fx:id="editProfileButton"
+                            text="Edit Profile"
+                            onAction="#handleOpenEditProfile"
+                            styleClass="edit-profile-button"/>
+                </VBox>
 
-                                    <VBox spacing="8" styleClass="overview-panel">
-                                        <Label text="Top-up Request" styleClass="panel-title"/>
-                                        <Label fx:id="topUpStatusLabel"
-                                               text="No pending request"
-                                               styleClass="status-neutral"/>
-                                        <Label text="Balance will only update after an administrator approves the request."
-                                               styleClass="panel-description"/>
-                                    </VBox>
+            </HBox>
 
-                                    <VBox spacing="8" styleClass="overview-panel">
-                                        <Label text="Recent Auction Status" styleClass="panel-title"/>
-                                        <Label fx:id="recentAuctionStatusLabel"
-                                               text="You are currently winning on Vintage Camera."
-                                               styleClass="status-success"/>
-                                        <Label text="Keep watching your active bids before the auction closes."
-                                               styleClass="panel-description"/>
-                                    </VBox>
-                                </HBox>
+            <!-- =========================
+                 Account Summary Cards
+            ========================== -->
+            <HBox fx:id="summaryRow" spacing="16" styleClass="summary-row">
 
-                                <VBox spacing="12" styleClass="quick-actions-card">
-                                    <Label text="Quick Actions" styleClass="panel-title"/>
+                <VBox spacing="8" styleClass="summary-card">
+                    <Label text="Current Balance" styleClass="summary-title"/>
+                    <Label fx:id="balanceLabel" text="0.00" styleClass="summary-value"/>
+                    <Label text="Available for bidding" styleClass="summary-note"/>
+                </VBox>
 
-                                    <HBox spacing="12">
-                                        <Button text="Request Top-up"
-                                                onAction="#handleOpenTopUp"
-                                                styleClass="primary-button"/>
+                <VBox spacing="8" styleClass="summary-card">
+                    <Label text="Total Bids" styleClass="summary-title"/>
+                    <Label fx:id="totalBidsLabel" text="24" styleClass="summary-value"/>
+                    <Label text="Across all auctions" styleClass="summary-note"/>
+                </VBox>
 
-                                        <Button text="View Transactions"
-                                                onAction="#handleGoToTransactions"
-                                                styleClass="secondary-button"/>
+                <VBox spacing="8" styleClass="summary-card">
+                    <Label text="Won Auctions" styleClass="summary-title"/>
+                    <Label fx:id="wonAuctionsLabel" text="5" styleClass="summary-value"/>
+                    <Label text="Completed wins" styleClass="summary-note"/>
+                </VBox>
 
-                                        <Button text="View Watchlist"
-                                                onAction="#handleGoToWatchlist"
-                                                styleClass="secondary-button"/>
-                                    </HBox>
+                <VBox spacing="8" styleClass="summary-card">
+                    <Label text="Active Listings" styleClass="summary-title"/>
+                    <Label fx:id="activeListingsLabel" text="3" styleClass="summary-value"/>
+                    <Label text="Currently selling" styleClass="summary-note"/>
+                </VBox>
+
+                <VBox spacing="8" styleClass="summary-card">
+                    <Label text="Rating" styleClass="summary-title"/>
+                    <Label fx:id="summaryRatingLabel" text="4.8" styleClass="summary-value"/>
+                    <Label text="Buyer &amp; seller score" styleClass="summary-note"/>
+                </VBox>
+
+            </HBox>
+
+            <!-- =========================
+                 Main Tabs
+            ========================== -->
+            <VBox spacing="16" styleClass="content-card">
+
+                <HBox spacing="10">
+                    <VBox spacing="4">
+                        <Label fx:id="selectedTabTitleLabel"
+                               text="Wallet"
+                               styleClass="section-title"/>
+                        <Label text="View and manage your account information."
+                               styleClass="section-subtitle"/>
+                    </VBox>
+                </HBox>
+
+                <TabPane fx:id="profileTabPane"
+                         tabClosingPolicy="UNAVAILABLE"
+                         styleClass="profile-tab-pane"
+                         VBox.vgrow="NEVER">
+
+                    <!-- Wallet -->
+                    <Tab text="Wallet">
+                        <VBox spacing="18" styleClass="tab-content">
+
+                            <HBox fx:id="walletPanelRow" spacing="16">
+                                <VBox spacing="8" styleClass="wallet-panel">
+                                    <Label text="Account Balance" styleClass="panel-title"/>
+                                    <Label fx:id="walletBalanceLabel"
+                                           text="0.00"
+                                           styleClass="big-money-label"/>
+                                    <Label text="Your balance is used to place bids. Top-up requests require admin approval."
+                                           styleClass="panel-description"/>
                                 </VBox>
 
+                                <VBox spacing="8" styleClass="wallet-panel">
+                                    <Label text="Top-up Request" styleClass="panel-title"/>
+                                    <Label fx:id="topUpStatusLabel"
+                                           text="No pending request"
+                                           styleClass="status-neutral"/>
+                                    <Label text="Balance will only update after an administrator approves the request."
+                                           styleClass="panel-description"/>
+                                </VBox>
+
+                                <VBox spacing="8" styleClass="wallet-panel">
+                                    <Label text="Recent Auction Status" styleClass="panel-title"/>
+                                    <Label fx:id="recentAuctionStatusLabel"
+                                           text="You are currently winning on Vintage Camera."
+                                           styleClass="status-success"/>
+                                    <Label text="Keep watching your active bids before the auction closes."
+                                           styleClass="panel-description"/>
+                                </VBox>
+                            </HBox>
+
+                            <VBox spacing="12" styleClass="quick-actions-card">
+                                <Label text="Quick Actions" styleClass="panel-title"/>
+
+                                <HBox spacing="12">
+                                    <Button text="Request Top-up"
+                                            onAction="#handleOpenTopUp"
+                                            styleClass="primary-button"/>
+
+                                    <Button text="View Transactions"
+                                            onAction="#handleGoToTransactions"
+                                            styleClass="secondary-button"/>
+
+                                    <Button text="View Watchlist"
+                                            onAction="#handleGoToWatchlist"
+                                            styleClass="secondary-button"/>
+                                </HBox>
                             </VBox>
-                        </Tab>
 
-                        <!-- My Listings -->
-                        <Tab text="My Listings">
-                            <VBox spacing="12" styleClass="tab-content">
-                                <Label text="Items you are selling as a seller." styleClass="table-hint"/>
+                        </VBox>
+                    </Tab>
 
-                                <TableView fx:id="listingsTable" styleClass="modern-table">
-                                    <columns>
-                                        <TableColumn fx:id="listingItemNameColumn" text="Item Name" prefWidth="220"/>
-                                        <TableColumn fx:id="listingStartingPriceColumn" text="Starting Price" prefWidth="140"/>
-                                        <TableColumn fx:id="listingCurrentBidColumn" text="Current Bid" prefWidth="140"/>
-                                        <TableColumn fx:id="listingStatusColumn" text="Status" prefWidth="140"/>
-                                        <TableColumn fx:id="listingCreatedDateColumn" text="Created Date" prefWidth="160"/>
-                                    </columns>
-                                </TableView>
-                            </VBox>
-                        </Tab>
+                    <!-- My Listings -->
+                    <Tab text="My Listings">
+                        <VBox spacing="18" styleClass="tab-content listings-section">
 
-                        <!-- My Bids -->
-                        <Tab text="My Bids">
-                            <VBox spacing="12" styleClass="tab-content">
-                                <Label text="Auctions where you have placed bids as a buyer." styleClass="table-hint"/>
+                            <!-- Header row: Search + Add Item -->
+                            <HBox spacing="14" alignment="CENTER_LEFT" styleClass="listings-top-row">
+                                <TextField fx:id="listingSearchField"
+                                           promptText="Search your listings..."
+                                           styleClass="listing-search-field"
+                                           HBox.hgrow="ALWAYS"/>
 
-                                <TableView fx:id="bidsTable" styleClass="modern-table">
-                                    <columns>
-                                        <TableColumn fx:id="bidItemNameColumn" text="Item Name" prefWidth="220"/>
-                                        <TableColumn fx:id="bidMyAmountColumn" text="My Bid" prefWidth="130"/>
-                                        <TableColumn fx:id="bidHighestAmountColumn" text="Highest Bid" prefWidth="140"/>
-                                        <TableColumn fx:id="bidStatusColumn" text="Status" prefWidth="130"/>
-                                        <TableColumn fx:id="bidDateColumn" text="Bid Date" prefWidth="170"/>
-                                    </columns>
-                                </TableView>
-                            </VBox>
-                        </Tab>
+                                <Region HBox.hgrow="ALWAYS"/>
 
-                        <!-- Watchlist -->
-                        <Tab text="Watchlist">
-                            <VBox spacing="12" styleClass="tab-content">
-                                <Label text="Items you are interested in and want to monitor." styleClass="table-hint"/>
+                                <Button text="+ Add Item"
+                                        onAction="#handleAddListing"
+                                        styleClass="add-listing-button"/>
+                            </HBox>
 
-                                <TableView fx:id="watchlistTable" styleClass="modern-table">
-                                    <columns>
-                                        <TableColumn fx:id="watchItemNameColumn" text="Item Name" prefWidth="220"/>
-                                        <TableColumn fx:id="watchCurrentPriceColumn" text="Current Price" prefWidth="140"/>
-                                        <TableColumn fx:id="watchTimeRemainingColumn" text="Time Remaining" prefWidth="160"/>
-                                        <TableColumn fx:id="watchStatusColumn" text="Status" prefWidth="140"/>
-                                        <TableColumn fx:id="watchActionColumn" text="Action" prefWidth="120"/>
-                                    </columns>
-                                </TableView>
-                            </VBox>
-                        </Tab>
+                            <!-- Category chips -->
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="listing-category-bar">
+                                <Button fx:id="categoryAllButton"
+                                        text="All"
+                                        onAction="#handleCategoryAll"
+                                        styleClass="category-chip"/>
 
-                        <!-- Transactions -->
-                        <Tab text="Transactions">
-                            <VBox spacing="12" styleClass="tab-content">
-                                <Label text="Your purchase and sale transaction history." styleClass="table-hint"/>
+                                <Button fx:id="categoryElectronicsButton"
+                                        text="Electronics"
+                                        onAction="#handleCategoryElectronics"
+                                        styleClass="category-chip"/>
 
-                                <TableView fx:id="transactionsTable" styleClass="modern-table">
-                                    <columns>
-                                        <TableColumn fx:id="transactionDateColumn" text="Date" prefWidth="160"/>
-                                        <TableColumn fx:id="transactionTypeColumn" text="Type" prefWidth="130"/>
-                                        <TableColumn fx:id="transactionItemColumn" text="Item" prefWidth="220"/>
-                                        <TableColumn fx:id="transactionAmountColumn" text="Amount" prefWidth="140"/>
-                                        <TableColumn fx:id="transactionStatusColumn" text="Status" prefWidth="150"/>
-                                    </columns>
-                                </TableView>
-                            </VBox>
-                        </Tab>
+                                <Button fx:id="categoryFashionButton"
+                                        text="Fashion"
+                                        onAction="#handleCategoryFashion"
+                                        styleClass="category-chip"/>
 
-                        <!-- Activity Log -->
-                        <Tab text="Activity Log">
-                            <VBox spacing="12" styleClass="tab-content">
-                                <Label text="Your personal activity history inside BidBlitz." styleClass="table-hint"/>
+                                <Button fx:id="categoryCollectiblesButton"
+                                        text="Collectibles"
+                                        onAction="#handleCategoryCollectibles"
+                                        styleClass="category-chip"/>
 
-                                <TableView fx:id="activityTable" styleClass="modern-table">
-                                    <columns>
-                                        <TableColumn fx:id="activityDateTimeColumn" text="Date / Time" prefWidth="180"/>
-                                        <TableColumn fx:id="activityActionColumn" text="Action" prefWidth="160"/>
-                                        <TableColumn fx:id="activityDescriptionColumn" text="Description" prefWidth="420"/>
-                                    </columns>
-                                </TableView>
-                            </VBox>
-                        </Tab>
+                                <Button fx:id="categoryHomeButton"
+                                        text="Home"
+                                        onAction="#handleCategoryHome"
+                                        styleClass="category-chip"/>
 
-                    </TabPane>
+                                <Button fx:id="categoryBooksButton"
+                                        text="Books"
+                                        onAction="#handleCategoryBooks"
+                                        styleClass="category-chip"/>
+
+                                <Button fx:id="categoryOtherButton"
+                                        text="Other"
+                                        onAction="#handleCategoryOther"
+                                        styleClass="category-chip"/>
+                            </HBox>
+
+                            <!-- Product card grid -->
+                                <TilePane fx:id="listingsCardContainer"
+                                          hgap="18"
+                                          vgap="18"
+                                          prefColumns="3"
+                                          tileAlignment="TOP_LEFT"
+                                          styleClass="listings-card-container"/>
+                        </VBox>
+                    </Tab>
+
+
+                    <!-- My Bids -->
+                    <Tab text="My Bids">
+                        <VBox spacing="12" styleClass="tab-content">
+                            <Label text="Auctions where you have placed bids as a buyer." styleClass="table-hint"/>
+
+                            <TableView fx:id="bidsTable" styleClass="modern-table">
+                                <columns>
+                                    <TableColumn fx:id="bidItemNameColumn" text="Item Name"/>
+                                    <TableColumn fx:id="bidMyAmountColumn" text="My Bid"/>
+                                    <TableColumn fx:id="bidHighestAmountColumn" text="Highest Bid"/>
+                                    <TableColumn fx:id="bidStatusColumn" text="Status"/>
+                                    <TableColumn fx:id="bidDateColumn" text="Bid Date"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+
+                    <!-- Watchlist -->
+                    <Tab text="Watchlist">
+                        <VBox spacing="12" styleClass="tab-content">
+                            <Label text="Items you are interested in and want to monitor." styleClass="table-hint"/>
+
+                            <TableView fx:id="watchlistTable" styleClass="modern-table">
+                                <columns>
+                                    <TableColumn fx:id="watchItemNameColumn" text="Item Name"/>
+                                    <TableColumn fx:id="watchCurrentPriceColumn" text="Current Price"/>
+                                    <TableColumn fx:id="watchTimeRemainingColumn" text="Time Remaining"/>
+                                    <TableColumn fx:id="watchStatusColumn" text="Status"/>
+                                    <TableColumn fx:id="watchActionColumn" text="Action"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+
+                    <!-- Transactions -->
+                    <Tab text="Transactions">
+                        <VBox spacing="12" styleClass="tab-content">
+                            <Label text="Your purchase and sale transaction history." styleClass="table-hint"/>
+
+                            <TableView fx:id="transactionsTable" styleClass="modern-table">
+                                <columns>
+                                    <TableColumn fx:id="transactionDateColumn" text="Date"/>
+                                    <TableColumn fx:id="transactionTypeColumn" text="Type"/>
+                                    <TableColumn fx:id="transactionItemColumn" text="Item"/>
+                                    <TableColumn fx:id="transactionAmountColumn" text="Amount"/>
+                                    <TableColumn fx:id="transactionStatusColumn" text="Status"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+
+                    <!-- Activity Log -->
+                    <Tab text="Activity Log">
+                        <VBox spacing="12" styleClass="tab-content">
+                            <Label text="Your personal activity history inside BidBlitz." styleClass="table-hint"/>
+
+                            <TableView fx:id="activityTable" styleClass="modern-table">
+                                <columns>
+                                    <TableColumn fx:id="activityDateTimeColumn" text="Date / Time"/>
+                                    <TableColumn fx:id="activityActionColumn" text="Action"/>
+                                    <TableColumn fx:id="activityDescriptionColumn" text="Description"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+
+                </TabPane>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+    <!-- =========================
+         Edit Profile Modal Overlay
+    ========================== -->
+    <StackPane fx:id="editProfileOverlay"
+               visible="false"
+               managed="false"
+               styleClass="modal-overlay">
+
+        <ScrollPane fx:id="editProfileModalScrollPane"
+                    fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    styleClass="modal-scroll-pane">
+
+        <VBox fx:id="editProfileModal"
+              spacing="22"
+              alignment="TOP_LEFT"
+              styleClass="edit-profile-modal"
+              maxHeight="-Infinity">
+
+            <!-- Modal Header -->
+            <HBox alignment="CENTER_LEFT"
+                  spacing="12"
+                  styleClass="modal-header">
+
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="Edit Profile"
+                           styleClass="modal-title"/>
+
+                    <Label text="Update your profile details. Your role is locked for account security."
+                           styleClass="modal-subtitle"/>
+                </VBox>
+
+                <Button text="✕"
+                        onAction="#handleCloseEditProfile"
+                        styleClass="modal-close-button"/>
+            </HBox>
+
+            <!-- Profile Preview -->
+            <HBox spacing="14"
+                  alignment="CENTER_LEFT"
+                  styleClass="modal-profile-preview">
+
+                <StackPane styleClass="modal-avatar-circle">
+                    <Label fx:id="modalAvatarLabel"
+                           text=""
+                           styleClass="modal-avatar-text"/>
+                </StackPane>
+
+                <VBox spacing="4">
+                    <Label fx:id="modalNamePreviewLabel"
+                           text=""
+                           styleClass="modal-preview-name"/>
+
+                    <Label fx:id="modalEmailPreviewLabel"
+                           text=""
+                           styleClass="modal-preview-email"/>
+                </VBox>
+            </HBox>
+
+            <!-- Form Content -->
+            <VBox spacing="16"
+                  styleClass="modal-form">
+
+                <VBox spacing="6">
+                    <Label text="Full Name"
+                           styleClass="form-label"/>
+                    <TextField fx:id="editFullNameField"
+                               promptText="Enter full name"
+                               styleClass="form-input"/>
+                </VBox>
+
+                <VBox spacing="6">
+                    <Label text="Email"
+                           styleClass="form-label"/>
+                    <TextField fx:id="editEmailField"
+                               promptText="Enter email"
+                               styleClass="form-input"/>
+                </VBox>
+
+                <HBox spacing="14">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Phone"
+                               styleClass="form-label"/>
+                        <TextField fx:id="editPhoneField"
+                                   promptText="Enter phone number"
+                                   styleClass="form-input"/>
+                    </VBox>
+
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Date of Birth"
+                               styleClass="form-label"/>
+                        <TextField fx:id="editDateOfBirthField"
+                                   promptText="Example: 15 March 2003"
+                                   styleClass="form-input"/>
+                    </VBox>
+                </HBox>
+
+                <VBox spacing="6">
+                    <Label text="Address"
+                           styleClass="form-label"/>
+                    <TextField fx:id="editAddressField"
+                               promptText="Enter address"
+                               styleClass="form-input"/>
+                </VBox>
+
+                <VBox spacing="6">
+                    <Label text="Role"
+                           styleClass="form-label"/>
+                    <TextField fx:id="editRoleField"
+                               editable="false"
+                               focusTraversable="false"
+                               styleClass="form-input-disabled"/>
                 </VBox>
 
             </VBox>
+
+            <!-- Footer Buttons -->
+            <HBox spacing="12"
+                  alignment="CENTER_RIGHT"
+                  styleClass="modal-footer">
+
+                <Button text="Cancel"
+                        onAction="#handleCloseEditProfile"
+                        styleClass="modal-cancel-button"/>
+
+                <Button text="Save Changes"
+                        onAction="#handleSaveEditProfile"
+                        styleClass="modal-save-button"/>
+            </HBox>
+
+            </VBox>
         </ScrollPane>
-    </center>
-</BorderPane>
+    </StackPane>
+
+    <!-- =========================
+         Add Item Modal Overlay
+    ========================== -->
+    <StackPane fx:id="addListingOverlay"
+               visible="false"
+               managed="false"
+               styleClass="modal-overlay">
+
+        <VBox fx:id="addListingModal"
+              spacing="18"
+              styleClass="add-listing-modal"
+              maxHeight="-Infinity">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="Add New Auction Item" styleClass="modal-title"/>
+                    <Label text="Create a new listing for your BidBlitz marketplace."
+                           styleClass="modal-subtitle"/>
+                </VBox>
+
+                <Button text="✕"
+                        onAction="#handleCloseAddListing"
+                        styleClass="modal-close-button"/>
+            </HBox>
+
+            <!-- Form -->
+            <GridPane hgap="18" vgap="14" styleClass="modal-form">
+
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50"/>
+                    <ColumnConstraints percentWidth="50"/>
+                </columnConstraints>
+
+                <VBox spacing="6"
+                      GridPane.columnIndex="0"
+                      GridPane.rowIndex="0"
+                      GridPane.hgrow="ALWAYS"
+                      maxWidth="Infinity">
+                    <Label text="Item Name" styleClass="form-label" maxWidth="Infinity"/>
+                    <TextField fx:id="addListingNameField"
+                               promptText="Example: Gaming Mouse"
+                               styleClass="form-input"/>
+                </VBox>
+
+                <VBox spacing="6"
+                      GridPane.columnIndex="1"
+                      GridPane.rowIndex="0"
+                      GridPane.hgrow="ALWAYS"
+                      maxWidth="Infinity">
+                    <Label text="Category" styleClass="form-label" maxWidth="Infinity"/>
+                    <ComboBox fx:id="addListingCategoryComboBox"
+                              promptText="Select category"
+                              styleClass="form-combo-box"
+                              maxWidth="Infinity"/>
+                </VBox>
+
+                <VBox spacing="6"
+                      GridPane.columnIndex="0"
+                      GridPane.rowIndex="1"
+                      GridPane.hgrow="ALWAYS"
+                      maxWidth="Infinity">
+                    <Label text="Starting Price" styleClass="form-label" maxWidth="Infinity"/>
+                    <TextField fx:id="addListingStartingPriceField"
+                               promptText="Example: 50"
+                               styleClass="form-input"/>
+                </VBox>
+
+                <VBox spacing="6"
+                      GridPane.columnIndex="1"
+                      GridPane.rowIndex="1"
+                      GridPane.hgrow="ALWAYS"
+                      maxWidth="Infinity">
+                    <Label text="Current Bid" styleClass="form-label" maxWidth="Infinity"/>
+                    <TextField fx:id="addListingCurrentBidField"
+                               promptText="Example: 50"
+                               styleClass="form-input"/>
+                </VBox>
+
+                <VBox spacing="6"
+                      GridPane.columnIndex="0"
+                      GridPane.rowIndex="2"
+                      GridPane.hgrow="ALWAYS"
+                      maxWidth="Infinity">
+                    <Label text="Status" styleClass="form-label" maxWidth="Infinity"/>
+                    <ComboBox fx:id="addListingStatusComboBox"
+                              promptText="Select status"
+                              styleClass="form-combo-box"/>
+                </VBox>
+
+                <VBox spacing="6"
+                      GridPane.columnIndex="1"
+                      GridPane.rowIndex="2"
+                      GridPane.hgrow="ALWAYS"
+                      maxWidth="Infinity">
+                    <Label text="Icon / Emoji" styleClass="form-label" maxWidth="Infinity"/>
+                    <TextField fx:id="addListingIconField"
+                               promptText="Example: 🎮, 📱, 📦"
+                               styleClass="form-input"/>
+                </VBox>
+
+            </GridPane>
+
+            <Label fx:id="addListingErrorLabel"
+                   text=""
+                   styleClass="error-label"/>
+
+            <!-- Footer -->
+            <HBox spacing="12" alignment="CENTER_RIGHT" styleClass="modal-footer">
+                <Button text="Cancel"
+                        onAction="#handleCloseAddListing"
+                        styleClass="modal-cancel-button"/>
+
+                <Button text="Add Listing"
+                        onAction="#handleSubmitAddListing"
+                        styleClass="modal-save-button"/>
+            </HBox>
+
+        </VBox>
+    </StackPane>
+
+</StackPane>
