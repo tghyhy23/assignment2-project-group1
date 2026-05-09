@@ -4,7 +4,11 @@ import com.group01.asm2.core.SessionManager;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.repositories.PersonRepository;
+import com.group01.asm2.security.AppActionGuard;
 import com.group01.asm2.utils.PasswordHasher;
+
+import java.time.Duration;
+import java.util.Optional;
 
 public class AuthService {
     private final PersonRepository personRepository = new PersonRepository();
@@ -12,32 +16,40 @@ public class AuthService {
     public Person login(String usernameInput, String passwordInput) {
         String username = normalizeUsername(usernameInput);
 
+        AppActionGuard.callLimited(
+            "login:" + username,
+            5,
+            Duration.ofMinutes(5),
+            () -> null
+        );
+
+        if (username.isBlank()) {
+            throw AppException.validation("Username is required.");
+        }
+
         if (passwordInput == null || passwordInput.isBlank()) {
             throw AppException.validation("Password is required.");
         }
 
-        Person person = personRepository
-            .findByUsername(username)
-            .orElseThrow(() -> AppException.authentication("Invalid username or password."));
+        Optional<Person> optionalPerson = personRepository.findByUsername(username);
 
-        boolean passwordMatches = PasswordHasher.verify(passwordInput, person.getpassword());
+        if (optionalPerson.isEmpty()) {
+            throw AppException.authentication("Invalid username or password.");
+        }
 
-        if (!passwordMatches) {
+        Person person = optionalPerson.get();
+
+        if (!PasswordHasher.verify(passwordInput, person.getpassword())) {
             throw AppException.authentication("Invalid username or password.");
         }
 
         SessionManager.login(person);
-
         return person;
     }
 
-    public void logout() {
-        SessionManager.logout();
-    }
-
     private String normalizeUsername(String usernameInput) {
-        if (usernameInput == null || usernameInput.trim().isEmpty()) {
-            throw AppException.validation("Username is required.");
+        if (usernameInput == null) {
+            return "";
         }
 
         return usernameInput.trim().toLowerCase();

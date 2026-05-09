@@ -5,6 +5,7 @@ public class AppException extends RuntimeException {
         VALIDATION,
         AUTHENTICATION,
         AUTHORIZATION,
+        RATE_LIMIT,
         NOT_FOUND,
         CONFLICT,
         DATABASE,
@@ -28,6 +29,10 @@ public class AppException extends RuntimeException {
 
     public static AppException authorization(String message) {
         return new AppException(Type.AUTHORIZATION, message);
+    }
+
+    public static AppException rateLimit(String message) {
+        return new AppException(Type.RATE_LIMIT, message);
     }
 
     public static AppException notFound(String message) {

@@ -1,6 +1,5 @@
 package com.group01.asm2.controllers;
 
-import com.group01.asm2.enums.UserRole;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.services.AuthService;
@@ -16,8 +15,9 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.Duration;
 
-public class LoginController {
+public class LoginController extends BaseController {
     @FXML
     private TextField usernameField;
 
@@ -37,32 +37,36 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        try {
-            Person loggedInUser = authService.login(username, password);
+        guardedLimited(
+            "login:" + normalizeRateLimitKey(username),
+            5,
+            Duration.ofMinutes(5),
+            () -> {
+                Person loggedInUser = authService.login(username, password);
 
-            System.out.println("===== LOGIN SUCCESS =====");
-            System.out.println("ID: " + loggedInUser.getId());
-            System.out.println("Full name: " + loggedInUser.getFullName());
-            System.out.println("Username: " + loggedInUser.getUsername());
-            System.out.println("Email: " + loggedInUser.getEmail());
-            System.out.println("Role: " + loggedInUser.getRole());
-            System.out.println("Password hash: " + loggedInUser.getpassword());
-            System.out.println("=========================");
+                System.out.println("===== LOGIN SUCCESS =====");
+                System.out.println("ID: " + loggedInUser.getId());
+                System.out.println("Full name: " + loggedInUser.getFullName());
+                System.out.println("Username: " + loggedInUser.getUsername());
+                System.out.println("Email: " + loggedInUser.getEmail());
+                System.out.println("Role: " + loggedInUser.getRole());
+                System.out.println("=========================");
 
-            showSuccess("Login successful. Welcome back, " + loggedInUser.getFullName() + "!");
-            navigateAfterLogin(event, loggedInUser);
-
-        } catch (AppException exception) {
-            showError(exception.getMessage());
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            showError("Something went wrong while logging in.");
-        }
+                showSuccess("Login successful. Welcome back, " + loggedInUser.getFullName() + "!");
+                navigateAfterLogin(event, loggedInUser);
+            }
+        );
     }
 
     @FXML
     private void goToSignup(ActionEvent event) {
-        switchScene(event, "/com/group01/asm2/views/signup.fxml", "Cannot open the Sign Up page.");
+        guarded(() -> {
+            switchScene(
+                event,
+                "/com/group01/asm2/views/signup.fxml",
+                "Cannot open the Sign Up page."
+            );
+        });
     }
 
     private void navigateAfterLogin(ActionEvent event, Person loggedInUser) {
@@ -87,6 +91,24 @@ public class LoginController {
             exception.printStackTrace();
             showError(errorMessage);
         }
+    }
+
+    private String normalizeRateLimitKey(String value) {
+        if (value == null || value.isBlank()) {
+            return "unknown";
+        }
+
+        return value.trim().toLowerCase();
+    }
+
+    @Override
+    protected void handleAppException(AppException exception) {
+        showError(exception.getMessage());
+    }
+
+    @Override
+    protected void handleUnexpectedException() {
+        showError("Something went wrong while logging in.");
     }
 
     private void showError(String message) {
