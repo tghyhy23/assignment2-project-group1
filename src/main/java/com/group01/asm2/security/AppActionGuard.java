@@ -1,6 +1,5 @@
 package com.group01.asm2.security;
 
-import java.time.Duration;
 import java.util.function.Supplier;
 
 public final class AppActionGuard {
@@ -10,24 +9,62 @@ public final class AppActionGuard {
     }
 
     public static void runGlobal(Runnable action) {
-        RATE_LIMITER.check("global", 300, Duration.ofMinutes(15));
+        RATE_LIMITER.check(
+            RateLimitPolicy.GLOBAL.buildKey("app"),
+            RateLimitPolicy.GLOBAL.getMaxActions(),
+            RateLimitPolicy.GLOBAL.getDuration()
+        );
+
         action.run();
     }
 
     public static <T> T callGlobal(Supplier<T> action) {
-        RATE_LIMITER.check("global", 300, Duration.ofMinutes(15));
+        RATE_LIMITER.check(
+            RateLimitPolicy.GLOBAL.buildKey("app"),
+            RateLimitPolicy.GLOBAL.getMaxActions(),
+            RateLimitPolicy.GLOBAL.getDuration()
+        );
+
         return action.get();
     }
 
-    public static void runLimited(String key, int maxActions, Duration duration, Runnable action) {
-        RATE_LIMITER.check("global", 300, Duration.ofMinutes(15));
-        RATE_LIMITER.check(key, maxActions, duration);
+    public static void runLimited(
+        RateLimitPolicy policy,
+        String identity,
+        Runnable action
+    ) {
+        runGlobal();
+
+        RATE_LIMITER.check(
+            policy.buildKey(identity),
+            policy.getMaxActions(),
+            policy.getDuration()
+        );
+
         action.run();
     }
 
-    public static <T> T callLimited(String key, int maxActions, Duration duration, Supplier<T> action) {
-        RATE_LIMITER.check("global", 300, Duration.ofMinutes(15));
-        RATE_LIMITER.check(key, maxActions, duration);
+    public static <T> T callLimited(
+        RateLimitPolicy policy,
+        String identity,
+        Supplier<T> action
+    ) {
+        runGlobal();
+
+        RATE_LIMITER.check(
+            policy.buildKey(identity),
+            policy.getMaxActions(),
+            policy.getDuration()
+        );
+
         return action.get();
+    }
+
+    private static void runGlobal() {
+        RATE_LIMITER.check(
+            RateLimitPolicy.GLOBAL.buildKey("app"),
+            RateLimitPolicy.GLOBAL.getMaxActions(),
+            RateLimitPolicy.GLOBAL.getDuration()
+        );
     }
 }

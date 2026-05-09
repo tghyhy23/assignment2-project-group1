@@ -2,8 +2,8 @@ package com.group01.asm2.controllers;
 
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.security.AppActionGuard;
+import com.group01.asm2.security.RateLimitPolicy;
 
-import java.time.Duration;
 import java.util.function.Supplier;
 
 public abstract class BaseController {
@@ -31,19 +31,35 @@ public abstract class BaseController {
         }
     }
 
-    protected void guardedLimited(
-        String key,
-        int maxActions,
-        Duration duration,
+    protected void guarded(
+        RateLimitPolicy policy,
+        String identity,
         Runnable action
     ) {
         try {
-            AppActionGuard.runLimited(key, maxActions, duration, action);
+            AppActionGuard.runLimited(policy, identity, action);
         } catch (AppException exception) {
             handleAppException(exception);
         } catch (Exception exception) {
             exception.printStackTrace();
             handleUnexpectedException();
+        }
+    }
+
+    protected <T> T guardedCall(
+        RateLimitPolicy policy,
+        String identity,
+        Supplier<T> action
+    ) {
+        try {
+            return AppActionGuard.callLimited(policy, identity, action);
+        } catch (AppException exception) {
+            handleAppException(exception);
+            return null;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            handleUnexpectedException();
+            return null;
         }
     }
 

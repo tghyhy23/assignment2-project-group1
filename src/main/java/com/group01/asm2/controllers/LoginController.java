@@ -2,6 +2,7 @@ package com.group01.asm2.controllers;
 
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
+import com.group01.asm2.security.RateLimitPolicy;
 import com.group01.asm2.services.AuthService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,25 +38,12 @@ public class LoginController extends BaseController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        guardedLimited(
-            "login:" + normalizeRateLimitKey(username),
-            5,
-            Duration.ofMinutes(5),
-            () -> {
-                Person loggedInUser = authService.login(username, password);
+        guarded(RateLimitPolicy.LOGIN, username, () -> {
+            Person loggedInUser = authService.login(username, password);
 
-                System.out.println("===== LOGIN SUCCESS =====");
-                System.out.println("ID: " + loggedInUser.getId());
-                System.out.println("Full name: " + loggedInUser.getFullName());
-                System.out.println("Username: " + loggedInUser.getUsername());
-                System.out.println("Email: " + loggedInUser.getEmail());
-                System.out.println("Role: " + loggedInUser.getRole());
-                System.out.println("=========================");
-
-                showSuccess("Login successful. Welcome back, " + loggedInUser.getFullName() + "!");
-                navigateAfterLogin(event, loggedInUser);
-            }
-        );
+            showSuccess("Login successful. Welcome back, " + loggedInUser.getFullName() + "!");
+            navigateAfterLogin(event, loggedInUser);
+        });
     }
 
     @FXML

@@ -3,18 +3,17 @@ package com.group01.asm2.services;
 import com.group01.asm2.enums.UserRole;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
-import com.group01.asm2.security.SecurityAction;
-import com.group01.asm2.security.SecurityResource;
+import com.group01.asm2.security.Permission;
 
 import java.util.EnumMap;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
 public final class AuthorizationService {
     private static final AuthorizationService INSTANCE = new AuthorizationService();
 
-    private final Map<UserRole, Set<String>> permissions = new EnumMap<>(UserRole.class);
+    private final Map<UserRole, Set<Permission>> permissions = new EnumMap<>(UserRole.class);
 
     private AuthorizationService() {
         registerBuyerPermissions();
@@ -27,7 +26,7 @@ public final class AuthorizationService {
         return INSTANCE;
     }
 
-    public boolean can(Person actor, String action, String resource) {
+    public boolean can(Person actor, Permission permission) {
         if (actor == null || actor.getRole() == null) {
             return false;
         }
@@ -38,70 +37,77 @@ public final class AuthorizationService {
 
         return permissions
             .getOrDefault(actor.getRole(), Set.of())
-            .contains(key(action, resource));
+            .contains(permission);
     }
 
-    public void require(Person actor, String action, String resource) {
-        if (!can(actor, action, resource)) {
+    public void require(Person actor, Permission permission) {
+        if (!can(actor, permission)) {
             throw AppException.authorization("You are not authorized to perform this action.");
         }
     }
 
     private void registerBuyerPermissions() {
-        allow(UserRole.BUYER, SecurityAction.READ, SecurityResource.AUCTION);
-        allow(UserRole.BUYER, SecurityAction.CREATE, SecurityResource.BID);
-        allow(UserRole.BUYER, SecurityAction.READ_OWN, SecurityResource.PROFILE);
-        allow(UserRole.BUYER, SecurityAction.UPDATE_OWN, SecurityResource.PROFILE);
-        allow(UserRole.BUYER, SecurityAction.CREATE, SecurityResource.TOP_UP_REQUEST);
+        allow(
+            UserRole.BUYER,
+            Permission.READ_AUCTION,
+            Permission.CREATE_BID,
+            Permission.READ_OWN_PROFILE,
+            Permission.UPDATE_OWN_PROFILE,
+            Permission.CREATE_TOP_UP_REQUEST
+        );
     }
 
     private void registerSellerPermissions() {
         inherit(UserRole.SELLER, UserRole.BUYER);
 
-        allow(UserRole.SELLER, SecurityAction.CREATE, SecurityResource.ITEM);
-        allow(UserRole.SELLER, SecurityAction.UPDATE_OWN, SecurityResource.ITEM);
-        allow(UserRole.SELLER, SecurityAction.DELETE_OWN, SecurityResource.ITEM);
-        allow(UserRole.SELLER, SecurityAction.CREATE, SecurityResource.AUCTION);
-        allow(UserRole.SELLER, SecurityAction.UPDATE_OWN, SecurityResource.AUCTION);
-        allow(UserRole.SELLER, SecurityAction.READ_OWN, SecurityResource.SELLER_REPORT);
+        allow(
+            UserRole.SELLER,
+            Permission.CREATE_ITEM,
+            Permission.UPDATE_OWN_ITEM,
+            Permission.DELETE_OWN_ITEM,
+            Permission.CREATE_AUCTION,
+            Permission.UPDATE_OWN_AUCTION,
+            Permission.READ_SELLER_REPORT
+        );
     }
 
     private void registerAuctionAdministratorPermissions() {
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.MODERATE, SecurityResource.ITEM);
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.CREATE, SecurityResource.CATEGORY);
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.UPDATE, SecurityResource.CATEGORY);
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.DELETE, SecurityResource.CATEGORY);
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.UPDATE, SecurityResource.AUCTION);
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.PROCESS, SecurityResource.AUCTION);
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.APPROVE, SecurityResource.TOP_UP_REQUEST);
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.UPDATE, SecurityResource.PAYMENT);
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.READ, SecurityResource.AUCTION_REPORT);
-        allow(UserRole.AUCTION_ADMINISTRATOR, SecurityAction.READ_OWN, SecurityResource.ACTIVITY_LOG);
+        allow(
+            UserRole.AUCTION_ADMINISTRATOR,
+            Permission.CREATE_CATEGORY,
+            Permission.UPDATE_CATEGORY,
+            Permission.DELETE_CATEGORY,
+            Permission.PROCESS_AUCTION,
+            Permission.APPROVE_TOP_UP_REQUEST,
+            Permission.READ_AUCTION_REPORT,
+            Permission.READ_OWN_ACTIVITY_LOG
+        );
     }
 
     private void registerSystemAdministratorPermissions() {
         inherit(UserRole.SYSTEM_ADMINISTRATOR, UserRole.AUCTION_ADMINISTRATOR);
 
-        allow(UserRole.SYSTEM_ADMINISTRATOR, SecurityAction.CREATE, SecurityResource.USER);
-        allow(UserRole.SYSTEM_ADMINISTRATOR, SecurityAction.READ_ANY, SecurityResource.USER);
-        allow(UserRole.SYSTEM_ADMINISTRATOR, SecurityAction.UPDATE, SecurityResource.USER);
-        allow(UserRole.SYSTEM_ADMINISTRATOR, SecurityAction.DELETE, SecurityResource.USER);
-        allow(UserRole.SYSTEM_ADMINISTRATOR, SecurityAction.READ_ANY, SecurityResource.ACTIVITY_LOG);
-        allow(UserRole.SYSTEM_ADMINISTRATOR, SecurityAction.READ, SecurityResource.SYSTEM_REPORT);
-        allow(UserRole.SYSTEM_ADMINISTRATOR, SecurityAction.EXPORT, SecurityResource.SYSTEM_REPORT);
+        allow(
+            UserRole.SYSTEM_ADMINISTRATOR,
+            Permission.CREATE_USER,
+            Permission.READ_ANY_USER,
+            Permission.UPDATE_USER,
+            Permission.DELETE_USER,
+            Permission.READ_ANY_ACTIVITY_LOG,
+            Permission.READ_SYSTEM_REPORT,
+            Permission.EXPORT_SYSTEM_REPORT
+        );
     }
 
-    private void allow(UserRole role, String action, String resource) {
-        permissions.computeIfAbsent(role, ignored -> new HashSet<>()).add(key(action, resource));
+    private void allow(UserRole role, Permission... rolePermissions) {
+        permissions
+            .computeIfAbsent(role, ignored -> EnumSet.noneOf(Permission.class))
+            .addAll(Set.of(rolePermissions));
     }
 
     private void inherit(UserRole childRole, UserRole parentRole) {
         permissions
-            .computeIfAbsent(childRole, ignored -> new HashSet<>())
+            .computeIfAbsent(childRole, ignored -> EnumSet.noneOf(Permission.class))
             .addAll(permissions.getOrDefault(parentRole, Set.of()));
-    }
-
-    private String key(String action, String resource) {
-        return action + ":" + resource;
     }
 }
