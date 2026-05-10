@@ -12,7 +12,8 @@
             styleClass="auction-details-root">
 
     <center>
-        <ScrollPane fitToWidth="true"
+        <ScrollPane fx:id="detailScrollPane"
+                    fitToWidth="true"
                     hbarPolicy="NEVER"
                     vbarPolicy="AS_NEEDED"
                     styleClass="page-scroll">
