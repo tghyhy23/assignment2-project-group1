@@ -18,7 +18,7 @@
       stylesheets="@../../styles/components/feature.css"
       spacing="10">
 
-    <Label text="Featured &amp; Recommended" styleClass="section-title"/>
+    <Label text="RECOMMENDED AUCTIONS" styleClass="section-title"/>
 
     <HBox alignment="CENTER" spacing="0" VBox.vgrow="ALWAYS" maxHeight="400">
 
@@ -28,7 +28,7 @@
             </graphic>
         </Button>
 
-        <HBox styleClass="feature-card" HBox.hgrow="ALWAYS">
+        <HBox fx:id="featureCard" styleClass="feature-card" HBox.hgrow="ALWAYS">
 
             <StackPane fx:id="mainImagePane" styleClass="feature-main-image" HBox.hgrow="ALWAYS" />
 

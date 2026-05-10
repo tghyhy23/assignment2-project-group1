@@ -1,18 +1,28 @@
 package com.group01.asm2.controllers;
 
+import com.group01.asm2.models.Auction;
 import com.group01.asm2.models.Item;
+import com.group01.asm2.services.AuctionsService;
 import com.group01.asm2.services.ItemService;
+import com.group01.asm2.services.NavigationService;
+
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
 
 public class FeatureController {
+
+    // 1. CHỈNH SỬA: featureCard trong FXML của bạn là một HBox (feature-card)
+    @FXML private HBox featureCard;
 
     @FXML private StackPane mainImagePane;
     @FXML private StackPane thumb1;
@@ -27,50 +37,61 @@ public class FeatureController {
 
     @FXML private HBox paginationContainer;
 
-    private List<Item> recommendedItems;
+    private List<Auction> recommendedAuctions;
     private int currentIndex = 0;
-    private final DecimalFormat currencyFormat = new DecimalFormat("#,###đ");
+
+    private final DecimalFormat currencyFormat = new DecimalFormat("$#,###.00");
 
     @FXML
     public void initialize() {
-        recommendedItems = ItemService.getRecommendedItems();
+        recommendedAuctions = AuctionsService.getRecommendedAuctions();
 
-        if (recommendedItems == null || recommendedItems.isEmpty()) return;
+        if (recommendedAuctions == null || recommendedAuctions.isEmpty()) return;
 
-        // 1. Khởi tạo dấu chấm theo số lượng sản phẩm
         initPagination();
 
-        // 2. Gắn sự kiện Hover
-        setupThumbnailHover(thumb1, 0);
-        setupThumbnailHover(thumb2, 1);
-        setupThumbnailHover(thumb3, 2);
-        setupThumbnailHover(thumb4, 3);
+        setupThumbnailHover(thumb1, 1);
+        setupThumbnailHover(thumb2, 2);
+        setupThumbnailHover(thumb3, 3);
+        setupThumbnailHover(thumb4, 4);
 
-        // 3. Load sản phẩm đầu tiên
-        loadProduct(currentIndex);
+        loadFeaturedAuction(currentIndex);
+
+        // 2. THIẾT LẬP SỰ KIỆN CLICK CHO THẺ BỌC (feature-card)
+        if (featureCard != null) {
+            featureCard.setCursor(Cursor.HAND);
+            featureCard.setOnMouseClicked(event -> {
+                if (recommendedAuctions != null && !recommendedAuctions.isEmpty()) {
+                    Auction currentSelectedAuction = recommendedAuctions.get(currentIndex);
+
+                    // Tìm vùng chứa nội dung chính để chuyển trang
+                    Pane contentArea = (Pane) featureCard.getScene().lookup("#contentArea");
+
+                    // Sử dụng NavigationService để chuyển trang (chuẩn DRY)
+                    NavigationService.goToAuctionDetails(contentArea, currentSelectedAuction);
+                }
+            });
+        }
     }
 
-    // --- LOGIC TẠO DẤU CHẤM ---
+    // --- CÁC HÀM LOGIC GIỮ NGUYÊN ---
+
     private void initPagination() {
         paginationContainer.getChildren().clear();
-        for (int i = 0; i < recommendedItems.size(); i++) {
+        for (int i = 0; i < recommendedAuctions.size(); i++) {
             Region dot = new Region();
             dot.getStyleClass().add("dot");
 
-            // Tạo một biến tạm 'index' vì biến 'i' trong vòng lặp không dùng được trực tiếp trong lambda
             final int index = i;
-
-            // Gắn sự kiện click cho từng dấu chấm
             dot.setOnMouseClicked(event -> {
-                currentIndex = index; // Cập nhật vị trí hiện tại
-                loadProduct(currentIndex); // Load sản phẩm tương ứng
+                currentIndex = index;
+                loadFeaturedAuction(currentIndex);
             });
 
             paginationContainer.getChildren().add(dot);
         }
     }
 
-    // --- LOGIC CẬP NHẬT MÀU DẤU CHẤM ĐANG ACTIVE ---
     private void updatePagination() {
         for (int i = 0; i < paginationContainer.getChildren().size(); i++) {
             Node dot = paginationContainer.getChildren().get(i);
@@ -84,25 +105,32 @@ public class FeatureController {
         }
     }
 
-    private void loadProduct(int index) {
-        Item item = recommendedItems.get(index);
+    private void loadFeaturedAuction(int index) {
+        Auction auction = recommendedAuctions.get(index);
+        Item item = ItemService.getItemById(auction.getItemId());
+
+        if (item == null) return;
 
         featureTitle.setText(item.getTitle());
-        bidsCountLabel.setText("🔥 " + item.getBidCount() + " Bids");
+
+        int mockBidCount = (auction.getId() % 5) + 12;
+        bidsCountLabel.setText("🔥 " + mockBidCount + " Bids");
 
         originalPrice.setText("Original Price: " + currencyFormat.format(item.getStartingPrice()));
-        finalPrice.setText("Current Price: " + currencyFormat.format(item.getCurrentBid()));
 
-        // Cập nhật background
+        BigDecimal currentPrice = auction.getFinalSalePrice() != null ? auction.getFinalSalePrice() : item.getStartingPrice();
+        finalPrice.setText("Current Price: " + currencyFormat.format(currentPrice));
+
+        String mainClass = "p" + item.getId() + "-main";
+
         mainImagePane.getStyleClass().removeIf(c -> c.startsWith("p1-") || c.startsWith("p2-") || c.startsWith("p3-"));
-        mainImagePane.getStyleClass().add(item.getMainBgClass());
+        mainImagePane.getStyleClass().add(mainClass);
 
-        updateThumbClass(thumb1, item.getThumbBgClasses()[0]);
-        updateThumbClass(thumb2, item.getThumbBgClasses()[1]);
-        updateThumbClass(thumb3, item.getThumbBgClasses()[2]);
-        updateThumbClass(thumb4, item.getThumbBgClasses()[3]);
+        updateThumbClass(thumb1, "p" + item.getId() + "-t1");
+        updateThumbClass(thumb2, "p" + item.getId() + "-t2");
+        updateThumbClass(thumb3, "p" + item.getId() + "-t3");
+        updateThumbClass(thumb4, "p" + item.getId() + "-t4");
 
-        // Đổi màu dấu chấm tương ứng
         updatePagination();
     }
 
@@ -111,39 +139,45 @@ public class FeatureController {
         thumb.getStyleClass().add(newClass);
     }
 
-    private void setupThumbnailHover(StackPane thumb, int thumbIndex) {
+    private void setupThumbnailHover(StackPane thumb, int thumbSuffixIndex) {
         thumb.setOnMouseEntered(event -> {
-            Item currentItem = recommendedItems.get(currentIndex);
-            mainImagePane.getStyleClass().remove(currentItem.getMainBgClass());
-            mainImagePane.getStyleClass().add(currentItem.getThumbBgClasses()[thumbIndex]);
+            Auction auction = recommendedAuctions.get(currentIndex);
+            String hoverClass = "p" + auction.getItemId() + "-t" + thumbSuffixIndex;
+            String mainClass = "p" + auction.getItemId() + "-main";
+
+            mainImagePane.getStyleClass().remove(mainClass);
+            mainImagePane.getStyleClass().add(hoverClass);
         });
 
         thumb.setOnMouseExited(event -> {
-            Item currentItem = recommendedItems.get(currentIndex);
-            mainImagePane.getStyleClass().remove(currentItem.getThumbBgClasses()[thumbIndex]);
-            if (!mainImagePane.getStyleClass().contains(currentItem.getMainBgClass())) {
-                mainImagePane.getStyleClass().add(currentItem.getMainBgClass());
+            Auction auction = recommendedAuctions.get(currentIndex);
+            String hoverClass = "p" + auction.getItemId() + "-t" + thumbSuffixIndex;
+            String mainClass = "p" + auction.getItemId() + "-main";
+
+            mainImagePane.getStyleClass().remove(hoverClass);
+            if (!mainImagePane.getStyleClass().contains(mainClass)) {
+                mainImagePane.getStyleClass().add(mainClass);
             }
         });
     }
 
     @FXML
     private void handlePrevSlide() {
-        if (recommendedItems == null || recommendedItems.isEmpty()) return;
+        if (recommendedAuctions == null || recommendedAuctions.isEmpty()) return;
         currentIndex--;
         if (currentIndex < 0) {
-            currentIndex = recommendedItems.size() - 1;
+            currentIndex = recommendedAuctions.size() - 1;
         }
-        loadProduct(currentIndex);
+        loadFeaturedAuction(currentIndex);
     }
 
     @FXML
     private void handleNextSlide() {
-        if (recommendedItems == null || recommendedItems.isEmpty()) return;
+        if (recommendedAuctions == null || recommendedAuctions.isEmpty()) return;
         currentIndex++;
-        if (currentIndex >= recommendedItems.size()) {
+        if (currentIndex >= recommendedAuctions.size()) {
             currentIndex = 0;
         }
-        loadProduct(currentIndex);
+        loadFeaturedAuction(currentIndex);
     }
 }

@@ -20,13 +20,13 @@
     <Label text="View your recent purchases and sales." styleClass="page-subtitle"/>
 
     <VBox styleClass="content-card" VBox.vgrow="ALWAYS">
-        <TableView fx:id="transactionsTable" styleClass="modern-table">
+        <TableView fx:id="auctionsTable" styleClass="modern-table">
             <columns>
-                <TableColumn fx:id="transactionDateColumn" text="Date" prefWidth="120"/>
-                <TableColumn fx:id="transactionTypeColumn" text="Type" prefWidth="100"/>
-                <TableColumn fx:id="transactionItemColumn" text="Item" prefWidth="200"/>
-                <TableColumn fx:id="transactionAmountColumn" text="Amount" prefWidth="120"/>
-                <TableColumn fx:id="transactionStatusColumn" text="Status" prefWidth="150"/>
+                <TableColumn fx:id="auctionDateColumn" text="Date" prefWidth="120"/>
+                <TableColumn fx:id="auctionTypeColumn" text="Type" prefWidth="100"/>
+                <TableColumn fx:id="auctionItemColumn" text="Item" prefWidth="200"/>
+                <TableColumn fx:id="auctionAmountColumn" text="Amount" prefWidth="120"/>
+                <TableColumn fx:id="auctionStatusColumn" text="Status" prefWidth="150"/>
             </columns>
         </TableView>
     </VBox>

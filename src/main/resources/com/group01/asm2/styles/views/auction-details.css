@@ -6,14 +6,31 @@
     -fx-background-color: #020617;
     -fx-font-family: "Inter", "Segoe UI", Arial, sans-serif;
 }
-
 .page-scroll {
     -fx-background-color: transparent;
-    -fx-background: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
 }
 
+/* Khử màu nền mặc định của viewport bên trong ScrollPane */
 .page-scroll > .viewport {
-    -fx-background-color: transparent;
+    -fx-background-color: transparent; /* Trùng với màu nền của page-root */
+}
+
+/* (Tùy chọn) Làm đẹp thanh cuộn dọc (Scrollbar) theo phong cách Dark Theme */
+.page-scroll .scroll-bar:vertical {
+    -fx-background-color: #0b1120;
+    -fx-pref-width: 12px;
+}
+
+.page-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #3b4b5e;
+    -fx-background-radius: 6px;
+}
+
+.page-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #556a84;
 }
 
 .page-wrapper {
