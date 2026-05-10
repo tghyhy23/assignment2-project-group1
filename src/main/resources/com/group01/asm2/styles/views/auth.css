@@ -13,7 +13,6 @@
 
 .auth-left-panel {
     -fx-background-color: linear-gradient(to bottom right, #0f172a, #111827, #1e1b4b);
-    -fx-padding: 50;
 }
 
 .brand-title {
@@ -58,8 +57,6 @@
 
 .auth-right-panel {
     -fx-background-color: #020617;
-    -fx-padding: 50;
-    -fx-pref-width: 600;
 }
 
 .auth-card {
@@ -67,7 +64,6 @@
     -fx-background-radius: 24;
     -fx-border-color: rgba(255, 255, 255, 0.08);
     -fx-border-radius: 24;
-    -fx-padding: 38;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 32, 0.25, 0, 14);
 }
 

@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group01.asm2.controllers.AuctionDetailsController"
+            stylesheets="@../styles/views/auction-details.css"
+            styleClass="auction-details-root">
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    styleClass="page-scroll">
+
+            <VBox fx:id="pageWrapper"
+                  spacing="20"
+                  maxWidth="1280"
+                  styleClass="page-wrapper">
+
+                <padding>
+                    <Insets top="24" right="28" bottom="32" left="28"/>
+                </padding>
+
+                <!-- Breadcrumb / Header -->
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="breadcrumb-card">
+                    <Label text="Home" styleClass="breadcrumb-link"/>
+                    <Label text=">" styleClass="breadcrumb-separator"/>
+                    <Label text="Explore Auctions" styleClass="breadcrumb-link"/>
+                    <Label text=">" styleClass="breadcrumb-separator"/>
+                    <Label text="Auction Details" styleClass="breadcrumb-current"/>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <Label fx:id="headerStatusBadge"
+                           text="ACTIVE"
+                           styleClass="status-badge"/>
+                </HBox>
+
+                <!-- Main Auction Detail Card -->
+                <GridPane hgap="24"
+                          styleClass="main-auction-card">
+
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="42"/>
+                        <ColumnConstraints percentWidth="58"/>
+                    </columnConstraints>
+
+                    <!-- Left Image Section -->
+                    <VBox spacing="14"
+                          styleClass="image-section"
+                          GridPane.columnIndex="0">
+
+                        <StackPane styleClass="main-image-placeholder"
+                                   VBox.vgrow="ALWAYS">
+
+                            <ImageView fx:id="mainItemImageView"
+                                       preserveRatio="true"/>
+
+                            <VBox alignment="CENTER" spacing="8">
+                                <Label text="BidBlitz" styleClass="image-brand"/>
+                                <Label text="Item Preview" styleClass="image-placeholder-text"/>
+                            </VBox>
+                        </StackPane>
+
+                        <HBox spacing="10"
+                              alignment="CENTER_LEFT"
+                              styleClass="thumbnail-row">
+
+                            <StackPane styleClass="thumbnail-box"
+                                       HBox.hgrow="ALWAYS">
+                                <Label text="Preview" styleClass="thumbnail-text"/>
+                            </StackPane>
+
+                            <StackPane styleClass="thumbnail-box"
+                                       HBox.hgrow="ALWAYS">
+                                <Label text="Gallery" styleClass="thumbnail-text"/>
+                            </StackPane>
+
+                            <StackPane styleClass="thumbnail-box"
+                                       HBox.hgrow="ALWAYS">
+                                <Label text="Verified" styleClass="thumbnail-text"/>
+                            </StackPane>
+                        </HBox>
+
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="✓ Verified Item" styleClass="verified-label"/>
+                            <Label text="Secure bidding enabled"
+                                   styleClass="muted-text"
+                                   wrapText="true"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Right Auction Info Section -->
+                    <VBox spacing="16"
+                          styleClass="auction-info-section"
+                          GridPane.columnIndex="1">
+
+                        <VBox spacing="8">
+                            <Label fx:id="auctionTitleLabel"
+                                   text="Auction Title"
+                                   wrapText="true"
+                                   styleClass="auction-title"/>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Seller:" styleClass="muted-text"/>
+
+                                <Label fx:id="sellerNameLabel"
+                                       text="Seller Name"
+                                       styleClass="seller-inline-name"/>
+
+                                <Label text="Trusted Seller" styleClass="trust-badge"/>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="6" styleClass="price-panel">
+                            <Label text="Current Highest Bid" styleClass="price-label"/>
+
+                            <Label fx:id="currentBidLabel"
+                                   text="0.00"
+                                   wrapText="true"
+                                   styleClass="current-bid-price"/>
+                        </VBox>
+
+                        <GridPane hgap="18"
+                                  vgap="12"
+                                  styleClass="quick-info-grid">
+
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="45"/>
+                                <ColumnConstraints percentWidth="55"/>
+                            </columnConstraints>
+
+                            <Label text="Starting Price"
+                                   styleClass="info-key"
+                                   GridPane.rowIndex="0"
+                                   GridPane.columnIndex="0"/>
+
+                            <Label fx:id="startingPriceLabel"
+                                   text="0.00"
+                                   wrapText="true"
+                                   styleClass="info-value"
+                                   GridPane.rowIndex="0"
+                                   GridPane.columnIndex="1"/>
+
+                            <Label text="Minimum Next Bid"
+                                   styleClass="info-key"
+                                   GridPane.rowIndex="1"
+                                   GridPane.columnIndex="0"/>
+
+                            <Label fx:id="minimumNextBidLabel"
+                                   text="0.00"
+                                   wrapText="true"
+                                   styleClass="info-value-highlight"
+                                   GridPane.rowIndex="1"
+                                   GridPane.columnIndex="1"/>
+
+                            <Label text="Number of Bids"
+                                   styleClass="info-key"
+                                   GridPane.rowIndex="2"
+                                   GridPane.columnIndex="0"/>
+
+                            <Label fx:id="numberOfBidsLabel"
+                                   text="0"
+                                   wrapText="true"
+                                   styleClass="info-value"
+                                   GridPane.rowIndex="2"
+                                   GridPane.columnIndex="1"/>
+
+                            <Label text="Time Remaining"
+                                   styleClass="info-key"
+                                   GridPane.rowIndex="3"
+                                   GridPane.columnIndex="0"/>
+
+                            <Label fx:id="timeRemainingLabel"
+                                   text="N/A"
+                                   wrapText="true"
+                                   styleClass="time-remaining"
+                                   GridPane.rowIndex="3"
+                                   GridPane.columnIndex="1"/>
+
+                            <Label text="Start Date"
+                                   styleClass="info-key"
+                                   GridPane.rowIndex="4"
+                                   GridPane.columnIndex="0"/>
+
+                            <Label fx:id="startDateLabel"
+                                   text="N/A"
+                                   wrapText="true"
+                                   styleClass="info-value"
+                                   GridPane.rowIndex="4"
+                                   GridPane.columnIndex="1"/>
+
+                            <Label text="End Date"
+                                   styleClass="info-key"
+                                   GridPane.rowIndex="5"
+                                   GridPane.columnIndex="0"/>
+
+                            <Label fx:id="endDateLabel"
+                                   text="N/A"
+                                   wrapText="true"
+                                   styleClass="info-value"
+                                   GridPane.rowIndex="5"
+                                   GridPane.columnIndex="1"/>
+
+                            <Label text="Auction ID"
+                                   styleClass="info-key"
+                                   GridPane.rowIndex="6"
+                                   GridPane.columnIndex="0"/>
+
+                            <Label fx:id="auctionIdLabel"
+                                   text="N/A"
+                                   wrapText="true"
+                                   styleClass="info-value"
+                                   GridPane.rowIndex="6"
+                                   GridPane.columnIndex="1"/>
+
+                            <Label text="Item ID"
+                                   styleClass="info-key"
+                                   GridPane.rowIndex="7"
+                                   GridPane.columnIndex="0"/>
+
+                            <Label fx:id="itemIdLabel"
+                                   text="N/A"
+                                   wrapText="true"
+                                   styleClass="info-value"
+                                   GridPane.rowIndex="7"
+                                   GridPane.columnIndex="1"/>
+                        </GridPane>
+
+                        <Label fx:id="auctionWarningLabel"
+                               text=""
+                               wrapText="true"
+                               visible="false"
+                               managed="false"
+                               styleClass="warning-message"/>
+
+                        <!-- Bid Creation Area -->
+                        <VBox spacing="12" styleClass="bid-box">
+                            <Label text="Create Your Bid" styleClass="section-mini-title"/>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <TextField fx:id="bidAmountField"
+                                           promptText="Enter your bid amount"
+                                           HBox.hgrow="ALWAYS"
+                                           maxWidth="Infinity"
+                                           styleClass="bid-input"/>
+
+                                <Button fx:id="placeBidButton"
+                                        text="Place Bid"
+                                        onAction="#handlePlaceBid"
+                                        styleClass="primary-button"/>
+                            </HBox>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button text="Add to Watchlist"
+                                        onAction="#handleAddToWatchlist"
+                                        HBox.hgrow="ALWAYS"
+                                        maxWidth="Infinity"
+                                        styleClass="secondary-button"/>
+
+                                <Button text="Contact Seller"
+                                        onAction="#handleContactSeller"
+                                        HBox.hgrow="ALWAYS"
+                                        maxWidth="Infinity"
+                                        styleClass="ghost-button"/>
+                            </HBox>
+
+                            <Label fx:id="bidMessageLabel"
+                                   text=""
+                                   wrapText="true"
+                                   styleClass="bid-message"/>
+                        </VBox>
+                    </VBox>
+                </GridPane>
+                <!-- Seller Information Section -->
+                <HBox spacing="18"
+                      alignment="CENTER_LEFT"
+                      styleClass="seller-card">
+
+                    <StackPane styleClass="seller-avatar">
+                        <Label text="S" styleClass="seller-avatar-text"/>
+                    </StackPane>
+
+                    <VBox spacing="6"
+                          alignment="CENTER_LEFT">
+                        <Label fx:id="sellerSectionNameLabel"
+                               text="Seller Name"
+                               styleClass="seller-name"/>
+
+                        <HBox spacing="8"
+                              alignment="CENTER_LEFT">
+                            <Label text="Online" styleClass="online-badge"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <GridPane hgap="22"
+                              vgap="6"
+                              alignment="CENTER"
+                              styleClass="seller-stats-grid">
+                        <Label text="Rating" styleClass="seller-stat-key" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="4.9 / 5" styleClass="seller-stat-value" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+
+                        <Label text="Auctions" styleClass="seller-stat-key" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label text="128" styleClass="seller-stat-value" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Sales" styleClass="seller-stat-key" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                        <Label text="96" styleClass="seller-stat-value" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+
+                        <Label text="Response" styleClass="seller-stat-key" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                        <Label text="98%" styleClass="seller-stat-value" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+                    </GridPane>
+
+                    <Button text="View Seller"
+                            alignment="CENTER"
+                            styleClass="secondary-button"/>
+                </HBox>
+                <!-- Main Content + Sidebar -->
+                <HBox spacing="20" styleClass="content-area">
+
+                    <!-- Main Content -->
+                    <VBox spacing="18" HBox.hgrow="ALWAYS">
+
+                        <!-- Auction Information -->
+                        <VBox spacing="14" styleClass="content-card">
+                            <Label text="Auction Information" styleClass="section-title"/>
+                            <GridPane fx:id="auctionInfoGrid"
+                                      hgap="16"
+                                      vgap="10"
+                                      styleClass="detail-grid">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="35"/>
+                                    <ColumnConstraints percentWidth="65"/>
+                                </columnConstraints>
+                            </GridPane>
+                        </VBox>
+
+                        <!-- Product Details -->
+                        <VBox spacing="14" styleClass="content-card">
+                            <Label text="Product Details" styleClass="section-title"/>
+                            <GridPane fx:id="productDetailsGrid"
+                                      hgap="16"
+                                      vgap="10"
+                                      styleClass="detail-grid">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="35"/>
+                                    <ColumnConstraints percentWidth="65"/>
+                                </columnConstraints>
+                            </GridPane>
+                        </VBox>
+
+                        <!-- Description -->
+                        <VBox spacing="14" styleClass="content-card">
+                            <Label text="Description" styleClass="section-title"/>
+                            <Label fx:id="descriptionLabel"
+                                   text="Description goes here."
+                                   wrapText="true"
+                                   styleClass="description-text"/>
+                        </VBox>
+
+                        <!-- Bid History -->
+                        <VBox spacing="14" styleClass="content-card">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="Bid History" styleClass="section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="bidHistoryCountLabel"
+                                       text="0 bids"
+                                       styleClass="muted-text"/>
+                            </HBox>
+
+                            <VBox fx:id="bidHistoryList"
+                                  spacing="10"
+                                  styleClass="bid-history-list"/>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Related Auctions Sidebar -->
+                    <VBox spacing="14" styleClass="related-sidebar">
+                        <Label text="Related Auctions" styleClass="section-title"/>
+                        <VBox fx:id="relatedAuctionsList" spacing="12"/>
+                    </VBox>
+
+                </HBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
