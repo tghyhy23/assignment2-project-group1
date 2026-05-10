@@ -1,14 +1,12 @@
 package com.group01.asm2.repositories;
 
-import com.group01.asm2.configs.DatabaseConfig;
+import com.group01.asm2.db.SqlExecutor;
 import com.group01.asm2.enums.UserRole;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.models.User;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -16,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class PersonRepository {
+
     public Optional<Person> findByUsername(String username) {
         String sql = """
             SELECT
@@ -37,22 +36,11 @@ public class PersonRepository {
             LIMIT 1
         """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, username);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    return Optional.empty();
-                }
-
-                return Optional.of(mapResultSetToPerson(rs));
-            }
-
-        } catch (Exception exception) {
-            throw new RuntimeException("Failed to find person by username: " + exception.getMessage(), exception);
-        }
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> ps.setString(1, username),
+            this::mapResultSetToPerson
+        );
     }
 
     private Person mapResultSetToPerson(ResultSet rs) throws Exception {

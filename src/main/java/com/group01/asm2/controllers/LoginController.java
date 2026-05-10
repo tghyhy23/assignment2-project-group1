@@ -2,62 +2,57 @@ package com.group01.asm2.controllers;
 
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
-import com.group01.asm2.security.RateLimitPolicy;
 import com.group01.asm2.services.AuthService;
+import com.group01.asm2.utils.SecureSceneLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.time.Duration;
 
 public class LoginController extends BaseController {
-    @FXML
-    private TextField usernameField;
 
-    @FXML
-    private PasswordField passwordField;
-
-    @FXML
-    private CheckBox rememberMeCheckBox;
-
-    @FXML
-    private Label messageLabel;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private CheckBox rememberMeCheckBox;
+    @FXML private Label messageLabel;
+    @FXML private Button loginButton;
+    @FXML private Hyperlink signupLink;
 
     private final AuthService authService = new AuthService();
 
     @FXML
+    private void initialize() {
+        bindAction(loginButton, this::handleLogin);
+        bindAction(signupLink, this::goToSignup);
+    }
+
     private void handleLogin(ActionEvent event) {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+        Person loggedInUser = authService.login(
+            usernameField.getText(),
+            passwordField.getText()
+        );
 
-        guarded(RateLimitPolicy.LOGIN, username, () -> {
-            Person loggedInUser = authService.login(username, password);
-
-            showSuccess("Login successful. Welcome back, " + loggedInUser.getFullName() + "!");
-            navigateAfterLogin(event, loggedInUser);
-        });
+        showSuccess("Login successful. Welcome back, " + loggedInUser.getFullName() + "!");
+        navigateAfterLogin(event);
     }
 
-    @FXML
     private void goToSignup(ActionEvent event) {
-        guarded(() -> {
-            switchScene(
-                event,
-                "/com/group01/asm2/views/signup.fxml",
-                "Cannot open the Sign Up page."
-            );
-        });
+        switchScene(
+            event,
+            "/com/group01/asm2/views/signup.fxml",
+            "Cannot open the Sign Up page."
+        );
     }
 
-    private void navigateAfterLogin(ActionEvent event, Person loggedInUser) {
+    private void navigateAfterLogin(ActionEvent event) {
         switchScene(
             event,
             "/com/group01/asm2/layout/main-layout.fxml",
@@ -67,26 +62,14 @@ public class LoginController extends BaseController {
 
     private void switchScene(ActionEvent event, String fxmlPath, String errorMessage) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Scene scene = new Scene(loader.load());
-
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
+            stage.setScene(SecureSceneLoader.loadScene(getClass(), fxmlPath));
             stage.centerOnScreen();
             stage.show();
-
         } catch (IOException exception) {
             exception.printStackTrace();
             showError(errorMessage);
         }
-    }
-
-    private String normalizeRateLimitKey(String value) {
-        if (value == null || value.isBlank()) {
-            return "unknown";
-        }
-
-        return value.trim().toLowerCase();
     }
 
     @Override

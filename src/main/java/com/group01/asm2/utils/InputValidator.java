@@ -1,13 +1,15 @@
 package com.group01.asm2.utils;
 
 import com.group01.asm2.exceptions.AppException;
+import com.group01.asm2.security.InputSanitizer;
 
 public final class InputValidator {
+
     private InputValidator() {
     }
 
     public static String requireUsername(String value) {
-        String username = value == null ? "" : value.trim().toLowerCase();
+        String username = InputSanitizer.normalizeUsername(value);
 
         if (username.isBlank()) {
             throw AppException.validation("Username is required.");
@@ -18,7 +20,9 @@ public final class InputValidator {
         }
 
         if (!username.matches("^[a-z0-9._-]+$")) {
-            throw AppException.validation("Username can only contain letters, numbers, dots, underscores, and hyphens.");
+            throw AppException.validation(
+                "Username can only contain letters, numbers, dots, underscores, and hyphens."
+            );
         }
 
         return username;

@@ -49,6 +49,7 @@
                     <VBox spacing="8">
                         <Label text="Username" styleClass="input-label"/>
                         <TextField fx:id="usernameField"
+                                   id="usernameField"
                                    promptText="Enter your username"
                                    styleClass="auth-input"/>
                     </VBox>
@@ -56,6 +57,7 @@
                     <VBox spacing="8">
                         <Label text="Password" styleClass="input-label"/>
                         <PasswordField fx:id="passwordField"
+                                       id="passwordField"
                                        promptText="Enter your password"
                                        styleClass="auth-input"/>
                     </VBox>
@@ -72,21 +74,30 @@
                     </HBox>
 
                     <Label fx:id="messageLabel"
+                           id="messageLabel"
                            text=""
                            styleClass="error-message"
                            wrapText="true"/>
 
-                    <Button text="Login"
-                            onAction="#handleLogin"
+<!--                    <Button text="Login"-->
+<!--                            onAction="#handleLogin"-->
+<!--                            maxWidth="Infinity"-->
+<!--                            styleClass="primary-button"/>-->
+                    <Button
+                            fx:id="loginButton"
+                            id="loginButton"
+                            text="Login"
+                            userData="rate=LOGIN;identity=usernameField;message=messageLabel"
                             maxWidth="Infinity"
                             styleClass="primary-button"/>
 
                     <HBox alignment="CENTER" spacing="5">
                         <Label text="Don't have an account?"
                                styleClass="bottom-text"/>
-                        <Hyperlink text="Sign up"
-                                   onAction="#goToSignup"
-                                   styleClass="auth-link"/>
+                        <Hyperlink
+                                    fx:id="signupLink"
+                                    text="Sign up"
+                                    styleClass="auth-link"/>
                     </HBox>
 
                 </VBox>
