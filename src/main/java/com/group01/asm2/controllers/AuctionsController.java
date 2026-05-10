@@ -2,7 +2,7 @@ package com.group01.asm2.controllers;
 
 import com.group01.asm2.models.Auction;
 import com.group01.asm2.models.Item;
-import com.group01.asm2.services.AuctionsService;
+import com.group01.asm2.services.AuctionService;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.services.NavigationService;
 import javafx.beans.binding.Bindings;
@@ -34,7 +34,7 @@ public class AuctionsController {
     @FXML
     public void initialize() {
         // 1. Gọi Service lấy Data thay vì tự tạo mock
-        auctionsList.addAll(AuctionsService.getAll());
+        auctionsList.addAll(AuctionService.getAll());
 
         // 2. Setup giao diện bảng
         setupAuctionTable();

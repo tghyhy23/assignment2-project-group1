@@ -2,7 +2,7 @@ package com.group01.asm2.controllers;
 
 import com.group01.asm2.models.Auction;
 import com.group01.asm2.models.Item;
-import com.group01.asm2.services.AuctionsService;
+import com.group01.asm2.services.AuctionService;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.services.NavigationService;
 
@@ -44,7 +44,7 @@ public class FeatureController {
 
     @FXML
     public void initialize() {
-        recommendedAuctions = AuctionsService.getRecommendedAuctions();
+        recommendedAuctions = AuctionService.getRecommendedAuctions();
 
         if (recommendedAuctions == null || recommendedAuctions.isEmpty()) return;
 

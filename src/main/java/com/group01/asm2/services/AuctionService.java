@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AuctionsService {
+public class AuctionService {
 
     // Giả lập Database lưu trữ Auction
     private static final List<Auction> auctionsDb = new ArrayList<>();
