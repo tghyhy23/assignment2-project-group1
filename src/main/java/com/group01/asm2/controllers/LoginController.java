@@ -4,15 +4,19 @@ import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.security.RateLimitPolicy;
 import com.group01.asm2.services.AuthService;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -30,6 +34,18 @@ public class LoginController extends BaseController {
 
     @FXML
     private Label messageLabel;
+
+    @FXML
+    private HBox authContainer;
+
+    @FXML
+    private VBox leftPanel;
+
+    @FXML
+    private VBox rightPanel;
+
+    @FXML
+    private VBox authCard;
 
     private final AuthService authService = new AuthService();
 
@@ -117,5 +133,74 @@ public class LoginController extends BaseController {
         }
 
         messageLabel.setText(message);
+    }
+
+    @FXML
+    private void initialize() {
+        if (authContainer == null || leftPanel == null || rightPanel == null || authCard == null) {
+            return;
+        }
+
+        leftPanel.prefWidthProperty().bind(
+                authContainer.widthProperty().multiply(0.45)
+        );
+
+        rightPanel.prefWidthProperty().bind(
+                authContainer.widthProperty().multiply(0.55)
+        );
+
+        authCard.prefWidthProperty().bind(
+                Bindings.createDoubleBinding(() -> {
+                    double rightWidth = rightPanel.getWidth();
+
+                    if (rightWidth <= 0) {
+                        return 0.0;
+                    }
+
+                    double targetWidth;
+
+                    if (authContainer.getWidth() < 900) {
+                        targetWidth = rightWidth * 0.82;
+                    } else {
+                        targetWidth = rightWidth * 0.70;
+                    }
+
+                    return clamp(targetWidth, 360, 520);
+
+                }, rightPanel.widthProperty(), authContainer.widthProperty())
+        );
+
+        authCard.maxWidthProperty().bind(authCard.prefWidthProperty());
+
+        updateResponsivePadding();
+
+        authContainer.widthProperty().addListener((obs, oldValue, newValue) -> updateResponsivePadding());
+        authCard.widthProperty().addListener((obs, oldValue, newValue) -> updateResponsivePadding());
+    }
+
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(value, max));
+    }
+
+    private void updateResponsivePadding() {
+        double windowWidth = authContainer.getWidth();
+        double cardWidth = authCard.getWidth();
+
+        if (windowWidth <= 0 || cardWidth <= 0) {
+            return;
+        }
+
+        double cardPadding = clamp(cardWidth * 0.075, 24, 40);
+        double panelPadding = clamp(windowWidth * 0.035, 24, 56);
+
+        authCard.setPadding(new Insets(
+                cardPadding,
+                cardPadding,
+                cardPadding,
+                cardPadding
+        ));
+
+        leftPanel.setPadding(new Insets(panelPadding));
+        rightPanel.setPadding(new Insets(panelPadding));
     }
 }
