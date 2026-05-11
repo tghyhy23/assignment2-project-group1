@@ -18,7 +18,7 @@ public class MainApplication extends Application {
 
         Scene scene = SecureSceneLoader.loadScene(
             getClass(),
-            "/com/group01/asm2/views/login.fxml"
+            "/com/group01/asm2/layout/main-layout.fxml"
         );
 
         scene.setFill(Color.TRANSPARENT);
