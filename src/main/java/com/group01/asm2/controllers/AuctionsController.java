@@ -156,9 +156,7 @@ public class AuctionsController {
         card.getStyleClass().add("auction-card");
 
         ScaleTransition imageScale = new ScaleTransition(Duration.seconds(0.18), imageBox);
-
         TranslateTransition cardMove = new TranslateTransition(Duration.seconds(0.18), card);
-
         TranslateTransition contentMove = new TranslateTransition(Duration.seconds(0.18), nameLabel);
 
         card.setOnMouseEntered(event -> {

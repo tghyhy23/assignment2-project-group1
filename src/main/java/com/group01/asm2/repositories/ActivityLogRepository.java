@@ -1,14 +1,15 @@
 package com.group01.asm2.repositories;
 
-import com.group01.asm2.configs.DatabaseConfig;
+import com.group01.asm2.db.SqlExecutor;
 import com.group01.asm2.enums.ActivityActionType;
 import com.group01.asm2.enums.UserRole;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.ActivityLog;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ActivityLogRepository {
@@ -28,49 +29,40 @@ public class ActivityLogRepository {
             RETURNING id, timestamp, actor_id, actor_role, action_type, target_entity, target_id, description
         """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> {
+                LocalDateTime timestamp = activityLog.getTimestamp() != null
+                    ? activityLog.getTimestamp()
+                    : LocalDateTime.now();
 
-            LocalDateTime timestamp = activityLog.getTimestamp() != null
-                ? activityLog.getTimestamp()
-                : LocalDateTime.now();
+                ps.setTimestamp(1, Timestamp.valueOf(timestamp));
 
-            stmt.setTimestamp(1, Timestamp.valueOf(timestamp));
-
-            if (activityLog.getActorId() == null) {
-                stmt.setNull(2, Types.INTEGER);
-            } else {
-                stmt.setInt(2, activityLog.getActorId());
-            }
-
-            if (activityLog.getActorRole() == null) {
-                stmt.setNull(3, Types.VARCHAR);
-            } else {
-                stmt.setString(3, activityLog.getActorRole().name());
-            }
-
-            stmt.setString(4, activityLog.getActionType().name());
-            stmt.setString(5, activityLog.getTargetEntity());
-
-            if (activityLog.getTargetId() == null) {
-                stmt.setNull(6, Types.INTEGER);
-            } else {
-                stmt.setInt(6, activityLog.getTargetId());
-            }
-
-            stmt.setString(7, activityLog.getDescription());
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapActivityLog(rs);
+                if (activityLog.getActorId() == null) {
+                    ps.setNull(2, Types.INTEGER);
+                } else {
+                    ps.setInt(2, activityLog.getActorId());
                 }
-            }
 
-            throw AppException.database("Failed to create activity log.");
+                if (activityLog.getActorRole() == null) {
+                    ps.setNull(3, Types.VARCHAR);
+                } else {
+                    ps.setString(3, activityLog.getActorRole().name());
+                }
 
-        } catch (SQLException e) {
-            throw AppException.database("Database error while creating activity log: " + e.getMessage());
-        }
+                ps.setString(4, activityLog.getActionType().name());
+                ps.setString(5, activityLog.getTargetEntity());
+
+                if (activityLog.getTargetId() == null) {
+                    ps.setNull(6, Types.INTEGER);
+                } else {
+                    ps.setInt(6, activityLog.getTargetId());
+                }
+
+                ps.setString(7, activityLog.getDescription());
+            },
+            this::mapActivityLog
+        ).orElseThrow(() -> AppException.database("Failed to create activity log."));
     }
 
     public ActivityLog readActivityLogById(Integer id) {
@@ -80,22 +72,11 @@ public class ActivityLogRepository {
             WHERE id = ?
         """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapActivityLog(rs);
-                }
-            }
-
-            return null;
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while reading activity log: " + e.getMessage());
-        }
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> ps.setInt(1, id),
+            this::mapActivityLog
+        ).orElse(null);
     }
 
     public List<ActivityLog> readActivityLogsByActorId(Integer actorId) {
@@ -106,24 +87,11 @@ public class ActivityLogRepository {
             ORDER BY timestamp DESC, id DESC
         """;
 
-        List<ActivityLog> logs = new ArrayList<>();
-
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, actorId);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    logs.add(mapActivityLog(rs));
-                }
-            }
-
-            return logs;
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while reading actor activity logs: " + e.getMessage());
-        }
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> ps.setInt(1, actorId),
+            this::mapActivityLog
+        );
     }
 
     public List<ActivityLog> readActivityLogs() {
@@ -133,21 +101,12 @@ public class ActivityLogRepository {
             ORDER BY timestamp DESC, id DESC
         """;
 
-        List<ActivityLog> logs = new ArrayList<>();
-
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-
-            while (rs.next()) {
-                logs.add(mapActivityLog(rs));
-            }
-
-            return logs;
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while reading activity logs: " + e.getMessage());
-        }
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> {
+            },
+            this::mapActivityLog
+        );
     }
 
     public List<ActivityLog> readActivityLogsByTarget(String targetEntity, Integer targetId) {
@@ -159,28 +118,17 @@ public class ActivityLogRepository {
             ORDER BY timestamp DESC, id DESC
         """;
 
-        List<ActivityLog> logs = new ArrayList<>();
-
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, targetEntity);
-            stmt.setInt(2, targetId);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    logs.add(mapActivityLog(rs));
-                }
-            }
-
-            return logs;
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while reading target activity logs: " + e.getMessage());
-        }
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> {
+                ps.setString(1, targetEntity);
+                ps.setInt(2, targetId);
+            },
+            this::mapActivityLog
+        );
     }
 
-    private ActivityLog mapActivityLog(ResultSet rs) throws SQLException {
+    private ActivityLog mapActivityLog(ResultSet rs) throws Exception {
         ActivityLog activityLog = new ActivityLog();
 
         activityLog.setId(rs.getInt("id"));
@@ -191,11 +139,7 @@ public class ActivityLogRepository {
         }
 
         int actorId = rs.getInt("actor_id");
-        if (rs.wasNull()) {
-            activityLog.setActorId(null);
-        } else {
-            activityLog.setActorId(actorId);
-        }
+        activityLog.setActorId(rs.wasNull() ? null : actorId);
 
         String actorRole = rs.getString("actor_role");
         if (actorRole != null) {
@@ -210,11 +154,7 @@ public class ActivityLogRepository {
         activityLog.setTargetEntity(rs.getString("target_entity"));
 
         int targetId = rs.getInt("target_id");
-        if (rs.wasNull()) {
-            activityLog.setTargetId(null);
-        } else {
-            activityLog.setTargetId(targetId);
-        }
+        activityLog.setTargetId(rs.wasNull() ? null : targetId);
 
         activityLog.setDescription(rs.getString("description"));
 

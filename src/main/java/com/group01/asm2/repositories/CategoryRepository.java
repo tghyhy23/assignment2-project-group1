@@ -1,16 +1,14 @@
 package com.group01.asm2.repositories;
 
-import com.group01.asm2.configs.DatabaseConfig;
+import com.group01.asm2.db.SqlExecutor;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Category;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.List;
 
-/**
- * @author Group 01
- */
 public class CategoryRepository {
 
     public Category createCategory(Category category) {
@@ -20,24 +18,15 @@ public class CategoryRepository {
             RETURNING id, name, description, commission_rate, created_at, updated_at
         """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, category.getName());
-            stmt.setString(2, category.getDescription());
-            stmt.setBigDecimal(3, category.getCommissionRate());
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapCategory(rs);
-                }
-            }
-
-            throw AppException.database("Failed to create category.");
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while creating category: " + e.getMessage());
-        }
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> {
+                ps.setString(1, category.getName());
+                ps.setString(2, category.getDescription());
+                ps.setBigDecimal(3, category.getCommissionRate());
+            },
+            this::mapCategory
+        ).orElseThrow(() -> AppException.database("Failed to create category."));
     }
 
     public Category readCategoryById(Integer id) {
@@ -47,22 +36,11 @@ public class CategoryRepository {
             WHERE id = ?
         """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapCategory(rs);
-                }
-            }
-
-            return null;
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while reading category: " + e.getMessage());
-        }
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> ps.setInt(1, id),
+            this::mapCategory
+        ).orElse(null);
     }
 
     public List<Category> readCategories() {
@@ -72,21 +50,12 @@ public class CategoryRepository {
             ORDER BY name ASC
         """;
 
-        List<Category> categories = new ArrayList<>();
-
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-
-            while (rs.next()) {
-                categories.add(mapCategory(rs));
-            }
-
-            return categories;
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while reading categories: " + e.getMessage());
-        }
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> {
+            },
+            this::mapCategory
+        );
     }
 
     public Category updateCategory(Category category) {
@@ -100,25 +69,16 @@ public class CategoryRepository {
             RETURNING id, name, description, commission_rate, created_at, updated_at
         """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, category.getName());
-            stmt.setString(2, category.getDescription());
-            stmt.setBigDecimal(3, category.getCommissionRate());
-            stmt.setInt(4, category.getId());
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapCategory(rs);
-                }
-            }
-
-            return null;
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while updating category: " + e.getMessage());
-        }
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> {
+                ps.setString(1, category.getName());
+                ps.setString(2, category.getDescription());
+                ps.setBigDecimal(3, category.getCommissionRate());
+                ps.setInt(4, category.getId());
+            },
+            this::mapCategory
+        ).orElse(null);
     }
 
     public void deleteCategory(Integer id) {
@@ -127,15 +87,10 @@ public class CategoryRepository {
             WHERE id = ?
         """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while deleting category: " + e.getMessage());
-        }
+        SqlExecutor.update(
+            sql,
+            ps -> ps.setInt(1, id)
+        );
     }
 
     public boolean existsByNameExceptId(String name, Integer excludedCategoryId) {
@@ -147,26 +102,21 @@ public class CategoryRepository {
             LIMIT 1
         """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> {
+                ps.setString(1, name);
 
-            stmt.setString(1, name);
-
-            if (excludedCategoryId == null) {
-                stmt.setNull(2, Types.INTEGER);
-                stmt.setNull(3, Types.INTEGER);
-            } else {
-                stmt.setInt(2, excludedCategoryId);
-                stmt.setInt(3, excludedCategoryId);
-            }
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
-            }
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while checking category name: " + e.getMessage());
-        }
+                if (excludedCategoryId == null) {
+                    ps.setNull(2, Types.INTEGER);
+                    ps.setNull(3, Types.INTEGER);
+                } else {
+                    ps.setInt(2, excludedCategoryId);
+                    ps.setInt(3, excludedCategoryId);
+                }
+            },
+            rs -> true
+        ).orElse(false);
     }
 
     public boolean isCategoryUsedByItems(Integer categoryId) {
@@ -177,21 +127,14 @@ public class CategoryRepository {
             LIMIT 1
         """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, categoryId);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
-            }
-
-        } catch (SQLException e) {
-            throw AppException.database("Database error while checking category usage: " + e.getMessage());
-        }
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> ps.setInt(1, categoryId),
+            rs -> true
+        ).orElse(false);
     }
 
-    private Category mapCategory(ResultSet rs) throws SQLException {
+    private Category mapCategory(ResultSet rs) throws Exception {
         Category category = new Category();
 
         category.setId(rs.getInt("id"));

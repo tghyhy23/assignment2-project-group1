@@ -125,53 +125,53 @@ public class AuctionDetailsController {
      */
     private void fetchItemDetailsMock(Integer itemId) {
         // Tạo Base Item
-        this.currentItem = new Item(
-                itemId,
-                99, // categoryId mock
-                101, // sellerId mock
-                "Item #" + itemId, // title default
-                "Detailed description for item ID #" + itemId, // desc default
-                "Used", // condition
-                "Unknown Brand", // brand
-                "Ho Chi Minh City, Vietnam", // location
-                new BigDecimal("100.00"), // startingPrice
-                null, // reservePrice
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
-        this.sellerName = "Premium Seller";
-
-        // Ghi đè dữ liệu cụ thể để khớp với các ID 1, 2, 3 từ trang danh sách
-        if (itemId == 1) {
-            currentItem.setTitle("Đồng hồ Rolex Submariner 2020");
-            currentItem.setBrand("Rolex");
-            currentItem.setCondition("Like New");
-            currentItem.setDescription("Đồng hồ Rolex nguyên bản, đầy đủ giấy tờ, hộp sổ thẻ. Tình trạng hoàn hảo, chưa qua đánh bóng. Phù hợp cho giới sưu tầm.");
-            currentItem.setStartingPrice(new BigDecimal("150000000.00"));
-        } else if (itemId == 2) {
-            currentItem.setTitle("Bức tranh sơn dầu thế kỷ 19");
-            currentItem.setCondition("Vintage");
-            currentItem.setDescription("Tác phẩm nghệ thuật độc bản từ thế kỷ 19. Đã được thẩm định bởi chuyên gia mỹ thuật quốc tế.");
-            currentItem.setStartingPrice(new BigDecimal("50000000.00"));
-        } else if (itemId == 3) {
-            currentItem.setTitle("Siêu xe Ford Mustang 1969 Classic");
-            currentItem.setBrand("Ford");
-            currentItem.setDescription("Xe cơ bắp Mỹ cổ điển, động cơ V8 mạnh mẽ, đã phục chế toàn bộ nội ngoại thất giữ nguyên bản sắc năm 1969.");
-            currentItem.setStartingPrice(new BigDecimal("800000000.00"));
-        }
-
-        // Tạo sẵn lịch sử Bid giả lập
-        bidHistory.clear();
-        BigDecimal bid1 = currentAuction.getFinalSalePrice() != null ? currentAuction.getFinalSalePrice() : new BigDecimal("100");
-        BigDecimal bid2 = bid1.subtract(new BigDecimal("5000000")); // Mock trừ đi 5 triệu
-        BigDecimal bid3 = bid2.subtract(new BigDecimal("10000000"));
-
-        bidHistory.add(new BidHistoryEntry("Minh T.", bid1, LocalDateTime.now().minusHours(1), "Highest"));
-        bidHistory.add(new BidHistoryEntry("Alex N.", bid2, LocalDateTime.now().minusHours(3), "Outbid"));
-        if (bid3.compareTo(BigDecimal.ZERO) > 0) {
-            bidHistory.add(new BidHistoryEntry("Sarah L.", bid3, LocalDateTime.now().minusHours(5), "Outbid"));
-        }
+//        this.currentItem = new Item(
+//                itemId,
+//                99, // categoryId mock
+//                101, // sellerId mock
+//                "Item #" + itemId, // title default
+//                "Detailed description for item ID #" + itemId, // desc default
+//                "Used", // condition
+//                "Unknown Brand", // brand
+//                "Ho Chi Minh City, Vietnam", // location
+//                new BigDecimal("100.00"), // startingPrice
+//                null, // reservePrice
+//                LocalDateTime.now(),
+//                LocalDateTime.now()
+//        );
+//
+//        this.sellerName = "Premium Seller";
+//
+//        // Ghi đè dữ liệu cụ thể để khớp với các ID 1, 2, 3 từ trang danh sách
+//        if (itemId == 1) {
+//            currentItem.setTitle("Đồng hồ Rolex Submariner 2020");
+//            currentItem.setBrand("Rolex");
+//            currentItem.setCondition("Like New");
+//            currentItem.setDescription("Đồng hồ Rolex nguyên bản, đầy đủ giấy tờ, hộp sổ thẻ. Tình trạng hoàn hảo, chưa qua đánh bóng. Phù hợp cho giới sưu tầm.");
+//            currentItem.setStartingPrice(new BigDecimal("150000000.00"));
+//        } else if (itemId == 2) {
+//            currentItem.setTitle("Bức tranh sơn dầu thế kỷ 19");
+//            currentItem.setCondition("Vintage");
+//            currentItem.setDescription("Tác phẩm nghệ thuật độc bản từ thế kỷ 19. Đã được thẩm định bởi chuyên gia mỹ thuật quốc tế.");
+//            currentItem.setStartingPrice(new BigDecimal("50000000.00"));
+//        } else if (itemId == 3) {
+//            currentItem.setTitle("Siêu xe Ford Mustang 1969 Classic");
+//            currentItem.setBrand("Ford");
+//            currentItem.setDescription("Xe cơ bắp Mỹ cổ điển, động cơ V8 mạnh mẽ, đã phục chế toàn bộ nội ngoại thất giữ nguyên bản sắc năm 1969.");
+//            currentItem.setStartingPrice(new BigDecimal("800000000.00"));
+//        }
+//
+//        // Tạo sẵn lịch sử Bid giả lập
+//        bidHistory.clear();
+//        BigDecimal bid1 = currentAuction.getFinalSalePrice() != null ? currentAuction.getFinalSalePrice() : new BigDecimal("100");
+//        BigDecimal bid2 = bid1.subtract(new BigDecimal("5000000")); // Mock trừ đi 5 triệu
+//        BigDecimal bid3 = bid2.subtract(new BigDecimal("10000000"));
+//
+//        bidHistory.add(new BidHistoryEntry("Minh T.", bid1, LocalDateTime.now().minusHours(1), "Highest"));
+//        bidHistory.add(new BidHistoryEntry("Alex N.", bid2, LocalDateTime.now().minusHours(3), "Outbid"));
+//        if (bid3.compareTo(BigDecimal.ZERO) > 0) {
+//            bidHistory.add(new BidHistoryEntry("Sarah L.", bid3, LocalDateTime.now().minusHours(5), "Outbid"));
+//        }
     }
 
     @FXML
@@ -370,9 +370,9 @@ public class AuctionDetailsController {
         productDetailsGrid.getChildren().clear();
         addDetailRow(productDetailsGrid, 0, "Item Name", currentItem.getTitle());
         addDetailRow(productDetailsGrid, 1, "Category ID", valueOrNA(currentItem.getCategoryId())); // Tương lai ánh xạ ra tên Category
-        addDetailRow(productDetailsGrid, 2, "Condition", currentItem.getCondition());
-        addDetailRow(productDetailsGrid, 3, "Brand", currentItem.getBrand());
-        addDetailRow(productDetailsGrid, 4, "Location", currentItem.getLocation());
+        addDetailRow(productDetailsGrid, 2, "Condition", valueOrNA(currentItem.getCondition()));
+//        addDetailRow(productDetailsGrid, 3, "Brand", currentItem.getBrand());
+//        addDetailRow(productDetailsGrid, 4, "Location", currentItem.getLocation());
         addDetailRow(productDetailsGrid, 5, "Seller", sellerName);
     }
 
