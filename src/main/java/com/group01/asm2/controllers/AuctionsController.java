@@ -18,12 +18,15 @@ import javafx.scene.layout.Region;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 
 public class AuctionsController {
 
     @FXML private TableView<Auction> auctionsTable;
     @FXML private TableColumn<Auction, String> auctionDateColumn;
     @FXML private TableColumn<Auction, String> auctionTypeColumn;
+    @FXML private FlowPane allAuctionsContainer;
     @FXML private TableColumn<Auction, String> auctionItemColumn;
     @FXML private TableColumn<Auction, String> auctionAmountColumn;
     @FXML private TableColumn<Auction, String> auctionStatusColumn;
@@ -33,25 +36,121 @@ public class AuctionsController {
 
     @FXML
     public void initialize() {
-        // 1. Gọi Service lấy Data thay vì tự tạo mock
+
         auctionsList.addAll(AuctionService.getAll());
 
-        // 2. Setup giao diện bảng
-        setupAuctionTable();
-        makeTableResponsive(auctionsTable);
+        // PAGE TABLE AUCTIONS
+        if (auctionsTable != null) {
 
-        // 3. Lắng nghe sự kiện click
-        auctionsTable.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 1 && auctionsTable.getSelectionModel().getSelectedItem() != null) {
-                Auction selectedAuction = auctionsTable.getSelectionModel().getSelectedItem();
+            setupAuctionTable();
+            makeTableResponsive(auctionsTable);
+        // Handle hover imgs
+            auctionsTable.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 1
+                        && auctionsTable.getSelectionModel().getSelectedItem() != null) {
 
-                // GỌI HÀM TỪ NAVIGATION SERVICE
-                Pane contentArea = (Pane) auctionsTable.getScene().lookup("#contentArea");
-                NavigationService.goToAuctionDetails(contentArea, selectedAuction);
-            }
-        });
+                    Auction selectedAuction =
+                            auctionsTable.getSelectionModel().getSelectedItem();
+
+                    Pane contentArea =
+                            (Pane) auctionsTable.getScene().lookup("#contentArea");
+
+                    NavigationService.goToAuctionDetails(
+                            contentArea,
+                            selectedAuction
+                    );
+                }
+            });
+        }
+
+        // EXPLORE PAGE
+        if (allAuctionsContainer != null) {
+            loadAllAuctionsToExplore();
+        }
     }
 
+    private void loadAllAuctionsToExplore() {
+        allAuctionsContainer.getChildren().clear();
+
+        for (Auction auction : AuctionService.getAll()) {
+            VBox card = createAuctionCard(auction);
+            allAuctionsContainer.getChildren().add(card);
+        }
+    }
+
+    //    Create AuctionCard
+    private VBox createAuctionCard(Auction auction) {
+
+        Item item = ItemService.getItemById(auction.getItemId());
+
+        String itemName = item != null
+                ? item.getTitle()
+                : "Unknown Item";
+
+        String price = auction.getFinalSalePrice() != null
+                ? "$" + auction.getFinalSalePrice().toPlainString()
+                : "N/A";
+
+        String endDate = auction.getEndDateTime() != null
+                ? auction.getEndDateTime().format(formatter)
+                : "N/A";
+
+        Label imageBox = new Label("IMAGE");
+        imageBox.getStyleClass().add("auction-image-placeholder");
+        imageBox.setMaxWidth(Double.MAX_VALUE);
+
+        Label nameLabel = new Label(itemName);
+        nameLabel.getStyleClass().add("auction-name");
+        nameLabel.setWrapText(true);
+        nameLabel.setMinHeight(58);
+        nameLabel.setPrefHeight(58);
+        nameLabel.setMaxHeight(58);
+
+        Label priceLabel = new Label(price);
+        priceLabel.getStyleClass().add("auction-price");
+
+        Label statusLabel = new Label(auction.getStatus().name());
+        statusLabel.getStyleClass().add("auction-status");
+
+        switch (auction.getStatus()) {
+            case ACTIVE:
+                statusLabel.getStyleClass().add("status-active");
+                break;
+            case SOLD:
+                statusLabel.getStyleClass().add("status-sold");
+                break;
+            case ENDED:
+                statusLabel.getStyleClass().add("status-ended");
+                break;
+            default:
+                statusLabel.getStyleClass().add("status-ended");
+                break;
+        }
+
+        Label dateLabel = new Label("End: " + endDate);
+        dateLabel.getStyleClass().add("auction-date");
+
+        VBox card = new VBox(
+                imageBox,
+                nameLabel,
+                priceLabel,
+                statusLabel,
+                dateLabel
+        );
+
+        card.setSpacing(8);
+        card.setFillWidth(true);
+        card.getStyleClass().add("auction-card");
+
+        card.setOnMouseClicked(event -> {
+            Pane contentArea = (Pane) card.getScene().lookup("#contentArea");
+            NavigationService.goToAuctionDetails(contentArea, auction);
+        });
+
+        return card;
+    }
+
+    //    For Featured Auctions
     private void setupAuctionTable() {
         auctionDateColumn.setCellValueFactory(cellData -> {
             LocalDateTime date = cellData.getValue().getEndDateTime();
@@ -83,6 +182,7 @@ public class AuctionsController {
         auctionsTable.setItems(auctionsList);
     }
 
+    //    For Featured Auctions
     private void makeTableResponsive(TableView<?> table) {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setPlaceholder(new Label("No history found."));

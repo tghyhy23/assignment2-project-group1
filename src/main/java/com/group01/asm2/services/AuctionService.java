@@ -55,4 +55,29 @@ public class AuctionService {
                 .filter(Auction::isActive)
                 .collect(Collectors.toList());
     }
+
+    public static Auction updateAuction(Integer id, Auction updatedAuction) {
+        if (id == null || updatedAuction == null) return null;
+
+        Auction existingAuction = getAuctionById(id);
+        if (existingAuction == null) return null;
+
+        existingAuction.setItemId(updatedAuction.getItemId());
+        existingAuction.setStatus(updatedAuction.getStatus());
+        existingAuction.setCurrentHighestBidId(updatedAuction.getCurrentHighestBidId());
+        existingAuction.setWinnerId(updatedAuction.getWinnerId());
+        existingAuction.setFinalSalePrice(updatedAuction.getFinalSalePrice());
+        existingAuction.setStartDateTime(updatedAuction.getStartDateTime());
+        existingAuction.setEndDateTime(updatedAuction.getEndDateTime());
+        existingAuction.setRecommended(updatedAuction.isRecommended());
+        existingAuction.setUpdatedAt(LocalDateTime.now());
+
+        return existingAuction;
+    }
+
+    public static boolean deleteAuction(Integer id) {
+        if (id == null) return false;
+
+        return auctionsDb.removeIf(auction -> auction.getId().equals(id));
+    }
 }
