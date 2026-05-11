@@ -38,7 +38,6 @@ public final class RolePermissionPolicy {
             Permission.READ_AUCTION,
 //            Permission.READ_ANY_USER,
             Permission.PROCESS_AUCTION,
-            Permission.CREATE_CATEGORY,
             Permission.UPDATE_CATEGORY,
             Permission.DELETE_CATEGORY,
             Permission.APPROVE_TOP_UP_REQUEST,
