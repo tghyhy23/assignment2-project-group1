@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group01.asm2.controllers.WatchListController"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            styleClass="watchlist-scroll"
+            stylesheets="@../styles/views/watchlist.css">
+
+    <VBox styleClass="watchlist-root" spacing="20">
+        <padding>
+            <Insets top="40" right="70" bottom="40" left="70"/>
+        </padding>
+
+        <Label text="MY WATCHLIST" styleClass="watchlist-title"/>
+
+        <VBox fx:id="watchListContainer" spacing="0" styleClass="watchlist-table"/>
+    </VBox>
+
+</ScrollPane>

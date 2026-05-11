@@ -1,9 +1,6 @@
 /* ======================================= */
 /* 1. TIÊU ĐỀ & CHUNG                      */
 /* ======================================= */
-.categories-container {
-    -fx-padding: 0 0 20 0; /* Cách một chút ở dưới */
-}
 
 .section-title {
     -fx-text-fill: white;

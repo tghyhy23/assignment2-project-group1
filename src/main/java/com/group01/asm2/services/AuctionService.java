@@ -13,6 +13,7 @@ public class AuctionService {
 
     // Giả lập Database lưu trữ Auction
     private static final List<Auction> auctionsDb = new ArrayList<>();
+    private static final List<Auction> watchListDb = new ArrayList<>();
 
     static {
         // Auction 1 (ĐANG DIỄN RA & NỔI BẬT) -> Cho trang Explore
@@ -54,5 +55,61 @@ public class AuctionService {
                 .filter(Auction::isRecommended)
                 .filter(Auction::isActive)
                 .collect(Collectors.toList());
+    }
+
+    public static Auction updateAuction(Integer id, Auction updatedAuction) {
+        if (id == null || updatedAuction == null) return null;
+
+        Auction existingAuction = getAuctionById(id);
+        if (existingAuction == null) return null;
+
+        existingAuction.setItemId(updatedAuction.getItemId());
+        existingAuction.setStatus(updatedAuction.getStatus());
+        existingAuction.setCurrentHighestBidId(updatedAuction.getCurrentHighestBidId());
+        existingAuction.setWinnerId(updatedAuction.getWinnerId());
+        existingAuction.setFinalSalePrice(updatedAuction.getFinalSalePrice());
+        existingAuction.setStartDateTime(updatedAuction.getStartDateTime());
+        existingAuction.setEndDateTime(updatedAuction.getEndDateTime());
+        existingAuction.setRecommended(updatedAuction.isRecommended());
+        existingAuction.setUpdatedAt(LocalDateTime.now());
+
+        return existingAuction;
+    }
+
+    public static boolean deleteAuction(Integer id) {
+        if (id == null) return false;
+
+        return auctionsDb.removeIf(auction -> auction.getId().equals(id));
+    }
+
+    public static Auction addToWatchList(Integer id) {
+        if (id == null) return null;
+
+        Auction auction = getAuctionById(id);
+        if (auction == null) return null;
+
+        boolean alreadyExists = watchListDb.stream()
+                .anyMatch(item -> item.getId().equals(id));
+
+        if (!alreadyExists) {
+            watchListDb.add(auction);
+        }
+
+        return auction;
+    }
+
+    public static Auction removeFromWatchList(Integer id) {
+        if (id == null) return null;
+
+        Auction auction = getAuctionById(id);
+        if (auction == null) return null;
+
+        watchListDb.removeIf(item -> item.getId().equals(id));
+
+        return auction;
+    }
+
+    public static List<Auction> getWatchList() {
+        return new ArrayList<>(watchListDb);
     }
 }

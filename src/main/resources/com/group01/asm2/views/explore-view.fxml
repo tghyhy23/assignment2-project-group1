@@ -36,5 +36,7 @@
 
         <fx:include source="components/categories_explore.fxml" />
 
+        <fx:include source="components/all_auctions.fxml" />
+
     </VBox>
 </ScrollPane>
