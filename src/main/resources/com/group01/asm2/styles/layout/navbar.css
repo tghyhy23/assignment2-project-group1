@@ -56,15 +56,20 @@
 /* === NÚT CÔNG CỤ (HEART, BELL, AVATAR) === */
 .tool-button {
     -fx-min-width: 34px;
-    -fx-max-width: 34px;
-    -fx-min-height: 34px;
-    -fx-max-height: 34px;
+        -fx-pref-width: 34px;
+        -fx-max-width: 34px;
 
-    -fx-background-color: transparent;
-    -fx-cursor: hand;
-    -fx-padding: 4;
-    -fx-background-radius: 50%;
-    -fx-alignment: center;
+        -fx-min-height: 34px;
+        -fx-pref-height: 34px;
+        -fx-max-height: 34px;
+
+        -fx-background-color: transparent;
+        -fx-background-radius: 999;
+        -fx-border-radius: 999;
+
+        -fx-padding: 0;
+        -fx-cursor: hand;
+        -fx-alignment: center;
 }
 
 .avatar-menu {

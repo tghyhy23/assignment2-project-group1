@@ -284,6 +284,21 @@ public class NavbarController {
         }
     }
 
+    @FXML
+    private void handleGoToWatchList() {
+        if (!SessionManager.isLoggedIn()) {
+            goToLoginScene();
+            return;
+        }
+
+        if (contentArea != null) {
+            NavigationService.loadPage(
+                    contentArea,
+                    "/com/group01/asm2/views/watchlist-view.fxml"
+            );
+        }
+    }
+
     private void goToMainLayoutScene() {
         try {
             var mainLayoutUrl = getClass().getResource("/com/group01/asm2/layout/main-layout.fxml");

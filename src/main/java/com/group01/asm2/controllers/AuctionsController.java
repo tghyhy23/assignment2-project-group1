@@ -105,9 +105,9 @@ public class AuctionsController {
         Label nameLabel = new Label(itemName);
         nameLabel.getStyleClass().add("auction-name");
         nameLabel.setWrapText(true);
-        nameLabel.setMinHeight(58);
-        nameLabel.setPrefHeight(58);
-        nameLabel.setMaxHeight(58);
+        nameLabel.setMinHeight(38);
+        nameLabel.setPrefHeight(38);
+        nameLabel.setMaxHeight(38);
 
         Label currentBidLabel = new Label("Current bid: ");
         currentBidLabel.getStyleClass().add("auction-price-title");
@@ -136,11 +136,17 @@ public class AuctionsController {
         Label dateLabel = new Label("End: " + endDate);
         dateLabel.getStyleClass().add("auction-date");
 
+        VBox bidSection = new VBox(
+                currentBidLabel,
+                priceLabel
+        );
+
+        bidSection.setSpacing(2);
+
         VBox card = new VBox(
                 imageBox,
                 nameLabel,
-                currentBidLabel,
-                priceLabel,
+                bidSection,
                 statusLabel,
                 dateLabel
         );

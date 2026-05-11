@@ -1,0 +1,161 @@
+.watchlist-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.watchlist-root {
+    -fx-background-color: #0b1120;
+}
+
+.watchlist-title {
+    -fx-text-fill: white;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.watchlist-table {
+    -fx-background-color: transparent;
+
+    -fx-border-color: #243044;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+
+    -fx-background-radius: 10;
+}
+
+.watchlist-header {
+    -fx-background-color: #123f5c;
+    -fx-background-radius: 10 10 0 0;
+    -fx-padding: 18 16 18 16;
+}
+
+.header-cell {
+    -fx-text-fill: #e0f2fe;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.watchlist-row {
+    -fx-padding: 18 16 18 16;
+
+    -fx-background-color: rgba(21, 32, 51, 0.55);
+
+    -fx-border-color: transparent transparent #263244 transparent;
+    -fx-border-width: 0 0 1 0;
+
+    -fx-cursor: hand;
+}
+
+.watchlist-row:hover {
+    -fx-background-color: rgba(30, 41, 59, 0.95);
+}
+
+.remove-button {
+    -fx-background-color: transparent;
+    -fx-padding: 7;
+    -fx-cursor: hand;
+    -fx-background-radius: 8;
+}
+
+.remove-button:hover {
+    -fx-background-color: rgba(239, 68, 68, 0.15);
+}
+
+.trash-icon {
+    -fx-fill: transparent;
+    -fx-stroke: #94a3b8;
+    -fx-stroke-width: 2;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
+.remove-button:hover .trash-icon {
+    -fx-stroke: #ef4444;
+}
+
+.product-name {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.product-info {
+    -fx-text-fill: #8fa3c1;
+    -fx-font-size: 12px;
+}
+
+.price-cell {
+    -fx-text-fill: #29b6f6;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.normal-cell {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 14px;
+}
+
+.status-cell {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.status-active {
+    -fx-text-fill: #7cffb2;
+}
+
+.status-sold {
+    -fx-text-fill: #ff8a8a;
+}
+
+.status-ended {
+    -fx-text-fill: #ffd86b;
+}
+
+.bid-button {
+    -fx-background-color: #0284c7;
+    -fx-text-fill: white;
+
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+
+    -fx-padding: 11 16 11 16;
+    -fx-background-radius: 8;
+
+    -fx-cursor: hand;
+}
+
+.bid-button:hover {
+    -fx-background-color: #0369a1;
+}
+
+.watchlist-image-placeholder {
+    -fx-pref-width: 58px;
+    -fx-pref-height: 42px;
+    -fx-min-width: 58px;
+    -fx-min-height: 42px;
+    -fx-max-width: 58px;
+    -fx-max-height: 42px;
+
+    -fx-background-color: #f1f1f1;
+    -fx-background-radius: 6;
+
+    -fx-alignment: center;
+    -fx-text-fill: #999999;
+    -fx-font-size: 6px;
+    -fx-font-weight: bold;
+}
+
+.remove-button {
+    -fx-background-color: transparent;
+    -fx-padding: 4;
+    -fx-cursor: hand;
+    -fx-background-radius: 6;
+    -fx-pref-width: 38px;
+    -fx-pref-height: 38px;
+}
+
+.trash-icon {
+    -fx-scale-x: 0.82;
+    -fx-scale-y: 0.82;
+}

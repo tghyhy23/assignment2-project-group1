@@ -45,9 +45,6 @@
     -fx-font-size: 14px;
     -fx-font-weight: 600;
     -fx-text-fill: white;
-    -fx-min-height: 58px;
-    -fx-pref-height: 58px;
-    -fx-max-height: 58px;
     -fx-alignment: top-left;
 }
 
