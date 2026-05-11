@@ -1,6 +1,10 @@
 package com.group01.asm2.controllers;
 
 import com.group01.asm2.models.Item;
+import javafx.scene.shape.SVGPath;
+import javafx.animation.TranslateTransition;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.utils.ScrollUtils;
 import javafx.beans.binding.Bindings;
@@ -280,7 +284,18 @@ public class ProfileController {
         card.setMinWidth(cardWidth);
         card.setMaxWidth(cardWidth);
 
-        StackPane imageSection = createListingImageSection(item);
+        StackPane imageSection = createListingImageSection(item, card);
+        setupListingCardHoverAnimation(card, imageSection);
+
+        Rectangle clip = new Rectangle();
+
+        clip.widthProperty().bind(imageSection.widthProperty());
+        clip.heightProperty().bind(imageSection.heightProperty());
+
+        clip.setArcWidth(0);
+        clip.setArcHeight(0);
+
+        imageSection.setClip(clip);
 
         VBox contentBox = new VBox(10);
         contentBox.getStyleClass().add("listing-card-content");
@@ -288,6 +303,10 @@ public class ProfileController {
         Label titleLabel = new Label(item.getTitle() != null ? item.getTitle() : "Unknown Item");
         titleLabel.getStyleClass().add("item-title");
         titleLabel.setWrapText(true);
+
+        titleLabel.setMinHeight(38);
+        titleLabel.setPrefHeight(38);
+        titleLabel.setMaxHeight(38);
 
         Label categoryLabel = new Label(convertCategoryToName(item.getCategoryId()));
         categoryLabel.getStyleClass().add("item-category-text");
@@ -310,9 +329,6 @@ public class ProfileController {
                 new VBox(3, currentBidLabel, currentBidValue)
         );
 
-        Label conditionLabel = new Label(item.getCondition() != null ? item.getCondition() : "Unknown");
-        conditionLabel.getStyleClass().addAll("listing-status", "listing-status-active");
-
         Label dateLabel = new Label(
                 item.getCreatedAt() != null
                         ? "Created: " + item.getCreatedAt().toLocalDate()
@@ -327,7 +343,6 @@ public class ProfileController {
                 titleLabel,
                 categoryLabel,
                 priceRow,
-                conditionLabel,
                 spacer,
                 dateLabel
         );
@@ -337,19 +352,39 @@ public class ProfileController {
         return card;
     }
 
-    private StackPane createListingImageSection(Item item) {
+    private void setupListingCardHoverAnimation(VBox card, Node imageContent) {
+        TranslateTransition cardMove = new TranslateTransition(Duration.seconds(0.18), card);
+
+        card.setOnMouseEntered(event -> {
+            cardMove.setToY(-4);
+            cardMove.playFromStart();
+        });
+
+        card.setOnMouseExited(event -> {
+            cardMove.setToY(0);
+            cardMove.playFromStart();
+        });
+    }
+
+    private StackPane createListingImageSection(Item item, VBox card) {
         StackPane imageSection = new StackPane();
         imageSection.getStyleClass().add("item-image-section");
+
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(imageSection.widthProperty());
+        clip.heightProperty().bind(imageSection.heightProperty());
+        clip.setArcWidth(44);
+        clip.setArcHeight(44);
+        imageSection.setClip(clip);
 
         StackPane imagePlaceholder = new StackPane();
         imagePlaceholder.getStyleClass().add("item-image-placeholder");
 
         Label iconLabel = new Label(getItemIcon(item));
         iconLabel.getStyleClass().add("item-placeholder-icon");
-
         imagePlaceholder.getChildren().add(iconLabel);
 
-        Button moreButton = new Button("⋯");
+        Button moreButton = new Button("...");
         moreButton.getStyleClass().add("item-more-button");
 
         VBox actionMenu = createItemActionMenu(item);
@@ -364,35 +399,53 @@ public class ProfileController {
             actionMenu.setManaged(!showing);
         });
 
+        imageSection.setOnMouseExited(event -> {
+            actionMenu.setVisible(false);
+            actionMenu.setManaged(false);
+        });
+
         StackPane.setAlignment(moreButton, javafx.geometry.Pos.TOP_RIGHT);
-        StackPane.setMargin(moreButton, new Insets(10, 10, 0, 0));
+        StackPane.setMargin(moreButton, new Insets(12, 12, 0, 0));
 
         StackPane.setAlignment(actionMenu, javafx.geometry.Pos.TOP_RIGHT);
-        StackPane.setMargin(actionMenu, new Insets(48, 10, 0, 0));
+        StackPane.setMargin(actionMenu, new Insets(54, 12, 0, 0));
 
         imageSection.getChildren().addAll(imagePlaceholder, moreButton, actionMenu);
+
+        setupListingCardHoverAnimation(card, iconLabel);
 
         return imageSection;
     }
 
     private VBox createItemActionMenu(Item item) {
-        VBox menu = new VBox(4);
+        VBox menu = new VBox(2);
+        menu.setFillWidth(true);
+        menu.setMaxWidth(Region.USE_PREF_SIZE);
+        menu.setMaxHeight(Region.USE_PREF_SIZE);
         menu.getStyleClass().add("item-action-menu");
 
         Button editButton = new Button("Edit");
         editButton.getStyleClass().add("item-action-menu-button");
+        editButton.setGraphic(createEditIcon());
+        editButton.setGraphicTextGap(2);
 
         Button deleteButton = new Button("Delete");
         deleteButton.getStyleClass().addAll("item-action-menu-button", "item-action-menu-delete");
+        deleteButton.setGraphic(createDeleteIcon());
+        deleteButton.setGraphicTextGap(2);
 
         editButton.setOnAction(event -> {
             event.consume();
             addActivity("Edit item", "Edit action selected for " + item.getTitle() + ".");
+            menu.setVisible(false);
+            menu.setManaged(false);
         });
 
         deleteButton.setOnAction(event -> {
             event.consume();
             handleDeleteItem(item);
+            menu.setVisible(false);
+            menu.setManaged(false);
         });
 
         menu.getChildren().addAll(editButton, deleteButton);
@@ -403,15 +456,14 @@ public class ProfileController {
     private double calculateCardWidth() {
         double containerWidth = listingsCardContainer.getWidth();
 
-        if (containerWidth >= 1100) {
-            return (containerWidth - 72) / 4;
-        } else if (containerWidth >= 820) {
-            return (containerWidth - 54) / 3;
-        } else if (containerWidth >= 560) {
-            return (containerWidth - 36) / 2;
-        } else {
-            return Math.max(containerWidth - 18, 220);
+        if (containerWidth <= 0) {
+            return 280;
         }
+
+        double gap = listingsCardContainer.getHgap();
+        double totalGap = gap * 3; // 4 items = 3 gaps
+
+        return (containerWidth - totalGap) / 4;
     }
 
     private void setupAddListingModal() {
@@ -766,4 +818,29 @@ public class ProfileController {
         public String getAction() { return action.get(); }
         public String getDescription() { return description.get(); }
     }
+
+    private SVGPath createEditIcon() {
+        SVGPath icon = new SVGPath();
+        icon.setContent(
+                "M21.174 6.812a1 1 0 0 0-3.986-3.987 " +
+                        "L3.842 16.174a2 2 0 0 0-.5.83 " +
+                        "l-1.321 4.352a.5.5 0 0 0 .623.622 " +
+                        "l4.353-1.32a2 2 0 0 0 .83-.497z " +
+                        "M15 5l4 4"
+        );
+        icon.getStyleClass().add("item-menu-icon");
+        return icon;
+    }
+
+    private SVGPath createDeleteIcon() {
+        SVGPath icon = new SVGPath();
+        icon.setContent(
+                "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6 " +
+                        "M3 6h18 " +
+                        "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+        );
+        icon.getStyleClass().add("item-menu-icon");
+        return icon;
+    }
 }
+
