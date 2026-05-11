@@ -5,6 +5,9 @@ import com.group01.asm2.enums.UserRole;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author Group 01
+ */
 public class ActivityLog {
     private Integer id;
     private LocalDateTime timestamp;
@@ -35,31 +38,63 @@ public class ActivityLog {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public LocalDateTime getTimestamp() {
         return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Integer getActorId() {
         return actorId;
     }
 
+    public void setActorId(Integer actorId) {
+        this.actorId = actorId;
+    }
+
     public UserRole getActorRole() {
         return actorRole;
+    }
+
+    public void setActorRole(UserRole actorRole) {
+        this.actorRole = actorRole;
     }
 
     public ActivityActionType getActionType() {
         return actionType;
     }
 
+    public void setActionType(ActivityActionType actionType) {
+        this.actionType = actionType;
+    }
+
     public String getTargetEntity() {
         return targetEntity;
+    }
+
+    public void setTargetEntity(String targetEntity) {
+        this.targetEntity = targetEntity;
     }
 
     public Integer getTargetId() {
         return targetId;
     }
 
+    public void setTargetId(Integer targetId) {
+        this.targetId = targetId;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
