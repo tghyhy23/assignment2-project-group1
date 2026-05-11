@@ -7,38 +7,39 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group01.asm2.controllers.LoginController"
-            prefWidth="1100"
-            prefHeight="720"
             stylesheets="@../styles/views/auth.css"
             styleClass="auth-root">
 
     <children>
-        <HBox AnchorPane.topAnchor="0"
+        <HBox fx:id="authContainer"
+              AnchorPane.topAnchor="0"
               AnchorPane.bottomAnchor="0"
               AnchorPane.leftAnchor="0"
               AnchorPane.rightAnchor="0">
 
             <!-- LEFT BRAND SECTION -->
-            <VBox styleClass="auth-left-panel"
-                  prefWidth="500"
+            <VBox fx:id="leftPanel"
+                  styleClass="auth-left-panel"
                   alignment="CENTER"
-                  spacing="22">
+                  spacing="22"
+                  HBox.hgrow="ALWAYS">
 
                 <Label text="BidBlitz" styleClass="brand-title"/>
 
                 <Label text="Auction smarter. Bid faster. Win better."
                        styleClass="brand-subtitle"
-                       wrapText="true"
-                       maxWidth="340"/>
+                       wrapText="true"/>
             </VBox>
 
             <!-- RIGHT LOGIN SECTION -->
-            <VBox styleClass="auth-right-panel"
-                  alignment="CENTER">
+            <VBox fx:id="rightPanel"
+                  styleClass="auth-right-panel"
+                  alignment="CENTER"
+                  HBox.hgrow="ALWAYS">
 
-                <VBox styleClass="auth-card"
-                      spacing="18"
-                      maxWidth="430">
+                <VBox fx:id="authCard"
+                      styleClass="auth-card"
+                      spacing="10">
 
                     <VBox spacing="6">
                         <Label text="Welcome Back" styleClass="auth-title"/>

@@ -2,78 +2,43 @@ package com.group01.asm2.services;
 
 import com.group01.asm2.models.Item;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ItemService {
 
-    /**
-     * Hàm này giả lập việc truy vấn toàn bộ sản phẩm từ Database.
-     * (Sau này bạn sẽ thay bằng code JDBC gọi xuống DB ở đây)
-     */
-    public static List<Item> getAllItems() {
-        List<Item> items = new ArrayList<>();
+    private static final List<Item> itemsDb = new ArrayList<>();
 
-        // Sản phẩm 1 (Được Recommend) - Dùng class màu p1
-        items.add(new Item(
-                "ITM001",
-                "Đồng hồ Rolex Submariner 2020",
-                150000000.0,  // Giá khởi điểm
-                185000000.0,  // Giá hiện tại
-                12,           // Số lượt Bid
-                true,         // isRecommended = true
-                "p1-main",
-                new String[]{"p1-t1", "p1-t2", "p1-t3", "p1-t4"}
-        ));
+    static {
+        itemsDb.add(new Item(1, 99, 101, "Đồng hồ Rolex Submariner 2020",
+                "Đồng hồ Rolex nguyên bản, đầy đủ giấy tờ, hộp sổ thẻ.",
+                "Like New", "Rolex", "Ho Chi Minh City",
+                new BigDecimal("150000000.00"), null, LocalDateTime.now(), LocalDateTime.now()));
 
-        // Sản phẩm 2 (KHÔNG được Recommend) - Sẽ không hiện lên trang Explore
-        items.add(new Item(
-                "ITM002",
-                "Bức tranh sơn dầu thế kỷ 19",
-                50000000.0,
-                50000000.0,
-                0,
-                false,        // isRecommended = false
-                "p2-main",
-                new String[]{"p2-t1", "p2-t2", "p2-t3", "p2-t4"}
-        ));
+        itemsDb.add(new Item(2, 99, 102, "Bức tranh sơn dầu thế kỷ 19",
+                "Tác phẩm nghệ thuật độc bản từ thế kỷ 19.",
+                "Vintage", "Unknown", "Hanoi",
+                new BigDecimal("45000000.00"), null, LocalDateTime.now(), LocalDateTime.now()));
 
-        // Sản phẩm 3 (Được Recommend) - Dùng class màu p2
-        items.add(new Item(
-                "ITM003",
-                "Siêu xe Ford Mustang 1969 Classic",
-                800000000.0,
-                1250000000.0,
-                34,
-                true,
-                "p2-main",
-                new String[]{"p2-t1", "p2-t2", "p2-t3", "p2-t4"}
-        ));
-
-        // Sản phẩm 4 (Được Recommend) - Dùng class màu p3
-        items.add(new Item(
-                "ITM004",
-                "Giày Air Jordan 1 Retro High Dior",
-                120000000.0,
-                155000000.0,
-                8,
-                true,
-                "p3-main",
-                new String[]{"p3-t1", "p3-t2", "p3-t3", "p3-t4"}
-        ));
-
-        return items;
+        itemsDb.add(new Item(3, 99, 103, "Siêu xe Ford Mustang 1969 Classic",
+                "Xe cơ bắp Mỹ cổ điển, động cơ V8 mạnh mẽ.",
+                "Restored", "Ford", "Danang",
+                new BigDecimal("800000000.00"), null, LocalDateTime.now(), LocalDateTime.now()));
     }
 
-    /**
-     * Hàm dùng riêng cho trang Explore:
-     * Lọc và chỉ trả về những sản phẩm có cờ isRecommended == true
-     */
-    public static List<Item> getRecommendedItems() {
-        // Dùng Stream API của Java 8 để lọc dữ liệu cực nhanh và gọn
-        return getAllItems().stream()
-                .filter(Item::isRecommended)
-                .collect(Collectors.toList());
+    /** Lấy tất cả Items: */
+    public static List<Item> getAllItems() {
+        return new ArrayList<>(itemsDb);
+    }
+
+    /** Tìm Item theo ID */
+    public static Item getItemById(Integer id) {
+        if (id == null) return null;
+        return itemsDb.stream()
+                .filter(item -> item.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 }

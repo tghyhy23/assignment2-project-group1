@@ -3,22 +3,28 @@ package com.group01.asm2.controllers;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.services.AuthService;
+import javafx.beans.binding.Bindings;
 import com.group01.asm2.security.SecureSceneLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.Duration;
 
 public class LoginController extends BaseController {
-
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private CheckBox rememberMeCheckBox;
@@ -26,13 +32,19 @@ public class LoginController extends BaseController {
     @FXML private Button loginButton;
     @FXML private Hyperlink signupLink;
 
-    private final AuthService authService = new AuthService();
+    @FXML
+    private HBox authContainer;
 
     @FXML
-    private void initialize() {
-        bindAction(loginButton, this::handleLogin);
-        bindAction(signupLink, this::goToSignup);
-    }
+    private VBox leftPanel;
+
+    @FXML
+    private VBox rightPanel;
+
+    @FXML
+    private VBox authCard;
+
+    private final AuthService authService = new AuthService();
 
     private void handleLogin(ActionEvent event) {
         Person loggedInUser = authService.login(
@@ -72,6 +84,14 @@ public class LoginController extends BaseController {
         }
     }
 
+    private String normalizeRateLimitKey(String value) {
+        if (value == null || value.isBlank()) {
+            return "unknown";
+        }
+
+        return value.trim().toLowerCase();
+    }
+
     @Override
     protected void handleAppException(AppException exception) {
         showError(exception.getMessage());
@@ -100,5 +120,77 @@ public class LoginController extends BaseController {
         }
 
         messageLabel.setText(message);
+    }
+
+    @FXML
+    private void initialize() {
+        bindAction(loginButton, this::handleLogin);
+        bindAction(signupLink, this::goToSignup);
+
+        if (authContainer == null || leftPanel == null || rightPanel == null || authCard == null) {
+            return;
+        }
+
+        leftPanel.prefWidthProperty().bind(
+                authContainer.widthProperty().multiply(0.45)
+        );
+
+        rightPanel.prefWidthProperty().bind(
+                authContainer.widthProperty().multiply(0.55)
+        );
+
+        authCard.prefWidthProperty().bind(
+                Bindings.createDoubleBinding(() -> {
+                    double rightWidth = rightPanel.getWidth();
+
+                    if (rightWidth <= 0) {
+                        return 0.0;
+                    }
+
+                    double targetWidth;
+
+                    if (authContainer.getWidth() < 900) {
+                        targetWidth = rightWidth * 0.82;
+                    } else {
+                        targetWidth = rightWidth * 0.70;
+                    }
+
+                    return clamp(targetWidth, 360, 520);
+
+                }, rightPanel.widthProperty(), authContainer.widthProperty())
+        );
+
+        authCard.maxWidthProperty().bind(authCard.prefWidthProperty());
+
+        updateResponsivePadding();
+
+        authContainer.widthProperty().addListener((obs, oldValue, newValue) -> updateResponsivePadding());
+        authCard.widthProperty().addListener((obs, oldValue, newValue) -> updateResponsivePadding());
+    }
+
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(value, max));
+    }
+
+    private void updateResponsivePadding() {
+        double windowWidth = authContainer.getWidth();
+        double cardWidth = authCard.getWidth();
+
+        if (windowWidth <= 0 || cardWidth <= 0) {
+            return;
+        }
+
+        double cardPadding = clamp(cardWidth * 0.075, 24, 40);
+        double panelPadding = clamp(windowWidth * 0.035, 24, 56);
+
+        authCard.setPadding(new Insets(
+                cardPadding,
+                cardPadding,
+                cardPadding,
+                cardPadding
+        ));
+
+        leftPanel.setPadding(new Insets(panelPadding));
+        rightPanel.setPadding(new Insets(panelPadding));
     }
 }

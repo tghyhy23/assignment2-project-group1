@@ -16,6 +16,7 @@ public class Auction {
     private LocalDateTime endDateTime;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean recommended;
 
     public Auction() {
     }
@@ -23,7 +24,7 @@ public class Auction {
     public Auction(Integer id, Integer itemId, AuctionStatus status, Integer currentHighestBidId,
                    Integer winnerId, BigDecimal finalSalePrice,
                    LocalDateTime startDateTime, LocalDateTime endDateTime,
-                   LocalDateTime createdAt, LocalDateTime updatedAt) {
+                   LocalDateTime createdAt, LocalDateTime updatedAt, boolean recommended) {
         this.id = id;
         this.itemId = itemId;
         this.status = status;
@@ -34,6 +35,15 @@ public class Auction {
         this.endDateTime = endDateTime;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.recommended = recommended;
+    }
+
+    public boolean isRecommended() {
+        return recommended;
+    }
+
+    public void setRecommended(boolean recommended) {
+        this.recommended = recommended;
     }
 
     public boolean isActive() {
