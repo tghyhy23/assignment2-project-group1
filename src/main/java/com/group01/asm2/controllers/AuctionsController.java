@@ -16,6 +16,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import java.math.BigDecimal;
+import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
+import javafx.util.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javafx.scene.layout.FlowPane;
@@ -106,6 +109,9 @@ public class AuctionsController {
         nameLabel.setPrefHeight(58);
         nameLabel.setMaxHeight(58);
 
+        Label currentBidLabel = new Label("Current bid: ");
+        currentBidLabel.getStyleClass().add("auction-price-title");
+
         Label priceLabel = new Label(price);
         priceLabel.getStyleClass().add("auction-price");
 
@@ -133,6 +139,7 @@ public class AuctionsController {
         VBox card = new VBox(
                 imageBox,
                 nameLabel,
+                currentBidLabel,
                 priceLabel,
                 statusLabel,
                 dateLabel
@@ -141,6 +148,34 @@ public class AuctionsController {
         card.setSpacing(8);
         card.setFillWidth(true);
         card.getStyleClass().add("auction-card");
+
+        ScaleTransition imageScale = new ScaleTransition(Duration.seconds(0.18), imageBox);
+
+        TranslateTransition cardMove = new TranslateTransition(Duration.seconds(0.18), card);
+
+        TranslateTransition contentMove = new TranslateTransition(Duration.seconds(0.18), nameLabel);
+
+        card.setOnMouseEntered(event -> {
+
+            imageScale.setToX(1.04);
+            imageScale.setToY(1.04);
+            imageScale.playFromStart();
+
+            cardMove.setToY(-5);
+            cardMove.playFromStart();
+
+        });
+
+        card.setOnMouseExited(event -> {
+
+            imageScale.setToX(1.0);
+            imageScale.setToY(1.0);
+            imageScale.playFromStart();
+
+            cardMove.setToY(0);
+            cardMove.playFromStart();
+
+        });
 
         card.setOnMouseClicked(event -> {
             Pane contentArea = (Pane) card.getScene().lookup("#contentArea");
