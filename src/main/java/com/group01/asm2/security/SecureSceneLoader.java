@@ -1,4 +1,4 @@
-package com.group01.asm2.utils;
+package com.group01.asm2.security;
 
 import com.group01.asm2.security.JavaFxSecurity;
 import javafx.fxml.FXMLLoader;
@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import java.io.IOException;
 
 public final class SecureSceneLoader {
-
     private SecureSceneLoader() {
     }
 

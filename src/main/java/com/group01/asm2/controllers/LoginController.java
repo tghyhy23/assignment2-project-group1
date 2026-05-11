@@ -3,7 +3,7 @@ package com.group01.asm2.controllers;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.services.AuthService;
-import com.group01.asm2.utils.SecureSceneLoader;
+import com.group01.asm2.security.SecureSceneLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;

@@ -1,113 +1,63 @@
 package com.group01.asm2.services;
 
-import com.group01.asm2.enums.UserRole;
+import com.group01.asm2.core.SessionManager;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.security.Permission;
-
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Set;
+import com.group01.asm2.security.RolePermissionPolicy;
 
 public final class AuthorizationService {
-    private static final AuthorizationService INSTANCE = new AuthorizationService();
-
-    private final Map<UserRole, Set<Permission>> permissions = new EnumMap<>(UserRole.class);
-
     private AuthorizationService() {
-        registerBuyerPermissions();
-        registerSellerPermissions();
-        registerAuctionAdministratorPermissions();
-        registerSystemAdministratorPermissions();
     }
 
-    public static AuthorizationService getInstance() {
-        return INSTANCE;
+    public static void requireAuthenticated() {
+        if (!SessionManager.isLoggedIn()) {
+            throw AppException.authentication("Please login first.");
+        }
     }
 
-    public boolean can(Person actor, Permission permission) {
-        if (actor == null || actor.getRole() == null) {
+    public static Person getCurrentUserOrThrow() {
+        requireAuthenticated();
+        return SessionManager.getCurrentUser();
+    }
+
+    public static boolean hasPermission(Permission permission) {
+        if (!SessionManager.isLoggedIn()) {
             return false;
         }
 
-        if (actor.getRole() == UserRole.SYSTEM_ADMINISTRATOR) {
-            return true;
-        }
+        Person currentUser = SessionManager.getCurrentUser();
 
-        return permissions
-            .getOrDefault(actor.getRole(), Set.of())
-            .contains(permission);
+        return RolePermissionPolicy.hasPermission(
+            currentUser.getRole(),
+            permission
+        );
     }
 
-    public void require(Person actor, Permission permission) {
-        if (!can(actor, permission)) {
+    public static void requirePermission(Permission permission) {
+        requireAuthenticated();
+
+        if (!hasPermission(permission)) {
             throw AppException.authorization("You are not authorized to perform this action.");
         }
     }
 
-    private void registerBuyerPermissions() {
-        allow(
-            UserRole.BUYER,
-            Permission.READ_AUCTION,
-            Permission.CREATE_BID,
-            Permission.READ_OWN_PROFILE,
-            Permission.UPDATE_OWN_PROFILE,
-            Permission.CREATE_TOP_UP_REQUEST
-        );
+    public static void requireOwner(Integer ownerId) {
+        Person currentUser = getCurrentUserOrThrow();
+
+        if (ownerId == null || !ownerId.equals(currentUser.getId())) {
+            throw AppException.authorization("You can only manage your own resource.");
+        }
     }
 
-    private void registerSellerPermissions() {
-        inherit(UserRole.SELLER, UserRole.BUYER);
+    public static void requireOwnerOrPermission(Integer ownerId, Permission fallbackPermission) {
+        Person currentUser = getCurrentUserOrThrow();
 
-        allow(
-            UserRole.SELLER,
-            Permission.CREATE_ITEM,
-            Permission.UPDATE_OWN_ITEM,
-            Permission.DELETE_OWN_ITEM,
-            Permission.CREATE_AUCTION,
-            Permission.UPDATE_OWN_AUCTION,
-            Permission.READ_SELLER_REPORT
-        );
-    }
+        boolean isOwner = ownerId != null && ownerId.equals(currentUser.getId());
+        boolean hasFallbackPermission = hasPermission(fallbackPermission);
 
-    private void registerAuctionAdministratorPermissions() {
-        allow(
-            UserRole.AUCTION_ADMINISTRATOR,
-            Permission.CREATE_CATEGORY,
-            Permission.UPDATE_CATEGORY,
-            Permission.DELETE_CATEGORY,
-            Permission.PROCESS_AUCTION,
-            Permission.APPROVE_TOP_UP_REQUEST,
-            Permission.READ_AUCTION_REPORT,
-            Permission.READ_OWN_ACTIVITY_LOG
-        );
-    }
-
-    private void registerSystemAdministratorPermissions() {
-        inherit(UserRole.SYSTEM_ADMINISTRATOR, UserRole.AUCTION_ADMINISTRATOR);
-
-        allow(
-            UserRole.SYSTEM_ADMINISTRATOR,
-            Permission.CREATE_USER,
-            Permission.READ_ANY_USER,
-            Permission.UPDATE_USER,
-            Permission.DELETE_USER,
-            Permission.READ_ANY_ACTIVITY_LOG,
-            Permission.READ_SYSTEM_REPORT,
-            Permission.EXPORT_SYSTEM_REPORT
-        );
-    }
-
-    private void allow(UserRole role, Permission... rolePermissions) {
-        permissions
-            .computeIfAbsent(role, ignored -> EnumSet.noneOf(Permission.class))
-            .addAll(Set.of(rolePermissions));
-    }
-
-    private void inherit(UserRole childRole, UserRole parentRole) {
-        permissions
-            .computeIfAbsent(childRole, ignored -> EnumSet.noneOf(Permission.class))
-            .addAll(permissions.getOrDefault(parentRole, Set.of()));
+        if (!isOwner && !hasFallbackPermission) {
+            throw AppException.authorization("You are not authorized to perform this action.");
+        }
     }
 }

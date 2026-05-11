@@ -1,6 +1,7 @@
 package com.group01.asm2.security;
 
 import com.group01.asm2.exceptions.AppException;
+import com.group01.asm2.services.AuthorizationService;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -21,7 +22,7 @@ public final class JavaFxSecurity {
         }
 
         installInputSanitizers(scene.getRoot());
-        installRateLimitFilter(scene);
+        installActionSecurityFilter(scene);
     }
 
     private static void installInputSanitizers(Node node) {
@@ -52,21 +53,29 @@ public final class JavaFxSecurity {
         }));
     }
 
-    private static void installRateLimitFilter(Scene scene) {
+    private static void installActionSecurityFilter(Scene scene) {
         scene.addEventFilter(ActionEvent.ACTION, event -> {
             if (!(event.getSource() instanceof Node sourceNode)) {
                 return;
             }
 
-            SecureActionConfig.from(sourceNode.getUserData()).ifPresent(config -> {
-                try {
-                    String identity = resolveIdentity(scene, config.identityNodeId());
-                    InMemoryRateLimiter.check(config.rateLimitPolicy(), identity);
-                } catch (AppException exception) {
-                    event.consume();
-                    showError(scene, config.messageNodeId(), exception.getMessage());
-                }
-            });
+            try {
+                SecureActionConfig.from(sourceNode.getUserData()).ifPresent(config -> {
+                    if (config.permission() != null) {
+                        AuthorizationService.requirePermission(config.permission());
+                    }
+
+                    if (config.rateLimitPolicy() != null) {
+                        String identity = resolveIdentity(scene, config.identityNodeId());
+                        InMemoryRateLimiter.check(config.rateLimitPolicy(), identity);
+                    }
+                });
+            } catch (AppException exception) {
+                event.consume();
+
+                SecureActionConfig.from(sourceNode.getUserData())
+                    .ifPresent(config -> showError(scene, config.messageNodeId(), exception.getMessage()));
+            }
         });
     }
 

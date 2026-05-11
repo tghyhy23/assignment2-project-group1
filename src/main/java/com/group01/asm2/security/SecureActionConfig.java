@@ -1,11 +1,14 @@
 package com.group01.asm2.security;
 
+import com.group01.asm2.exceptions.AppException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public record SecureActionConfig(
     RateLimitPolicy rateLimitPolicy,
+    Permission permission,
     String identityNodeId,
     String messageNodeId
 ) {
@@ -16,22 +19,39 @@ public record SecureActionConfig(
         }
 
         Map<String, String> values = parse(rawConfig);
-        String rate = values.get("rate");
 
-        if (rate == null || rate.isBlank()) {
-            return Optional.empty();
+        RateLimitPolicy rateLimitPolicy = parseRateLimitPolicy(values.get("rate"));
+        Permission permission = parsePermission(values.get("permission"));
+
+        return Optional.of(new SecureActionConfig(
+            rateLimitPolicy,
+            permission,
+            values.get("identity"),
+            values.get("message")
+        ));
+    }
+
+    private static RateLimitPolicy parseRateLimitPolicy(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
         }
 
         try {
-            RateLimitPolicy policy = RateLimitPolicy.valueOf(rate.trim().toUpperCase());
-
-            return Optional.of(new SecureActionConfig(
-                policy,
-                values.get("identity"),
-                values.get("message")
-            ));
+            return RateLimitPolicy.valueOf(value.trim().toUpperCase());
         } catch (IllegalArgumentException exception) {
-            return Optional.empty();
+            throw AppException.validation("Invalid rate limit policy: " + value);
+        }
+    }
+
+    private static Permission parsePermission(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Permission.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            throw AppException.validation("Invalid permission: " + value);
         }
     }
 
