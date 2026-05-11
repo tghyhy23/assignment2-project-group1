@@ -2,7 +2,7 @@ package com.group01.asm2;
 
 import com.group01.asm2.db.PostgreSQLInitializer;
 import com.group01.asm2.seeds.DatabaseSeeder;
-import com.group01.asm2.utils.SecureSceneLoader;
+import com.group01.asm2.security.SecureSceneLoader;
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
