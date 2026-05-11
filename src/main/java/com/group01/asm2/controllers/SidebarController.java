@@ -39,6 +39,8 @@ public class SidebarController {
         setActiveButton(dashboardButton);
     }
 
+
+
     private void setActiveButton(Button activeButton) {
         Button[] buttons = {
                 dashboardButton,

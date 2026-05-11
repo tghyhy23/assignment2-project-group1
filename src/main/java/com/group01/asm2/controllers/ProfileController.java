@@ -1,28 +1,26 @@
 package com.group01.asm2.controllers;
 
-import javafx.beans.binding.Bindings;
+import com.group01.asm2.models.Item;
+import com.group01.asm2.services.ItemService;
 import com.group01.asm2.utils.ScrollUtils;
-import javafx.scene.control.ScrollPane;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-import javafx.stage.Popup;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ProfileController {
 
-    // =========================
-    // Profile Header
-    // =========================
+    @FXML private ScrollPane profileScrollPane;
 
     @FXML private Label avatarLabel;
     @FXML private Label statusLabel;
@@ -34,7 +32,43 @@ public class ProfileController {
     @FXML private Label dateOfBirthLabel;
     @FXML private Label addressLabel;
     @FXML private Label joinedDateLabel;
+
+    @FXML private Label balanceLabel;
+    @FXML private Label totalListingsLabel;
+    @FXML private Label activeListingsLabel;
+    @FXML private Label soldListingsLabel;
+    @FXML private Label summaryRatingLabel;
+
+    @FXML private TabPane profileTabPane;
+    @FXML private Label selectedTabTitleLabel;
+
+    @FXML private Label walletBalanceLabel;
+    @FXML private Label topUpStatusLabel;
+    @FXML private Label recentAuctionStatusLabel;
+
+    @FXML private HBox summaryRow;
+    @FXML private HBox walletPanelRow;
+
+    @FXML private TextField listingSearchField;
+    @FXML private TilePane listingsCardContainer;
+
+    @FXML private Button categoryAllButton;
+    @FXML private Button categoryElectronicsButton;
+    @FXML private Button categoryFashionButton;
+    @FXML private Button categoryCollectiblesButton;
+    @FXML private Button categoryHomeButton;
+    @FXML private Button categoryBooksButton;
+    @FXML private Button categoryOtherButton;
+
+    @FXML private TableView<ActivityLog> activityTable;
+    @FXML private TableColumn<ActivityLog, String> activityDateTimeColumn;
+    @FXML private TableColumn<ActivityLog, String> activityActionColumn;
+    @FXML private TableColumn<ActivityLog, String> activityDescriptionColumn;
+
     @FXML private StackPane editProfileOverlay;
+    @FXML private ScrollPane editProfileModalScrollPane;
+    @FXML private VBox editProfileModal;
+    @FXML private Button editProfileButton;
     @FXML private Label modalAvatarLabel;
     @FXML private Label modalNamePreviewLabel;
     @FXML private Label modalEmailPreviewLabel;
@@ -43,97 +77,9 @@ public class ProfileController {
     @FXML private TextField editPhoneField;
     @FXML private TextField editDateOfBirthField;
     @FXML private TextField editAddressField;
-    @FXML private TextField editRoleField;
-    @FXML private VBox editProfileModal;
-    @FXML private Button editProfileButton;
-    @FXML private ScrollPane editProfileModalScrollPane;
 
-    // =========================
-    // Summary Labels
-    // =========================
-
-    @FXML private Label balanceLabel;
-    @FXML private Label totalBidsLabel;
-    @FXML private Label wonAuctionsLabel;
-    @FXML private Label activeListingsLabel;
-    @FXML private Label summaryRatingLabel;
-
-    // =========================
-    // Wallet
-    // =========================
-
-    @FXML private Label selectedTabTitleLabel;
-    @FXML private Label walletBalanceLabel;
-    @FXML private Label topUpStatusLabel;
-    @FXML private Label recentAuctionStatusLabel;
-
-    // =========================
-    // Tabs
-    // =========================
-
-    @FXML private TabPane profileTabPane;
-
-    // =========================
-    // Listings Table
-    // =========================
-    @FXML private TextField listingSearchField;
-    @FXML private TilePane listingsCardContainer;
-    @FXML private Button categoryAllButton;
-    @FXML private Button categoryElectronicsButton;
-    @FXML private Button categoryFashionButton;
-    @FXML private Button categoryCollectiblesButton;
-    @FXML private Button categoryHomeButton;
-    @FXML private Button categoryBooksButton;
-    @FXML private Button categoryOtherButton;
-    private String selectedListingCategory = "All";
-    @FXML private VBox addListingModal;
-
-    // =========================
-    // Bids Table
-    // =========================
-
-    @FXML private TableView<Bid> bidsTable;
-    @FXML private TableColumn<Bid, String> bidItemNameColumn;
-    @FXML private TableColumn<Bid, String> bidMyAmountColumn;
-    @FXML private TableColumn<Bid, String> bidHighestAmountColumn;
-    @FXML private TableColumn<Bid, String> bidStatusColumn;
-    @FXML private TableColumn<Bid, String> bidDateColumn;
-
-    // =========================
-    // Watchlist Table
-    // =========================
-
-    @FXML private TableView<WatchlistItem> watchlistTable;
-    @FXML private TableColumn<WatchlistItem, String> watchItemNameColumn;
-    @FXML private TableColumn<WatchlistItem, String> watchCurrentPriceColumn;
-    @FXML private TableColumn<WatchlistItem, String> watchTimeRemainingColumn;
-    @FXML private TableColumn<WatchlistItem, String> watchStatusColumn;
-    @FXML private TableColumn<WatchlistItem, Void> watchActionColumn;
-
-    // =========================
-    // Transactions Table
-    // =========================
-
-    @FXML private TableView<Transaction> transactionsTable;
-    @FXML private TableColumn<Transaction, String> transactionDateColumn;
-    @FXML private TableColumn<Transaction, String> transactionTypeColumn;
-    @FXML private TableColumn<Transaction, String> transactionItemColumn;
-    @FXML private TableColumn<Transaction, String> transactionAmountColumn;
-    @FXML private TableColumn<Transaction, String> transactionStatusColumn;
-
-    // =========================
-    // Activity Table
-    // =========================
-    @FXML private TableView<ActivityLog> activityTable;
-    @FXML private TableColumn<ActivityLog, String> activityDateTimeColumn;
-    @FXML private TableColumn<ActivityLog, String> activityActionColumn;
-    @FXML private TableColumn<ActivityLog, String> activityDescriptionColumn;
-
-    // =========================
-    // Add Item Overlay
-    // =========================
     @FXML private StackPane addListingOverlay;
-
+    @FXML private VBox addListingModal;
     @FXML private TextField addListingNameField;
     @FXML private ComboBox<String> addListingCategoryComboBox;
     @FXML private TextField addListingStartingPriceField;
@@ -141,14 +87,6 @@ public class ProfileController {
     @FXML private ComboBox<String> addListingStatusComboBox;
     @FXML private TextField addListingIconField;
     @FXML private Label addListingErrorLabel;
-
-    @FXML private HBox summaryRow;
-    @FXML private HBox walletPanelRow;
-    @FXML private ScrollPane profileScrollPane;
-
-    // =========================
-    // Mock User Data
-    // =========================
 
     private String fullName = "Sophia Bennett";
     private String email = "sophia.bennett@bidblitz.com";
@@ -160,10 +98,9 @@ public class ProfileController {
     private String rating = "4.8 / 5.0";
     private double balance = 1250.75;
 
-    private final ObservableList<Listing> listings = FXCollections.observableArrayList();
-    private final ObservableList<Bid> bids = FXCollections.observableArrayList();
-    private final ObservableList<WatchlistItem> watchlist = FXCollections.observableArrayList();
-    private final ObservableList<Transaction> transactions = FXCollections.observableArrayList();
+    private String selectedListingCategory = "All";
+
+    private final ObservableList<Item> listings = FXCollections.observableArrayList();
     private final ObservableList<ActivityLog> activities = FXCollections.observableArrayList();
 
     private final DateTimeFormatter dateTimeFormatter =
@@ -172,73 +109,36 @@ public class ProfileController {
     @FXML
     public void initialize() {
         ScrollUtils.makeSmooth(profileScrollPane);
-        loadMockData();
+
+        loadDataFromServices();
         setupProfileHeader();
-        setupTables();
+        updateSummaryLabels();
         setupTabSwitching();
         setupResponsiveEditProfileButton();
         setupResponsiveEditProfileModal();
-
-        fitTabPaneToSelectedContent();
-        makeTableResponsive(bidsTable);
-        makeTableResponsive(watchlistTable);
-        makeTableResponsive(transactionsTable);
+        setupActivityTable();
         makeTableResponsive(activityTable);
         setupListingsCards();
-
         setupAddListingModal();
-        setupAddListingModalSize();
         setupResponsiveLayout();
 
-        listingSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterListings();
-        });
+        listingSearchField.textProperty().addListener((observable, oldValue, newValue) -> filterListings());
     }
 
-    // =========================
-    // Initial Setup
-    // =========================
-
-    private void loadMockData() {
-        listings.addAll(
-                new Listing("iPhone 13 Pro", "Electronics", 450.00, 620.00, "Active", "2026-05-01", "📱"),
-                new Listing("Vintage Denim Jacket", "Fashion", 35.00, 58.00, "Active", "2026-05-02", "👕"),
-                new Listing("Rare Pokémon Card", "Collectibles", 80.00, 145.00, "Pending", "2026-05-03", "🎴"),
-                new Listing("Modern Desk Lamp", "Home", 20.00, 32.00, "Sold", "2026-05-04", "💡"),
-                new Listing("Java Programming Book", "Books", 15.00, 24.00, "Closed", "2026-05-05", "📚"),
-                new Listing("Wireless Keyboard", "Electronics", 25.00, 41.00, "Active", "2026-05-06", "⌨️"),
-                new Listing("Handmade Tote Bag", "Fashion", 18.00, 29.00, "Pending", "2026-05-07", "👜"),
-                new Listing("Mystery Auction Box", "Other", 10.00, 19.00, "Active", "2026-05-08", "📦")
-        );
-
-        bids.addAll(
-                new Bid("Vintage Camera", "$300.00", "$310.00", "Outbid", "06 May 2026"),
-                new Bid("Gaming Monitor", "$260.00", "$260.00", "Winning", "06 May 2026"),
-                new Bid("Rare Sneaker Pair", "$190.00", "$220.00", "Lost", "01 May 2026"),
-                new Bid("Smart Watch", "$180.00", "$180.00", "Won", "29 Apr 2026")
-        );
-
-        watchlist.addAll(
-                new WatchlistItem("Antique Desk Lamp", "$85.00", "2h 15m", "Ending Soon"),
-                new WatchlistItem("Gaming Chair", "$155.00", "1d 4h", "Active"),
-                new WatchlistItem("Collectible Watch", "$490.00", "3d 8h", "Active")
-        );
-
-        transactions.addAll(
-                new Transaction("06 May 2026", "Purchase", "Smart Watch", "$180.00", "Payment Processed"),
-                new Transaction("04 May 2026", "Sale", "Bluetooth Speaker", "$95.00", "Completed"),
-                new Transaction("01 May 2026", "Purchase", "Rare Sneaker Pair", "$220.00", "Lost Auction"),
-                new Transaction("28 Apr 2026", "Sale", "Coffee Machine", "$160.00", "Completed")
-        );
+    private void loadDataFromServices() {
+        listings.setAll(ItemService.getAllItems());
 
         activities.addAll(
                 new ActivityLog("07 May 2026, 09:20", "Logged in", "User logged into BidBlitz successfully."),
-                new ActivityLog("06 May 2026, 18:45", "Placed bid", "Placed a bid on Gaming Monitor."),
-                new ActivityLog("06 May 2026, 17:10", "Added watchlist", "Added Antique Desk Lamp to watchlist."),
                 new ActivityLog("05 May 2026, 14:30", "Requested top-up", "Requested a balance top-up of $500.00."),
-                new ActivityLog("03 May 2026, 11:00", "Listed item", "Listed Mechanical Keyboard for auction."),
                 new ActivityLog("02 May 2026, 20:15", "Updated profile", "Updated phone number and address.")
         );
+    }
+
+    private void reloadListingsFromService() {
+        listings.setAll(ItemService.getAllItems());
+        filterListings();
+        updateSummaryLabels();
     }
 
     private void setupProfileHeader() {
@@ -250,32 +150,59 @@ public class ProfileController {
         addressLabel.setText(address);
         joinedDateLabel.setText(joinedDate);
         ratingLabel.setText("★ " + rating);
-
         statusLabel.setText("Verified User");
-
         updateAvatar();
     }
 
     private void updateAvatar() {
-        if (fullName == null || fullName.trim().isEmpty()) {
-            avatarLabel.setText("U");
-            return;
-        }
+        avatarLabel.setText(createInitials(fullName));
+    }
 
-        String[] nameParts = fullName.trim().split("\\s+");
+    private String createInitials(String name) {
+        if (name == null || name.trim().isEmpty()) return "U";
+
+        String[] parts = name.trim().split("\\s+");
         StringBuilder initials = new StringBuilder();
 
-        for (String part : nameParts) {
+        for (String part : parts) {
             if (!part.isEmpty()) {
                 initials.append(Character.toUpperCase(part.charAt(0)));
             }
 
-            if (initials.length() == 2) {
-                break;
+            if (initials.length() == 2) break;
+        }
+
+        return initials.toString();
+    }
+
+    private void updateSummaryLabels() {
+        balanceLabel.setText(formatPrice(balance));
+        walletBalanceLabel.setText(formatPrice(balance));
+
+        totalListingsLabel.setText(String.valueOf(listings.size()));
+        activeListingsLabel.setText(String.valueOf(countActiveItems()));
+        soldListingsLabel.setText("0");
+        summaryRatingLabel.setText("4.8");
+    }
+
+    private int countActiveItems() {
+        int count = 0;
+
+        for (Item item : listings) {
+            if (item != null) {
+                count++;
             }
         }
 
-        avatarLabel.setText(initials.toString());
+        return count;
+    }
+
+    private void setupTabSwitching() {
+        profileTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
+            if (newTab != null) {
+                selectedTabTitleLabel.setText(newTab.getText());
+            }
+        });
     }
 
     private void setupResponsiveEditProfileButton() {
@@ -285,110 +212,23 @@ public class ProfileController {
     }
 
     private void setupResponsiveEditProfileModal() {
-        editProfileModalScrollPane.maxWidthProperty().bind(
-                editProfileOverlay.widthProperty().multiply(0.72)
-        );
-
-        editProfileModalScrollPane.maxHeightProperty().bind(
-                editProfileOverlay.heightProperty().multiply(0.86)
-        );
-
-        editProfileModal.prefWidthProperty().bind(
-                editProfileModalScrollPane.widthProperty().subtract(24)
-        );
-
+        editProfileModalScrollPane.maxWidthProperty().bind(editProfileOverlay.widthProperty().multiply(0.72));
+        editProfileModalScrollPane.maxHeightProperty().bind(editProfileOverlay.heightProperty().multiply(0.86));
+        editProfileModal.prefWidthProperty().bind(editProfileModalScrollPane.widthProperty().subtract(24));
         editProfileModal.setMaxHeight(Region.USE_PREF_SIZE);
     }
 
-    private void updateBalanceLabels() {
-        String formattedBalance = String.format("$%,.2f", balance);
-        balanceLabel.setText(formattedBalance);
-        walletBalanceLabel.setText(formattedBalance);
-    }
+    private void setupActivityTable() {
+        activityDateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("dateTime"));
+        activityActionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
+        activityDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
 
-    private int countWonAuctions() {
-        int count = 0;
-
-        for (Bid bid : bids) {
-            if ("Won".equalsIgnoreCase(bid.getStatus())) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    private int countActiveListings() {
-        int count = 0;
-
-        for (Listing listing : listings) {
-            if ("Active".equalsIgnoreCase(listing.getStatus())) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    // =========================
-    // Table Setup
-    // =========================
-
-    private void setupTables() {
-        setupBidsTable();
-        setupWatchlistTable();
-        setupTransactionsTable();
-        setupActivityTable();
-    }
-
-    private void fitTabPaneToSelectedContent() {
-        profileTabPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene == null) return;
-
-            profileTabPane.applyCss();
-            profileTabPane.layout();
-
-            Runnable updateHeight = () -> {
-                Tab selectedTab = profileTabPane.getSelectionModel().getSelectedItem();
-                if (selectedTab == null || selectedTab.getContent() == null) return;
-
-                Node content = selectedTab.getContent();
-
-                content.applyCss();
-                content.autosize();
-
-                Node tabHeaderArea = profileTabPane.lookup(".tab-header-area");
-
-                double headerHeight = tabHeaderArea == null
-                        ? 0
-                        : tabHeaderArea.getBoundsInParent().getHeight();
-
-                double contentHeight = content.prefHeight(profileTabPane.getWidth());
-
-                profileTabPane.setMinHeight(headerHeight + contentHeight);
-                profileTabPane.setPrefHeight(headerHeight + contentHeight);
-                profileTabPane.setMaxHeight(headerHeight + contentHeight);
-            };
-
-            updateHeight.run();
-
-            profileTabPane.getSelectionModel()
-                    .selectedItemProperty()
-                    .addListener((tabObs, oldTab, newTab) -> updateHeight.run());
-
-            profileTabPane.widthProperty()
-                    .addListener((widthObs, oldWidth, newWidth) -> updateHeight.run());
-        });
+        activityTable.setItems(activities);
     }
 
     private void makeTableResponsive(TableView<?> table) {
-        // Make columns fill 100% of available table width
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        // Remove ugly empty placeholder text
         table.setPlaceholder(new Label(""));
-
-        // Let table height depend on real row count, not screen height
         table.setFixedCellSize(48);
 
         table.prefHeightProperty().bind(
@@ -401,101 +241,215 @@ public class ProfileController {
         table.setMaxHeight(Region.USE_PREF_SIZE);
     }
 
-    private void setupBidsTable() {
-        bidItemNameColumn.setCellValueFactory(new PropertyValueFactory<>("itemName"));
-        bidMyAmountColumn.setCellValueFactory(new PropertyValueFactory<>("myBidAmount"));
-        bidHighestAmountColumn.setCellValueFactory(new PropertyValueFactory<>("currentHighestBid"));
-        bidStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-        bidDateColumn.setCellValueFactory(new PropertyValueFactory<>("bidDate"));
+    private void setupListingsCards() {
+        updateCategoryChipStyles();
+        filterListings();
 
-        bidsTable.setItems(bids);
+        listingsCardContainer.widthProperty().addListener((observable, oldValue, newValue) -> filterListings());
     }
 
-    private void setupWatchlistTable() {
-        watchItemNameColumn.setCellValueFactory(new PropertyValueFactory<>("itemName"));
-        watchCurrentPriceColumn.setCellValueFactory(new PropertyValueFactory<>("currentPrice"));
-        watchTimeRemainingColumn.setCellValueFactory(new PropertyValueFactory<>("timeRemaining"));
-        watchStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+    private void filterListings() {
+        listingsCardContainer.getChildren().clear();
 
-        addRemoveButtonToWatchlistTable();
+        String keyword = listingSearchField.getText() == null
+                ? ""
+                : listingSearchField.getText().trim().toLowerCase();
 
-        watchlistTable.setItems(watchlist);
-    }
+        for (Item item : listings) {
+            if (item == null) continue;
 
-    private void addRemoveButtonToWatchlistTable() {
-        watchActionColumn.setCellFactory(column -> new TableCell<>() {
-            private final Button removeButton = new Button("Remove");
+            String title = item.getTitle() == null ? "" : item.getTitle().toLowerCase();
 
-            {
-                removeButton.getStyleClass().add("danger-small-button");
+            boolean matchesSearch = title.contains(keyword);
 
-                removeButton.setOnAction(event -> {
-                    WatchlistItem item = getTableView().getItems().get(getIndex());
-                    watchlist.remove(item);
+            boolean matchesCategory = selectedListingCategory.equals("All")
+                    || convertCategoryToName(item.getCategoryId()).equalsIgnoreCase(selectedListingCategory);
 
-                    addActivity("Removed watchlist",
-                            "Removed " + item.getItemName() + " from watchlist.");
-                });
+            if (matchesSearch && matchesCategory) {
+                listingsCardContainer.getChildren().add(createListingCard(item));
             }
+        }
+    }
 
-            @Override
-            protected void updateItem(Void value, boolean empty) {
-                super.updateItem(value, empty);
+    private VBox createListingCard(Item item) {
+        VBox card = new VBox(12);
+        card.getStyleClass().add("listing-card");
 
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(removeButton);
+        double cardWidth = calculateCardWidth();
+        card.setPrefWidth(cardWidth);
+        card.setMinWidth(cardWidth);
+        card.setMaxWidth(cardWidth);
+
+        StackPane imageSection = createListingImageSection(item);
+
+        VBox contentBox = new VBox(10);
+        contentBox.getStyleClass().add("listing-card-content");
+
+        Label titleLabel = new Label(item.getTitle() != null ? item.getTitle() : "Unknown Item");
+        titleLabel.getStyleClass().add("item-title");
+        titleLabel.setWrapText(true);
+
+        Label categoryLabel = new Label(convertCategoryToName(item.getCategoryId()));
+        categoryLabel.getStyleClass().add("item-category-text");
+
+        Label startingPriceLabel = new Label("Starting price");
+        startingPriceLabel.getStyleClass().add("price-label");
+
+        Label startingPriceValue = new Label(formatPrice(item.getStartingPrice()));
+        startingPriceValue.getStyleClass().add("starting-price-value");
+
+        Label currentBidLabel = new Label("Current bid");
+        currentBidLabel.getStyleClass().add("price-label");
+
+        Label currentBidValue = new Label(formatPrice(item.getCurrentBid()));
+        currentBidValue.getStyleClass().add("current-bid-value");
+
+        HBox priceRow = new HBox(22);
+        priceRow.getChildren().addAll(
+                new VBox(3, startingPriceLabel, startingPriceValue),
+                new VBox(3, currentBidLabel, currentBidValue)
+        );
+
+        Label conditionLabel = new Label(item.getCondition() != null ? item.getCondition() : "Unknown");
+        conditionLabel.getStyleClass().addAll("listing-status", "listing-status-active");
+
+        Label dateLabel = new Label(
+                item.getCreatedAt() != null
+                        ? "Created: " + item.getCreatedAt().toLocalDate()
+                        : "Created: N/A"
+        );
+        dateLabel.getStyleClass().add("listing-date");
+
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        contentBox.getChildren().addAll(
+                titleLabel,
+                categoryLabel,
+                priceRow,
+                conditionLabel,
+                spacer,
+                dateLabel
+        );
+
+        card.getChildren().addAll(imageSection, contentBox);
+
+        return card;
+    }
+
+    private StackPane createListingImageSection(Item item) {
+        StackPane imageSection = new StackPane();
+        imageSection.getStyleClass().add("item-image-section");
+
+        StackPane imagePlaceholder = new StackPane();
+        imagePlaceholder.getStyleClass().add("item-image-placeholder");
+
+        Label iconLabel = new Label(getItemIcon(item));
+        iconLabel.getStyleClass().add("item-placeholder-icon");
+
+        imagePlaceholder.getChildren().add(iconLabel);
+
+        Button moreButton = new Button("⋯");
+        moreButton.getStyleClass().add("item-more-button");
+
+        VBox actionMenu = createItemActionMenu(item);
+        actionMenu.setVisible(false);
+        actionMenu.setManaged(false);
+
+        moreButton.setOnAction(event -> {
+            event.consume();
+
+            boolean showing = actionMenu.isVisible();
+            actionMenu.setVisible(!showing);
+            actionMenu.setManaged(!showing);
+        });
+
+        StackPane.setAlignment(moreButton, javafx.geometry.Pos.TOP_RIGHT);
+        StackPane.setMargin(moreButton, new Insets(10, 10, 0, 0));
+
+        StackPane.setAlignment(actionMenu, javafx.geometry.Pos.TOP_RIGHT);
+        StackPane.setMargin(actionMenu, new Insets(48, 10, 0, 0));
+
+        imageSection.getChildren().addAll(imagePlaceholder, moreButton, actionMenu);
+
+        return imageSection;
+    }
+
+    private VBox createItemActionMenu(Item item) {
+        VBox menu = new VBox(4);
+        menu.getStyleClass().add("item-action-menu");
+
+        Button editButton = new Button("Edit");
+        editButton.getStyleClass().add("item-action-menu-button");
+
+        Button deleteButton = new Button("Delete");
+        deleteButton.getStyleClass().addAll("item-action-menu-button", "item-action-menu-delete");
+
+        editButton.setOnAction(event -> {
+            event.consume();
+            addActivity("Edit item", "Edit action selected for " + item.getTitle() + ".");
+        });
+
+        deleteButton.setOnAction(event -> {
+            event.consume();
+            handleDeleteItem(item);
+        });
+
+        menu.getChildren().addAll(editButton, deleteButton);
+
+        return menu;
+    }
+
+    private double calculateCardWidth() {
+        double containerWidth = listingsCardContainer.getWidth();
+
+        if (containerWidth >= 1100) {
+            return (containerWidth - 72) / 4;
+        } else if (containerWidth >= 820) {
+            return (containerWidth - 54) / 3;
+        } else if (containerWidth >= 560) {
+            return (containerWidth - 36) / 2;
+        } else {
+            return Math.max(containerWidth - 18, 220);
+        }
+    }
+
+    private void setupAddListingModal() {
+        addListingCategoryComboBox.setItems(FXCollections.observableArrayList(
+                "Electronics", "Fashion", "Collectibles", "Home", "Books", "Other"
+        ));
+
+        addListingStatusComboBox.setItems(FXCollections.observableArrayList(
+                "Active", "Pending", "Sold", "Closed"
+        ));
+
+        addListingCategoryComboBox.setValue("Electronics");
+        addListingStatusComboBox.setValue("Active");
+    }
+
+    private void setupResponsiveLayout() {
+        bindEqualWidth(summaryRow);
+        bindEqualWidth(walletPanelRow);
+    }
+
+    private void bindEqualWidth(HBox row) {
+        if (row == null) return;
+
+        row.widthProperty().addListener((observable, oldValue, newValue) -> {
+            int count = row.getChildren().size();
+            if (count == 0) return;
+
+            double spacing = row.getSpacing() * (count - 1);
+            double width = (newValue.doubleValue() - spacing) / count;
+
+            for (Node node : row.getChildren()) {
+                if (node instanceof Region region) {
+                    region.setPrefWidth(width);
+                    region.setMaxWidth(Double.MAX_VALUE);
                 }
             }
         });
     }
-
-    private void setupTransactionsTable() {
-        transactionDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
-        transactionTypeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
-        transactionItemColumn.setCellValueFactory(new PropertyValueFactory<>("item"));
-        transactionAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
-        transactionStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-
-        transactionsTable.setItems(transactions);
-    }
-
-    private void setupActivityTable() {
-        activityDateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("dateTime"));
-        activityActionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
-        activityDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-
-        activityTable.setItems(activities);
-    }
-
-    // =========================
-    // Tab Handling
-    // =========================
-
-    private void setupTabSwitching() {
-        profileTabPane.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((observable, oldTab, newTab) -> {
-                    if (newTab != null) {
-                        selectedTabTitleLabel.setText(newTab.getText());
-                    }
-                });
-    }
-
-    @FXML
-    private void handleGoToTransactions() {
-        profileTabPane.getSelectionModel().select(4);
-    }
-
-    @FXML
-    private void handleGoToWatchlist() {
-        profileTabPane.getSelectionModel().select(3);
-    }
-
-    // =========================
-    // Edit Profile Modal
-    // =========================
 
     @FXML
     private void handleOpenEditProfile() {
@@ -528,34 +482,9 @@ public class ProfileController {
         address = editAddressField.getText().trim();
 
         setupProfileHeader();
-
         handleCloseEditProfile();
+        addActivity("Updated profile", "Updated profile information.");
     }
-
-    private String createInitials(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return "U";
-        }
-
-        String[] parts = name.trim().split("\\s+");
-        StringBuilder initials = new StringBuilder();
-
-        for (String part : parts) {
-            if (!part.isEmpty()) {
-                initials.append(Character.toUpperCase(part.charAt(0)));
-            }
-
-            if (initials.length() == 2) {
-                break;
-            }
-        }
-
-        return initials.toString();
-    }
-
-    // =========================
-    // Top-up Modal
-    // =========================
 
     @FXML
     private void handleOpenTopUp() {
@@ -565,16 +494,16 @@ public class ProfileController {
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getStyleClass().add("profile-dialog");
         dialogPane.getStylesheets().add(
-                getClass().getResource("/com/group01/asm2/styles/profile.css").toExternalForm()
+                getClass().getResource("/com/group01/asm2/styles/views/profile.css").toExternalForm()
         );
 
         ButtonType submitButtonType = new ButtonType("Submit Request", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-
         dialogPane.getButtonTypes().addAll(submitButtonType, cancelButtonType);
 
-        TextField amountField = createTextField("");
+        TextField amountField = new TextField();
         amountField.setPromptText("Enter amount between 10 and 5000");
+        amountField.getStyleClass().add("profile-text-field");
 
         Label errorLabel = new Label();
         errorLabel.getStyleClass().add("error-label");
@@ -586,19 +515,10 @@ public class ProfileController {
         Label title = new Label("Request Account Top-up");
         title.getStyleClass().add("dialog-title");
 
-        Label subtitle = new Label(
-                "Enter the amount you want to add. The request will be sent to an administrator for approval. " +
-                        "Your balance will not change until the request is approved."
-        );
+        Label subtitle = new Label("Enter the amount you want to add. The request will be sent to an administrator for approval.");
         subtitle.getStyleClass().add("dialog-subtitle");
 
-        content.getChildren().addAll(
-                title,
-                subtitle,
-                createFieldGroup("Top-up Amount", amountField),
-                errorLabel
-        );
-
+        content.getChildren().addAll(title, subtitle, createFieldGroup("Top-up Amount", amountField), errorLabel);
         dialogPane.setContent(content);
 
         Node submitButton = dialogPane.lookupButton(submitButtonType);
@@ -612,19 +532,11 @@ public class ProfileController {
                     return;
                 }
 
-                /*
-                 * Important:
-                 * Do not update the balance here.
-                 * A top-up request requires administrator approval first.
-                 * The balance should only be updated after admin approves the request.
-                 */
-
                 topUpStatusLabel.setText(String.format("Pending approval: $%,.2f", amount));
-                topUpStatusLabel.getStyleClass().removeAll("status-neutral", "status-success");
+                topUpStatusLabel.getStyleClass().removeAll("status-neutral", "status-success", "status-warning");
                 topUpStatusLabel.getStyleClass().add("status-warning");
 
-                addActivity("Requested top-up",
-                        String.format("Requested a top-up of $%,.2f. Waiting for admin approval.", amount));
+                addActivity("Requested top-up", String.format("Requested a top-up of $%,.2f.", amount));
 
                 dialog.close();
 
@@ -637,16 +549,6 @@ public class ProfileController {
         dialog.showAndWait();
     }
 
-    // =========================
-    // Helper Methods
-    // =========================
-
-    private TextField createTextField(String value) {
-        TextField textField = new TextField(value);
-        textField.getStyleClass().add("profile-text-field");
-        return textField;
-    }
-
     private VBox createFieldGroup(String labelText, TextField textField) {
         Label label = new Label(labelText);
         label.getStyleClass().add("field-label");
@@ -657,346 +559,111 @@ public class ProfileController {
         return group;
     }
 
-    private VBox createComboFieldGroup(String labelText, ComboBox<String> comboBox) {
-        Label label = new Label(labelText);
-        label.getStyleClass().add("field-label");
-
-        VBox group = new VBox(6);
-        group.getChildren().addAll(label, comboBox);
-
-        return group;
+    @FXML
+    private void handleAddListing() {
+        clearAddListingForm();
+        addListingOverlay.setVisible(true);
+        addListingOverlay.setManaged(true);
     }
 
-    private void addActivity(String action, String description) {
-        String now = LocalDateTime.now().format(dateTimeFormatter);
-        activities.add(0, new ActivityLog(now, action, description));
+    @FXML
+    private void handleCloseAddListing() {
+        addListingOverlay.setVisible(false);
+        addListingOverlay.setManaged(false);
     }
 
-    // =========================
-    // Model Classes
-    // =========================
+    @FXML
+    private void handleSaveListing() {
+        String name = addListingNameField.getText().trim();
+        String category = addListingCategoryComboBox.getValue();
+        String icon = addListingIconField.getText().trim();
 
-    public static class Bid {
-        private final SimpleStringProperty itemName;
-        private final SimpleStringProperty myBidAmount;
-        private final SimpleStringProperty currentHighestBid;
-        private final SimpleStringProperty status;
-        private final SimpleStringProperty bidDate;
-
-        public Bid(String itemName, String myBidAmount, String currentHighestBid, String status, String bidDate) {
-            this.itemName = new SimpleStringProperty(itemName);
-            this.myBidAmount = new SimpleStringProperty(myBidAmount);
-            this.currentHighestBid = new SimpleStringProperty(currentHighestBid);
-            this.status = new SimpleStringProperty(status);
-            this.bidDate = new SimpleStringProperty(bidDate);
+        if (name.isEmpty()) {
+            addListingErrorLabel.setText("Item name is required.");
+            return;
         }
 
-        public String getItemName() {
-            return itemName.get();
-        }
+        try {
+            BigDecimal startingPrice = new BigDecimal(addListingStartingPriceField.getText().trim());
+            BigDecimal currentBid = new BigDecimal(addListingCurrentBidField.getText().trim());
 
-        public String getMyBidAmount() {
-            return myBidAmount.get();
-        }
-
-        public String getCurrentHighestBid() {
-            return currentHighestBid.get();
-        }
-
-        public String getStatus() {
-            return status.get();
-        }
-
-        public String getBidDate() {
-            return bidDate.get();
-        }
-    }
-
-    public static class WatchlistItem {
-        private final SimpleStringProperty itemName;
-        private final SimpleStringProperty currentPrice;
-        private final SimpleStringProperty timeRemaining;
-        private final SimpleStringProperty status;
-
-        public WatchlistItem(String itemName, String currentPrice, String timeRemaining, String status) {
-            this.itemName = new SimpleStringProperty(itemName);
-            this.currentPrice = new SimpleStringProperty(currentPrice);
-            this.timeRemaining = new SimpleStringProperty(timeRemaining);
-            this.status = new SimpleStringProperty(status);
-        }
-
-        public String getItemName() {
-            return itemName.get();
-        }
-
-        public String getCurrentPrice() {
-            return currentPrice.get();
-        }
-
-        public String getTimeRemaining() {
-            return timeRemaining.get();
-        }
-
-        public String getStatus() {
-            return status.get();
-        }
-    }
-
-    public static class Transaction {
-        private final SimpleStringProperty date;
-        private final SimpleStringProperty type;
-        private final SimpleStringProperty item;
-        private final SimpleStringProperty amount;
-        private final SimpleStringProperty status;
-
-        public Transaction(String date, String type, String item, String amount, String status) {
-            this.date = new SimpleStringProperty(date);
-            this.type = new SimpleStringProperty(type);
-            this.item = new SimpleStringProperty(item);
-            this.amount = new SimpleStringProperty(amount);
-            this.status = new SimpleStringProperty(status);
-        }
-
-        public String getDate() {
-            return date.get();
-        }
-
-        public String getType() {
-            return type.get();
-        }
-
-        public String getItem() {
-            return item.get();
-        }
-
-        public String getAmount() {
-            return amount.get();
-        }
-
-        public String getStatus() {
-            return status.get();
-        }
-    }
-
-    public static class ActivityLog {
-        private final SimpleStringProperty dateTime;
-        private final SimpleStringProperty action;
-        private final SimpleStringProperty description;
-
-        public ActivityLog(String dateTime, String action, String description) {
-            this.dateTime = new SimpleStringProperty(dateTime);
-            this.action = new SimpleStringProperty(action);
-            this.description = new SimpleStringProperty(description);
-        }
-
-        public String getDateTime() {
-            return dateTime.get();
-        }
-
-        public String getAction() {
-            return action.get();
-        }
-
-        public String getDescription() {
-            return description.get();
-        }
-    }
-
-    //My Listing
-    private void setupListingsCards() {
-        updateCategoryChipStyles();
-        filterListings();
-    }
-
-    private void filterListings() {
-        listingsCardContainer.getChildren().clear();
-
-        String keyword = listingSearchField.getText() == null
-                ? ""
-                : listingSearchField.getText().trim().toLowerCase();
-
-        for (Listing listing : listings) {
-            boolean matchesSearch = listing.getItemName().toLowerCase().contains(keyword);
-
-            boolean matchesCategory = selectedListingCategory.equals("All")
-                    || listing.getCategory().equalsIgnoreCase(selectedListingCategory);
-
-            if (matchesSearch && matchesCategory) {
-                listingsCardContainer.getChildren().add(createListingCard(listing));
+            if (startingPrice.compareTo(BigDecimal.ZERO) < 0 || currentBid.compareTo(BigDecimal.ZERO) < 0) {
+                addListingErrorLabel.setText("Price values must be positive.");
+                return;
             }
+
+            if (icon.isEmpty()) icon = "📦";
+
+            Item newItem = new Item(
+                    null,
+                    convertCategoryToId(category),
+                    99,
+                    name,
+                    "No description yet.",
+                    "Used",
+                    "Unknown",
+                    "Ho Chi Minh City",
+                    startingPrice,
+                    null,
+                    null,
+                    null
+            );
+
+            newItem.setCurrentBid(currentBid);
+            newItem.setBidCount(0);
+            newItem.setRecommended(false);
+            newItem.setMainBgClass(icon);
+
+            Item createdItem = ItemService.createItem(newItem);
+
+            reloadListingsFromService();
+
+            addActivity("Created item", "Created new item: " + createdItem.getTitle() + ".");
+            handleCloseAddListing();
+
+        } catch (NumberFormatException exception) {
+            addListingErrorLabel.setText("Please enter valid price numbers.");
         }
     }
 
-    private VBox createListingCard(Listing listing) {
-        VBox card = new VBox(12);
-        card.getStyleClass().add("listing-card");
+    private void handleDeleteItem(Item item) {
+        if (item == null || item.getId() == null) return;
 
-        double containerWidth = listingsCardContainer.getWidth();
+        Item deletedItem = ItemService.deleteItem(item.getId());
 
-        double cardWidth;
-
-        if (containerWidth >= 1200) {
-            cardWidth = (containerWidth - 90) / 6;
-        } else if (containerWidth >= 950) {
-            cardWidth = (containerWidth - 72) / 5;
-        } else if (containerWidth >= 720) {
-            cardWidth = (containerWidth - 54) / 4;
-        } else if (containerWidth >= 520) {
-            cardWidth = (containerWidth - 36) / 3;
-        } else {
-            cardWidth = (containerWidth - 18) / 2;
+        if (deletedItem != null) {
+            reloadListingsFromService();
+            addActivity("Deleted item", "Deleted item: " + deletedItem.getTitle() + ".");
         }
-
-        card.setPrefWidth(cardWidth);
-        card.setMinWidth(cardWidth);
-        card.setMaxWidth(cardWidth);
-        StackPane imagePlaceholder = new StackPane();
-        imagePlaceholder.getStyleClass().add("item-image-placeholder");
-
-        Label iconLabel = new Label(listing.getIcon());
-        iconLabel.getStyleClass().add("item-placeholder-icon");
-        imagePlaceholder.getChildren().add(iconLabel);
-
-        Label titleLabel = new Label(listing.getItemName());
-        titleLabel.getStyleClass().add("item-title");
-        titleLabel.setWrapText(true);
-
-        Label categoryLabel = new Label(listing.getCategory());
-        categoryLabel.getStyleClass().add("item-category-text");
-
-        Label startingPriceLabel = new Label("Starting price");
-        startingPriceLabel.getStyleClass().add("price-label");
-
-        Label startingPriceValue = new Label(formatPrice(listing.getStartingPrice()));
-        startingPriceValue.getStyleClass().add("starting-price-value");
-
-        VBox startingPriceBox = new VBox(3, startingPriceLabel, startingPriceValue);
-
-        Label currentPriceLabel = new Label("Current bid");
-        currentPriceLabel.getStyleClass().add("price-label");
-
-        Label currentPriceValue = new Label(formatPrice(listing.getCurrentPrice()));
-        currentPriceValue.getStyleClass().add("current-price-value");
-
-        VBox currentPriceBox = new VBox(3, currentPriceLabel, currentPriceValue);
-
-        HBox priceRow = new HBox(28, startingPriceBox, currentPriceBox);
-        priceRow.setAlignment(Pos.CENTER_LEFT);
-
-        Label statusPill = new Label(listing.getStatus());
-        statusPill.getStyleClass().addAll("listing-status-pill", getStatusStyleClass(listing.getStatus()));
-
-        Label createdDateLabel = new Label("Created: " + listing.getCreatedDate());
-        createdDateLabel.getStyleClass().add("created-date-text");
-
-        HBox bottomRow = new HBox(10, statusPill, createdDateLabel);
-        bottomRow.setAlignment(Pos.CENTER_LEFT);
-
-        card.getChildren().addAll(
-                imagePlaceholder,
-                titleLabel,
-                categoryLabel,
-                priceRow,
-                bottomRow
-        );
-
-        return card;
     }
 
-    private void setupAddListingModal() {
-        addListingCategoryComboBox.getItems().setAll(
-                "Electronics",
-                "Fashion",
-                "Collectibles",
-                "Home",
-                "Books",
-                "Other"
-        );
-
-        addListingStatusComboBox.getItems().setAll(
-                "Active",
-                "Pending",
-                "Sold",
-                "Closed"
-        );
+    private void clearAddListingForm() {
+        addListingNameField.clear();
+        addListingStartingPriceField.clear();
+        addListingCurrentBidField.clear();
+        addListingIconField.clear();
+        addListingErrorLabel.setText("");
 
         addListingCategoryComboBox.setValue("Electronics");
         addListingStatusComboBox.setValue("Active");
     }
 
-    private void setupAddListingModalSize() {
-        addListingModal.prefWidthProperty().bind(
-                addListingOverlay.widthProperty().multiply(0.55)
-        );
+    @FXML private void handleCategoryAll() { changeCategory("All"); }
+    @FXML private void handleCategoryElectronics() { changeCategory("Electronics"); }
+    @FXML private void handleCategoryFashion() { changeCategory("Fashion"); }
+    @FXML private void handleCategoryCollectibles() { changeCategory("Collectibles"); }
+    @FXML private void handleCategoryHome() { changeCategory("Home"); }
+    @FXML private void handleCategoryBooks() { changeCategory("Books"); }
+    @FXML private void handleCategoryOther() { changeCategory("Other"); }
 
-        addListingModal.maxHeightProperty().set(Region.USE_PREF_SIZE);
-    }
-
-    private String formatPrice(double price) {
-        return String.format("$%.2f", price);
-    }
-
-    private String getStatusStyleClass(String status) {
-        return switch (status.toLowerCase()) {
-            case "active" -> "status-active";
-            case "pending" -> "status-pending";
-            case "sold" -> "status-sold";
-            case "closed" -> "status-closed";
-            default -> "status-closed";
-        };
-    }
-
-    @FXML
-    private void handleCategoryAll() {
-        selectedListingCategory = "All";
-        updateCategoryChipStyles();
-        filterListings();
-    }
-
-    @FXML
-    private void handleCategoryElectronics() {
-        selectedListingCategory = "Electronics";
-        updateCategoryChipStyles();
-        filterListings();
-    }
-
-    @FXML
-    private void handleCategoryFashion() {
-        selectedListingCategory = "Fashion";
-        updateCategoryChipStyles();
-        filterListings();
-    }
-
-    @FXML
-    private void handleCategoryCollectibles() {
-        selectedListingCategory = "Collectibles";
-        updateCategoryChipStyles();
-        filterListings();
-    }
-
-    @FXML
-    private void handleCategoryHome() {
-        selectedListingCategory = "Home";
-        updateCategoryChipStyles();
-        filterListings();
-    }
-
-    @FXML
-    private void handleCategoryBooks() {
-        selectedListingCategory = "Books";
-        updateCategoryChipStyles();
-        filterListings();
-    }
-
-    @FXML
-    private void handleCategoryOther() {
-        selectedListingCategory = "Other";
+    private void changeCategory(String category) {
+        selectedListingCategory = category;
         updateCategoryChipStyles();
         filterListings();
     }
 
     private void updateCategoryChipStyles() {
-        Button[] categoryButtons = {
+        Button[] buttons = {
                 categoryAllButton,
                 categoryElectronicsButton,
                 categoryFashionButton,
@@ -1006,7 +673,7 @@ public class ProfileController {
                 categoryOtherButton
         };
 
-        for (Button button : categoryButtons) {
+        for (Button button : buttons) {
             button.getStyleClass().remove("category-chip-active");
         }
 
@@ -1021,238 +688,82 @@ public class ProfileController {
         }
     }
 
-    @FXML
-    private void handleAddListing() {
-        clearAddListingForm();
+    private Integer convertCategoryToId(String category) {
+        if (category == null) return 106;
 
-        addListingOverlay.setVisible(true);
-        addListingOverlay.setManaged(true);
+        return switch (category) {
+            case "Electronics" -> 101;
+            case "Fashion" -> 102;
+            case "Collectibles" -> 103;
+            case "Home" -> 104;
+            case "Books" -> 105;
+            case "Other" -> 106;
+            default -> 106;
+        };
     }
 
-    @FXML
-    private void handleCloseAddListing() {
-        addListingOverlay.setVisible(false);
-        addListingOverlay.setManaged(false);
+    private String convertCategoryToName(Integer categoryId) {
+        if (categoryId == null) return "Other";
+
+        return switch (categoryId) {
+            case 101 -> "Electronics";
+            case 102 -> "Fashion";
+            case 103 -> "Collectibles";
+            case 104 -> "Home";
+            case 105 -> "Books";
+            case 106 -> "Other";
+            default -> "Other";
+        };
     }
 
-    @FXML
-    private void handleSubmitAddListing() {
-        String itemName = addListingNameField.getText().trim();
-        String category = addListingCategoryComboBox.getValue();
-        String status = addListingStatusComboBox.getValue();
-        String icon = addListingIconField.getText().trim();
+    private String getItemIcon(Item item) {
+        if (item == null) return "📦";
 
-        if (itemName.isEmpty()) {
-            addListingErrorLabel.setText("Item name is required.");
-            return;
+        String mainBgClass = item.getMainBgClass();
+
+        if (mainBgClass != null && !mainBgClass.trim().isEmpty()) {
+            return mainBgClass;
         }
 
-        if (category == null || category.isEmpty()) {
-            addListingErrorLabel.setText("Please select a category.");
-            return;
-        }
+        String category = convertCategoryToName(item.getCategoryId());
 
-        if (status == null || status.isEmpty()) {
-            addListingErrorLabel.setText("Please select a status.");
-            return;
-        }
-
-        double startingPrice;
-        double currentBid;
-
-        try {
-            startingPrice = Double.parseDouble(addListingStartingPriceField.getText().trim());
-            currentBid = Double.parseDouble(addListingCurrentBidField.getText().trim());
-        } catch (NumberFormatException exception) {
-            addListingErrorLabel.setText("Starting price and current bid must be valid numbers.");
-            return;
-        }
-
-        if (startingPrice <= 0 || currentBid <= 0) {
-            addListingErrorLabel.setText("Prices must be greater than 0.");
-            return;
-        }
-
-        if (currentBid < startingPrice) {
-            addListingErrorLabel.setText("Current bid cannot be lower than starting price.");
-            return;
-        }
-
-        if (icon.isEmpty()) {
-            icon = "📦";
-        }
-
-        String createdDate = LocalDateTime.now().toLocalDate().toString();
-
-        Listing newListing = new Listing(
-                itemName,
-                category,
-                startingPrice,
-                currentBid,
-                status,
-                createdDate,
-                icon
-        );
-
-        listings.add(0, newListing);
-
-        selectedListingCategory = "All";
-        updateCategoryChipStyles();
-        filterListings();
-
-        activeListingsLabel.setText(String.valueOf(countActiveListings()));
-
-        addActivity(
-                "Listed item",
-                "Created a new listing for " + itemName + "."
-        );
-
-        handleCloseAddListing();
+        return switch (category) {
+            case "Electronics" -> "📱";
+            case "Fashion" -> "👕";
+            case "Collectibles" -> "🎴";
+            case "Home" -> "💡";
+            case "Books" -> "📚";
+            default -> "📦";
+        };
     }
 
-    private void clearAddListingForm() {
-        addListingNameField.clear();
-        addListingStartingPriceField.clear();
-        addListingCurrentBidField.clear();
-        addListingIconField.clear();
-        addListingErrorLabel.setText("");
-
-        addListingCategoryComboBox.setValue("Electronics");
-        addListingStatusComboBox.setValue("Active");
+    private void addActivity(String action, String description) {
+        String now = LocalDateTime.now().format(dateTimeFormatter);
+        activities.add(0, new ActivityLog(now, action, description));
     }
 
-    private static class Listing {
-        private final String itemName;
-        private final String category;
-        private final double startingPrice;
-        private final double currentPrice;
-        private final String status;
-        private final String createdDate;
-        private final String icon;
-
-        public Listing(String itemName,
-                       String category,
-                       double startingPrice,
-                       double currentPrice,
-                       String status,
-                       String createdDate,
-                       String icon) {
-            this.itemName = itemName;
-            this.category = category;
-            this.startingPrice = startingPrice;
-            this.currentPrice = currentPrice;
-            this.status = status;
-            this.createdDate = createdDate;
-            this.icon = icon;
-        }
-
-        public String getItemName() {
-            return itemName;
-        }
-
-        public String getCategory() {
-            return category;
-        }
-
-        public double getStartingPrice() {
-            return startingPrice;
-        }
-
-        public double getCurrentPrice() {
-            return currentPrice;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public String getCreatedDate() {
-            return createdDate;
-        }
-
-        public String getIcon() {
-            return icon;
-        }
+    private String formatPrice(double value) {
+        return String.format("$%,.2f", value);
     }
 
-    private void setupResponsiveLayout() {
-        setupResponsiveSummaryCards();
-        setupResponsiveWalletPanels();
-        setupResponsiveListingCards();
-        setupResponsiveModals();
+    private String formatPrice(BigDecimal value) {
+        if (value == null) return "N/A";
+        return String.format("$%,.2f", value);
     }
 
-    private void setupResponsiveSummaryCards() {
-        if (summaryRow == null) return;
+    public static class ActivityLog {
+        private final SimpleStringProperty dateTime;
+        private final SimpleStringProperty action;
+        private final SimpleStringProperty description;
 
-        summaryRow.widthProperty().addListener((observable, oldValue, newValue) -> {
-            double availableWidth = newValue.doubleValue();
-            double cardWidth = (availableWidth - 64) / 5;
-
-            for (javafx.scene.Node node : summaryRow.getChildren()) {
-                if (node instanceof Region region) {
-                    region.setPrefWidth(cardWidth);
-                    region.setMaxWidth(Double.MAX_VALUE);
-                }
-            }
-        });
-    }
-
-    private void setupResponsiveWalletPanels() {
-        if (walletPanelRow == null) return;
-
-        walletPanelRow.widthProperty().addListener((observable, oldValue, newValue) -> {
-            double availableWidth = newValue.doubleValue();
-            double panelWidth = (availableWidth - 32) / 3;
-
-            for (javafx.scene.Node node : walletPanelRow.getChildren()) {
-                if (node instanceof Region region) {
-                    region.setPrefWidth(panelWidth);
-                    region.setMaxWidth(Double.MAX_VALUE);
-                }
-            }
-        });
-    }
-
-    private void setupResponsiveListingCards() {
-        if (listingsCardContainer == null) return;
-
-        listingsCardContainer.widthProperty().addListener((observable, oldValue, newValue) -> {
-            filterListings();
-        });
-    }
-
-    private void setupResponsiveModals() {
-        if (addListingOverlay != null && addListingModal != null) {
-            addListingModal.prefWidthProperty().bind(
-                    addListingOverlay.widthProperty().multiply(0.55)
-            );
-
-            addListingModal.minWidthProperty().bind(
-                    addListingOverlay.widthProperty().multiply(0.38)
-            );
-
-            addListingModal.maxWidthProperty().bind(
-                    addListingOverlay.widthProperty().multiply(0.70)
-            );
-
-            addListingModal.setMaxHeight(Region.USE_PREF_SIZE);
+        public ActivityLog(String dateTime, String action, String description) {
+            this.dateTime = new SimpleStringProperty(dateTime);
+            this.action = new SimpleStringProperty(action);
+            this.description = new SimpleStringProperty(description);
         }
 
-        if (editProfileOverlay != null && editProfileModal != null) {
-            editProfileModal.prefWidthProperty().bind(
-                    editProfileOverlay.widthProperty().multiply(0.50)
-            );
-
-            editProfileModal.minWidthProperty().bind(
-                    editProfileOverlay.widthProperty().multiply(0.35)
-            );
-
-            editProfileModal.maxWidthProperty().bind(
-                    editProfileOverlay.widthProperty().multiply(0.65)
-            );
-
-            editProfileModal.setMaxHeight(Region.USE_PREF_SIZE);
-        }
+        public String getDateTime() { return dateTime.get(); }
+        public String getAction() { return action.get(); }
+        public String getDescription() { return description.get(); }
     }
 }
