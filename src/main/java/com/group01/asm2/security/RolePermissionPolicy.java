@@ -36,7 +36,7 @@ public final class RolePermissionPolicy {
         UserRole.AUCTION_ADMINISTRATOR,
         permissions(
             Permission.READ_AUCTION,
-            Permission.READ_ANY_USER,
+//            Permission.READ_ANY_USER,
             Permission.PROCESS_AUCTION,
             Permission.CREATE_CATEGORY,
             Permission.UPDATE_CATEGORY,

@@ -8,7 +8,6 @@ import com.group01.asm2.security.Permission;
 import java.util.function.Supplier;
 
 public abstract class BaseService {
-
     protected Person getCurrentUserOrThrow() {
         Person currentUser = SessionManager.getCurrentUser();
 

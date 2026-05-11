@@ -504,7 +504,6 @@ public class ProfileController {
         editPhoneField.setText(phone);
         editDateOfBirthField.setText(dateOfBirth);
         editAddressField.setText(address);
-        editRoleField.setText(role);
 
         modalNamePreviewLabel.setText(fullName);
         modalEmailPreviewLabel.setText(email);

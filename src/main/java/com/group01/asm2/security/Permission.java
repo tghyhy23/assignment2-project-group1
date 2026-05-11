@@ -27,10 +27,7 @@ public enum Permission {
     READ_SYSTEM_REPORT("system_report", "read"),
     EXPORT_SYSTEM_REPORT("system_report", "export"),
 
-    CREATE_USER("user", "create"),
-    READ_ANY_USER("user", "read_any"),
-    UPDATE_USER("user", "update"),
-    DELETE_USER("user", "delete"),
+    MANAGE_USERS("user", "manage"),
 
     READ_OWN_ACTIVITY_LOG("activity_log", "read_own"),
     READ_ANY_ACTIVITY_LOG("activity_log", "read_any");
