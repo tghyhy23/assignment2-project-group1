@@ -8,5 +8,5 @@ public record AuctionBidEntry(
         BigDecimal amount,
         LocalDateTime bidTime,
         String status
-) {
+)  {
 }
