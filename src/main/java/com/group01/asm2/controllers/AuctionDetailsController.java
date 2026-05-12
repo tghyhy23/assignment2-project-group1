@@ -289,9 +289,6 @@ public class AuctionDetailsController {
         productDetailsGrid.getChildren().clear();
         addDetailRow(productDetailsGrid, 0, "Item Name", currentItem.getTitle());
         addDetailRow(productDetailsGrid, 1, "Category ID", valueOrNA(currentItem.getCategoryId())); // Tương lai ánh xạ ra tên Category
-        addDetailRow(productDetailsGrid, 2, "Condition", currentItem.getCondition());
-        addDetailRow(productDetailsGrid, 3, "Brand", currentItem.getBrand());
-        addDetailRow(productDetailsGrid, 4, "Location", currentItem.getLocation());
         addDetailRow(productDetailsGrid, 5, "Seller", sellerName);
     }
 
@@ -391,40 +388,40 @@ public class AuctionDetailsController {
     }
 
     private Item getItemById(Integer itemId) {
-        Item item = new Item(
-                itemId,
-                99,
-                101,
-                "Item #" + itemId,
-                "Detailed description for item ID #" + itemId,
-                "Used",
-                "Unknown Brand",
-                "Ho Chi Minh City, Vietnam",
-                new BigDecimal("100.00"),
-                null,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+//        Item item = new Item(
+//                itemId,
+//                99,
+//                101,
+//                "Item #" + itemId,
+//                "Detailed description for item ID #" + itemId,
+//                "Used",
+//                "Unknown Brand",
+//                "Ho Chi Minh City, Vietnam",
+//                new BigDecimal("100.00"),
+//                null,
+//                LocalDateTime.now(),
+//                LocalDateTime.now()
+//        );
 
         if (itemId == 1) {
-            item.setTitle("Đồng hồ Rolex Submariner 2020");
-            item.setBrand("Rolex");
-            item.setCondition("Like New");
-            item.setDescription("Đồng hồ Rolex nguyên bản, đầy đủ giấy tờ, hộp sổ thẻ. Tình trạng hoàn hảo, chưa qua đánh bóng. Phù hợp cho giới sưu tầm.");
-            item.setStartingPrice(new BigDecimal("150000000.00"));
+//            item.setTitle("Đồng hồ Rolex Submariner 2020");
+////            item.setBrand("Rolex");
+////            item.setCondition("Like New");
+//            item.setDescription("Đồng hồ Rolex nguyên bản, đầy đủ giấy tờ, hộp sổ thẻ. Tình trạng hoàn hảo, chưa qua đánh bóng. Phù hợp cho giới sưu tầm.");
+//            item.setStartingPrice(new BigDecimal("150000000.00"));
         } else if (itemId == 2) {
-            item.setTitle("Bức tranh sơn dầu thế kỷ 19");
-            item.setCondition("Vintage");
-            item.setDescription("Tác phẩm nghệ thuật độc bản từ thế kỷ 19. Đã được thẩm định bởi chuyên gia mỹ thuật quốc tế.");
-            item.setStartingPrice(new BigDecimal("50000000.00"));
+//            item.setTitle("Bức tranh sơn dầu thế kỷ 19");
+//            item.setCondition("Vintage");
+//            item.setDescription("Tác phẩm nghệ thuật độc bản từ thế kỷ 19. Đã được thẩm định bởi chuyên gia mỹ thuật quốc tế.");
+//            item.setStartingPrice(new BigDecimal("50000000.00"));
         } else if (itemId == 3) {
-            item.setTitle("Siêu xe Ford Mustang 1969 Classic");
-            item.setBrand("Ford");
-            item.setDescription("Xe cơ bắp Mỹ cổ điển, động cơ V8 mạnh mẽ, đã phục chế toàn bộ nội ngoại thất giữ nguyên bản sắc năm 1969.");
-            item.setStartingPrice(new BigDecimal("800000000.00"));
+//            item.setTitle("Siêu xe Ford Mustang 1969 Classic");
+//            item.setBrand("Ford");
+//            item.setDescription("Xe cơ bắp Mỹ cổ điển, động cơ V8 mạnh mẽ, đã phục chế toàn bộ nội ngoại thất giữ nguyên bản sắc năm 1969.");
+//            item.setStartingPrice(new BigDecimal("800000000.00"));
         }
 
-        return item;
+        return null;
     }
 
     private String getSellerNameByItemId(Integer itemId) {

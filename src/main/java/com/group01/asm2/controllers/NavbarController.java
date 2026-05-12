@@ -352,119 +352,119 @@ public class NavbarController {
     }
 
     private void populateMockNotifications() {
-        Item rolex = new Item(
-                1,
-                "Rolex Submariner 2020",
-                new BigDecimal("150000000"),
-                new BigDecimal("168000000"),
-                24,
-                true,
-                "item-bg-watch",
-                new String[]{"item-bg-watch", "item-bg-luxury", "item-bg-jewelry"}
-        );
+//        Item rolex = new Item(
+//                1,
+//                "Rolex Submariner 2020",
+//                new BigDecimal("150000000"),
+//                new BigDecimal("168000000"),
+//                24,
+//                true,
+//                "item-bg-watch",
+//                new String[]{"item-bg-watch", "item-bg-luxury", "item-bg-jewelry"}
+//        );
+//
+//        Item camera = new Item(
+//                2,
+//                "Vintage Camera Collection",
+//                new BigDecimal("4500000"),
+//                new BigDecimal("6200000"),
+//                18,
+//                false,
+//                "item-bg-camera",
+//                new String[]{"item-bg-camera", "item-bg-vintage"}
+//        );
+//
+//        Item chair = new Item(
+//                3,
+//                "Antique Wooden Chair",
+//                new BigDecimal("2500000"),
+//                new BigDecimal("3900000"),
+//                12,
+//                false,
+//                "item-bg-furniture",
+//                new String[]{"item-bg-furniture", "item-bg-antique"}
+//        );
+//
+//        Item painting = new Item(
+//                4,
+//                "19th Century Oil Painting",
+//                new BigDecimal("45000000"),
+//                new BigDecimal("51000000"),
+//                9,
+//                true,
+//                "item-bg-art",
+//                new String[]{"item-bg-art", "item-bg-painting"}
+//        );
 
-        Item camera = new Item(
-                2,
-                "Vintage Camera Collection",
-                new BigDecimal("4500000"),
-                new BigDecimal("6200000"),
-                18,
-                false,
-                "item-bg-camera",
-                new String[]{"item-bg-camera", "item-bg-vintage"}
-        );
-
-        Item chair = new Item(
-                3,
-                "Antique Wooden Chair",
-                new BigDecimal("2500000"),
-                new BigDecimal("3900000"),
-                12,
-                false,
-                "item-bg-furniture",
-                new String[]{"item-bg-furniture", "item-bg-antique"}
-        );
-
-        Item painting = new Item(
-                4,
-                "19th Century Oil Painting",
-                new BigDecimal("45000000"),
-                new BigDecimal("51000000"),
-                9,
-                true,
-                "item-bg-art",
-                new String[]{"item-bg-art", "item-bg-painting"}
-        );
-
-        List<NotificationItem> mockNotifications = List.of(
-                new NotificationItem(
-                        rolex,
-                        "Top-up request approved",
-                        "Your top-up request has been approved. You can now continue bidding.",
-                        "2 min ago",
-                        true
-                ),
-                new NotificationItem(
-                        camera,
-                        "You have been outbid",
-                        "Someone placed a higher bid on " + camera.getTitle() + ".",
-                        "8 min ago",
-                        true
-                ),
-                new NotificationItem(
-                        rolex,
-                        "Auction ending soon",
-                        rolex.getTitle() + " will end in less than 30 minutes.",
-                        "15 min ago",
-                        true
-                ),
-                new NotificationItem(
-                        chair,
-                        "You won an auction",
-                        "Congratulations! You won the auction for " + chair.getTitle() + ".",
-                        "1 hour ago",
-                        false
-                ),
-                new NotificationItem(
-                        painting,
-                        "New bid on your listing",
-                        "A buyer has placed a new bid on " + painting.getTitle() + ".",
-                        "3 hours ago",
-                        false
-                ),
-                new NotificationItem(
-                        camera,
-                        "Watchlist item updated",
-                        camera.getTitle() + " has a new current highest bid.",
-                        "Yesterday",
-                        false
-                )
-        );
+//        List<NotificationItem> mockNotifications = List.of(
+//                new NotificationItem(
+//                        rolex,
+//                        "Top-up request approved",
+//                        "Your top-up request has been approved. You can now continue bidding.",
+//                        "2 min ago",
+//                        true
+//                ),
+//                new NotificationItem(
+//                        camera,
+//                        "You have been outbid",
+//                        "Someone placed a higher bid on " + camera.getTitle() + ".",
+//                        "8 min ago",
+//                        true
+//                ),
+//                new NotificationItem(
+//                        rolex,
+//                        "Auction ending soon",
+//                        rolex.getTitle() + " will end in less than 30 minutes.",
+//                        "15 min ago",
+//                        true
+//                ),
+//                new NotificationItem(
+//                        chair,
+//                        "You won an auction",
+//                        "Congratulations! You won the auction for " + chair.getTitle() + ".",
+//                        "1 hour ago",
+//                        false
+//                ),
+//                new NotificationItem(
+//                        painting,
+//                        "New bid on your listing",
+//                        "A buyer has placed a new bid on " + painting.getTitle() + ".",
+//                        "3 hours ago",
+//                        false
+//                ),
+//                new NotificationItem(
+//                        camera,
+//                        "Watchlist item updated",
+//                        camera.getTitle() + " has a new current highest bid.",
+//                        "Yesterday",
+//                        false
+//                )
+//        );
 
         notificationListBox.getChildren().clear();
 
-        if (mockNotifications.isEmpty()) {
-            Label emptyLabel = new Label("No notifications yet.");
-            emptyLabel.getStyleClass().add("notification-empty-text");
-            notificationListBox.getChildren().add(emptyLabel);
+//        if (mockNotifications.isEmpty()) {
+//            Label emptyLabel = new Label("No notifications yet.");
+//            emptyLabel.getStyleClass().add("notification-empty-text");
+//            notificationListBox.getChildren().add(emptyLabel);
+//
+//            if (notificationBadgeLabel != null) {
+//                notificationBadgeLabel.setVisible(false);
+//                notificationBadgeLabel.setManaged(false);
+//            }
+//
+//            return;
+//        }
 
-            if (notificationBadgeLabel != null) {
-                notificationBadgeLabel.setVisible(false);
-                notificationBadgeLabel.setManaged(false);
-            }
+//        for (NotificationItem item : mockNotifications) {
+//            notificationListBox.getChildren().add(createNotificationRow(item));
+//        }
 
-            return;
-        }
+//        long unreadCount = mockNotifications.stream()
+//                .filter(NotificationItem::isUnread)
+//                .count();
 
-        for (NotificationItem item : mockNotifications) {
-            notificationListBox.getChildren().add(createNotificationRow(item));
-        }
-
-        long unreadCount = mockNotifications.stream()
-                .filter(NotificationItem::isUnread)
-                .count();
-
-        updateNotificationBadge(unreadCount);
+//        updateNotificationBadge(unreadCount);
     }
 
     private HBox createNotificationRow(NotificationItem notification) {
@@ -477,11 +477,11 @@ public class NavbarController {
 
         Item item = notification.getItem();
 
-        if (item != null && item.getMainBgClass() != null && !item.getMainBgClass().isBlank()) {
-            itemImageBox.getStyleClass().add(item.getMainBgClass());
-        } else {
-            itemImageBox.getStyleClass().add("notification-item-image-placeholder");
-        }
+//        if (item != null && item.getMainBgClass() != null && !item.getMainBgClass().isBlank()) {
+//            itemImageBox.getStyleClass().add(item.getMainBgClass());
+//        } else {
+//            itemImageBox.getStyleClass().add("notification-item-image-placeholder");
+//        }
 
         VBox textBox = new VBox(5);
         textBox.setAlignment(Pos.TOP_LEFT);
