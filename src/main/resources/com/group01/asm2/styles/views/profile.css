@@ -3,14 +3,33 @@
     -fx-font-family: "Inter", "Segoe UI", Arial, sans-serif;
 }
 
-.profile-scroll,
+.profile-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
 .profile-scroll > .viewport {
-    -fx-background: transparent;
     -fx-background-color: transparent;
 }
 
+.profile-scroll .scroll-bar:vertical {
+    -fx-background-color: #0b1120;
+    -fx-pref-width: 12px;
+}
+
+.profile-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #3b4b5e;
+    -fx-background-radius: 6px;
+}
+
+.profile-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #556a84;
+}
+
 .profile-container {
-    -fx-padding: 28;
+    -fx-padding: 40;
     -fx-background-color: #0b1120;
 }
 
@@ -129,9 +148,9 @@
 .add-listing-button {
     -fx-background-color: linear-gradient(to right, #2563eb, #38bdf8);
     -fx-text-fill: white;
-    -fx-font-weight: 800;
-    -fx-background-radius: 14;
-    -fx-padding: 12 20;
+    -fx-font-weight: 600;
+    -fx-background-radius: 6;
+    -fx-padding: 8 16;
     -fx-cursor: hand;
 }
 
@@ -313,11 +332,11 @@
 .form-input,
 .profile-text-field {
     -fx-background-color: #0b1120;
-    -fx-background-radius: 12;
+    -fx-background-radius: 6;
     -fx-border-color: rgba(255, 255, 255, 0.10);
-    -fx-border-radius: 12;
+    -fx-border-radius: 6;
     -fx-border-width: 1;
-    -fx-padding: 11 14;
+    -fx-padding: 10 16 10 16;
     -fx-text-fill: #e5e7eb;
     -fx-prompt-text-fill: #64748b;
 }
@@ -543,16 +562,14 @@
 .edit-profile-modal,
 .add-listing-modal {
     -fx-background-color: linear-gradient(to bottom right, #111827, #0f172a);
-    -fx-background-radius: 24;
-    -fx-border-radius: 24;
+    -fx-pref-width: 620;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
     -fx-border-color: rgba(255, 255, 255, 0.10);
     -fx-border-width: 1;
-    -fx-padding: 24 28;
+    -fx-padding: 28;
 }
 
-.add-listing-modal {
-    -fx-pref-width: 620;
-}
 
 .modal-title {
     -fx-text-fill: #f8fafc;
@@ -562,7 +579,7 @@
 
 .modal-subtitle {
     -fx-text-fill: #94a3b8;
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
 }
 
 .modal-close-button {
@@ -571,6 +588,10 @@
     -fx-text-fill: #cbd5e1;
     -fx-font-weight: 800;
     -fx-cursor: hand;
+}
+
+.modal-close-button:hover {
+   -fx-background-color: rgba(255, 255, 255, 0.1);
 }
 
 .modal-profile-preview {
@@ -617,9 +638,9 @@
     -fx-background-color: #0b1120;
     -fx-background-radius: 12;
     -fx-border-color: rgba(255, 255, 255, 0.10);
-    -fx-border-radius: 12;
+    -fx-border-radius: 6;
     -fx-border-width: 1;
-    -fx-padding: 7 10;
+    -fx-padding: 6 12 6 12;
 }
 
 .form-combo .list-cell {
@@ -633,24 +654,24 @@
 
 .modal-cancel-button {
     -fx-background-color: rgba(255, 255, 255, 0.06);
-    -fx-background-radius: 12;
+    -fx-background-radius: 6;
     -fx-border-color: rgba(255, 255, 255, 0.10);
-    -fx-border-radius: 12;
+    -fx-border-radius: 6;
     -fx-border-width: 1;
-    -fx-padding: 11 20;
+    -fx-padding: 8 16;
     -fx-text-fill: #cbd5e1;
     -fx-font-size: 12px;
-    -fx-font-weight: 800;
+    -fx-font-weight: 600;
     -fx-cursor: hand;
 }
 
 .modal-save-button {
     -fx-background-color: linear-gradient(to right, #2563eb, #7c3aed);
-    -fx-background-radius: 12;
-    -fx-padding: 11 22;
+    -fx-background-radius: 6;
+    -fx-padding: 8 16;
     -fx-text-fill: white;
     -fx-font-size: 12px;
-    -fx-font-weight: 800;
+    -fx-font-weight: 600;
     -fx-cursor: hand;
 }
 
