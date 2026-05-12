@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 public final class SqlExecutor {
+    private static final boolean DEBUG_SQL = true;
+
     private SqlExecutor() {
     }
 
@@ -21,10 +23,12 @@ public final class SqlExecutor {
     ) {
         try (Connection conn = DatabaseConfig.getConnection()) {
             return queryOne(conn, sql, binder, mapper);
+
         } catch (AppException exception) {
             throw exception;
+
         } catch (Exception exception) {
-            throw AppException.database("Database query one failed.");
+            throw databaseException("Database query one failed", sql, exception);
         }
     }
 
@@ -47,8 +51,9 @@ public final class SqlExecutor {
 
         } catch (AppException exception) {
             throw exception;
+
         } catch (Exception exception) {
-            throw AppException.database("Database query failed.");
+            throw databaseException("Database query one with connection failed", sql, exception);
         }
     }
 
@@ -59,10 +64,12 @@ public final class SqlExecutor {
     ) {
         try (Connection conn = DatabaseConfig.getConnection()) {
             return queryMany(conn, sql, binder, mapper);
+
         } catch (AppException exception) {
             throw exception;
+
         } catch (Exception exception) {
-            throw AppException.database("Database query many failed.");
+            throw databaseException("Database query many failed", sql, exception);
         }
     }
 
@@ -87,8 +94,9 @@ public final class SqlExecutor {
 
         } catch (AppException exception) {
             throw exception;
+
         } catch (Exception exception) {
-            throw AppException.database("Database query many conn failed.");
+            throw databaseException("Database query many with connection failed", sql, exception);
         }
     }
 
@@ -98,10 +106,12 @@ public final class SqlExecutor {
     ) {
         try (Connection conn = DatabaseConfig.getConnection()) {
             return update(conn, sql, binder);
+
         } catch (AppException exception) {
             throw exception;
+
         } catch (Exception exception) {
-            throw AppException.database("Database update failed.");
+            throw databaseException("Database update failed", sql, exception);
         }
     }
 
@@ -116,8 +126,35 @@ public final class SqlExecutor {
 
         } catch (AppException exception) {
             throw exception;
+
         } catch (Exception exception) {
-            throw AppException.database("Database update failed.");
+            throw databaseException("Database update with connection failed", sql, exception);
         }
+    }
+
+    private static AppException databaseException(String action, String sql, Exception exception) {
+        if (DEBUG_SQL) {
+            System.out.println("========== SQL ERROR ==========");
+            System.out.println("Action: " + action);
+            System.out.println("Exception type: " + exception.getClass().getName());
+            System.out.println("Exception message: " + exception.getMessage());
+            System.out.println("SQL:");
+            System.out.println(normalizeSql(sql));
+            System.out.println("Stack trace:");
+            exception.printStackTrace();
+            System.out.println("===============================");
+        }
+
+        return AppException.database(
+            action + ". Reason: " + exception.getMessage()
+        );
+    }
+
+    private static String normalizeSql(String sql) {
+        if (sql == null) {
+            return "(SQL is null)";
+        }
+
+        return sql.trim().replaceAll("\\s+", " ");
     }
 }
