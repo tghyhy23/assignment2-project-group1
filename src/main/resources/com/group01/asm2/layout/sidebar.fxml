@@ -3,15 +3,16 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.group01.asm2.controllers.SidebarController"
-      prefWidth="60"
-      minWidth="60"
-      maxWidth="60"
+      prefWidth="62"
+      minWidth="62"
+      maxWidth="62"
       spacing="0"
       styleClass="sidebar"
       stylesheets="@../styles/layout/sidebar.css">
@@ -20,14 +21,72 @@
         <Insets top="0" right="0" bottom="0" left="0"/>
     </padding>
 
-    <!-- Main navigation -->
-    <Button fx:id="dashboardButton"
+    <Label fx:id="adminSectionTitle"
+           text="ADMIN"
+           maxWidth="Infinity"
+           alignment="CENTER"
+           styleClass="sidebar-section-title"/>
+
+
+
+    <Button fx:id="adminDashboardButton"
+            text="Dashboard"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="50"
+            styleClass="nav-button"
+            onAction="#showAdminDashboard"/>
+
+    <Button fx:id="usersButton"
+            text="Users"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="50"
+            styleClass="nav-button"
+            onAction="#showUsersManagement"/>
+
+    <Button fx:id="adminAuctionsButton"
+            text="Auctions"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="50"
+            styleClass="nav-button"
+            onAction="#showAuctionsManagement"/>
+
+    <Button fx:id="itemsButton"
+            text="Items"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="50"
+            styleClass="nav-button"
+            onAction="#showItemsManagement"/>
+
+    <Button fx:id="paymentsButton"
+            text="Payments"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="50"
+            styleClass="nav-button"
+            onAction="#showPaymentsManagement"/>
+
+    <Button fx:id="reportsButton"
+            text="Reports"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="50"
+            styleClass="nav-button"
+            onAction="#showReports"/>
+
+    <Separator fx:id="adminSeparator"
+               styleClass="sidebar-separator"/>
+
+    <Button fx:id="exploreButton"
             text="Explore"
             contentDisplay="TOP"
             maxWidth="Infinity"
             prefHeight="50"
             styleClass="nav-button"
-            onAction="#showDashboard"/>
+            onAction="#showExplore"/>
 
     <Button fx:id="bidsHistoryButton"
             text="Bid History"
@@ -54,4 +113,5 @@
             prefHeight="50"
             styleClass="nav-button"
             onAction="#showProfile"/>
+
 </VBox>

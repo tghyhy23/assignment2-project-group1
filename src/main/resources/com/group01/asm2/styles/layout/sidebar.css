@@ -75,3 +75,16 @@
 .nav-button.active .icon-shape {
     -fx-stroke: #38bdf8;
 }
+
+.sidebar-section-title {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 8px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-padding: 8 0 6 0;
+}
+
+.sidebar-separator {
+    -fx-padding: 6 8 6 8;
+    -fx-opacity: 0.35;
+}

@@ -10,7 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
+import com.group01.asm2.services.ItemService;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -31,7 +31,6 @@ public class AuctionDetailsController {
 
     @FXML private Label headerStatusBadge;
     @FXML private Label auctionTitleLabel;
-    @FXML private Label sellerNameLabel;
     @FXML private Label currentBidLabel;
     @FXML private Label startingPriceLabel;
     @FXML private Label minimumNextBidLabel;
@@ -42,7 +41,7 @@ public class AuctionDetailsController {
     @FXML private Label auctionIdLabel;
     @FXML private Label itemIdLabel;
     @FXML private Label auctionWarningLabel;
-
+    @FXML private Label sellerNameLabel;
     @FXML private TextField bidAmountField;
     @FXML private Button placeBidButton;
     @FXML private Label bidMessageLabel;
@@ -63,6 +62,7 @@ public class AuctionDetailsController {
     private Auction currentAuction;
     private Item currentItem;
     private String sellerName; // Mock tên người bán (tương lai thay bằng model User)
+    private final ItemService itemService = new ItemService();
 
     private BigDecimal startingPrice;
     private BigDecimal currentHighestBid;
@@ -81,39 +81,57 @@ public class AuctionDetailsController {
      * Hàm nhận data từ màn hình danh sách và bắt đầu render giao diện
      */
     public void loadAuctionDetails(Auction auction) {
-        if (auction == null) return;
+        if (auction == null) {
+            System.err.println("ERROR: auction is null.");
+            return;
+        }
+
         this.currentAuction = auction;
 
-        // 1. Lấy thông tin sản phẩm (Item) dựa trên itemId
-        loadAuctionDetailData(auction.getItemId());
+        if (auction.getItemId() == null) {
+            System.err.println("ERROR: auction itemId is null.");
+            auctionTitleLabel.setText("Unknown Item");
+            return;
+        }
 
-        // 2. Xử lý giá tiền (Lấy từ Auction)
-        currentHighestBid = getCurrentHighestBid(auction);
-        startingPrice = getStartingPrice(currentItem, currentHighestBid);
+        this.currentItem = itemService.readItem(auction.getItemId());
 
-        // 3. Render Text lên UI
+        if (currentItem == null) {
+            System.err.println("ERROR: Cannot find item with id: " + auction.getItemId());
+            auctionTitleLabel.setText("Unknown Item");
+            return;
+        }
+
         auctionTitleLabel.setText(currentItem.getTitle());
+        sellerName = getSellerNameByItemId(auction.getItemId());
+
         sellerNameLabel.setText(sellerName);
         sellerSectionNameLabel.setText(sellerName);
 
-        currentBidLabel.setText(formatMoney(currentHighestBid));
-        startingPriceLabel.setText(formatMoney(startingPrice));
-        minimumNextBidLabel.setText(formatMoney(getMinimumNextBid(currentHighestBid, startingPrice)));        numberOfBidsLabel.setText(String.valueOf(bidHistory.size()));
-
         startDateLabel.setText(formatDateTime(auction.getStartDateTime()));
         endDateLabel.setText(formatDateTime(auction.getEndDateTime()));
+
         auctionIdLabel.setText(valueOrNA(auction.getId()));
         itemIdLabel.setText(valueOrNA(auction.getItemId()));
 
-        updateStatusBadge(auction);
-        updateTimeRemaining(auction);
-        updateBidAvailability(auction);
+        // Các field khác
+        startingPriceLabel.setText(
+                currentItem.getStartingPrice() != null
+                        ? "$" + currentItem.getStartingPrice().toPlainString()
+                        : "N/A"
+        );
 
-        populateAuctionInfoGrid(auction);
-        populateProductDetailsGrid();
-        populateDescription();
-        populateBidHistory();
-        populateRelatedAuctions();
+        currentBidLabel.setText(
+                auction.getFinalSalePrice() != null
+                        ? "$" + auction.getFinalSalePrice().toPlainString()
+                        : "N/A"
+        );
+
+        headerStatusBadge.setText(
+                auction.getStatus() != null
+                        ? auction.getStatus().name()
+                        : "N/A"
+        );
     }
 
     private void loadAuctionDetailData(Integer itemId) {

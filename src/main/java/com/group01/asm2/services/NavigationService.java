@@ -10,28 +10,40 @@ import javafx.scene.layout.Pane;
 
 public class NavigationService {
 
-    public static void loadPage(AnchorPane contentArea, String fxmlPath) {
+    public static void loadPage(Pane contentArea, String fxmlPath) {
+
+        if (contentArea == null) {
+            System.err.println("ERROR: contentArea is null.");
+            return;
+        }
+
         try {
-            FXMLLoader loader = new FXMLLoader(NavigationService.class.getResource(fxmlPath));
+
+            var resource = NavigationService.class.getResource(fxmlPath);
+
+            if (resource == null) {
+                System.err.println("ERROR: Cannot find FXML file: " + fxmlPath);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(resource);
+
             Node pageNode = loader.load();
 
-            // ==========================================
-            // ĐÂY LÀ DÒNG CODE QUAN TRỌNG ĐỂ BO GÓC DƯỚI
-            // ==========================================
-            // Tự động gắn class 'content-view' cho trang FXML mới load
             pageNode.getStyleClass().add("content-view");
-            // ==========================================
 
             contentArea.getChildren().setAll(pageNode);
 
-            // Set neo Anchor để trang mới tràn đầy contentArea
             AnchorPane.setTopAnchor(pageNode, 0.0);
             AnchorPane.setBottomAnchor(pageNode, 0.0);
             AnchorPane.setLeftAnchor(pageNode, 0.0);
             AnchorPane.setRightAnchor(pageNode, 0.0);
 
         } catch (IOException e) {
+
+            System.err.println("ERROR loading page: " + fxmlPath);
             e.printStackTrace();
+
         }
     }
 

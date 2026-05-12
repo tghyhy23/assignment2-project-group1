@@ -1,14 +1,16 @@
 package com.group01.asm2.controllers;
 
+import com.group01.asm2.enums.UserRole;
 import com.group01.asm2.services.NavigationService;
+import com.group01.asm2.core.SessionManager;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
 
@@ -16,11 +18,15 @@ public class SidebarController {
 
     private AnchorPane contentArea;
 
-    @FXML private Button dashboardButton;
+    @FXML private Button exploreButton;
+    @FXML private Button usersButton;
+    @FXML private Button adminAuctionsButton;
+    @FXML private Button itemsButton;
+    @FXML private Button paymentsButton;
+    @FXML private Button reportsButton;
+    @FXML private Button adminDashboardButton;
     @FXML private Button bidsHistoryButton;
     @FXML private Button auctionsButton;
-//    @FXML private Button paymentsButton;
-//    @FXML private Button reportsButton;
     @FXML private Button profileButton;
 
     public void setContentArea(AnchorPane contentArea) {
@@ -29,41 +35,95 @@ public class SidebarController {
 
     @FXML
     private void initialize() {
-        dashboardButton.setGraphic(createDashboardIcon());
-        bidsHistoryButton.setGraphic(createGavelIcon());
-        auctionsButton.setGraphic(createBoxIcon());
-//        paymentsButton.setGraphic(createWalletIcon());
-//        reportsButton.setGraphic(createChartIcon());
+        exploreButton.setGraphic(createExploreIcon());
+        adminDashboardButton.setGraphic(createAdminDashboardIcon());
+        bidsHistoryButton.setGraphic(createBidsHistoryIcon());
+        auctionsButton.setGraphic(createAuctionIcon());
         profileButton.setGraphic(createUserIcon());
+        usersButton.setGraphic(createUserIcon());
+        adminAuctionsButton.setGraphic(createAuctionIcon());
+        itemsButton.setGraphic(createItemIcon());
+        paymentsButton.setGraphic(createPaymentIcon());
+        reportsButton.setGraphic(createReportIcon());
 
-        setActiveButton(dashboardButton);
+        boolean isAuctionAdmin =
+                SessionManager.getCurrentUser() != null
+                        && (
+                        SessionManager.getCurrentUser().getRole() == UserRole.AUCTION_ADMINISTRATOR
+                                || SessionManager.getCurrentUser().getRole() == UserRole.SYSTEM_ADMINISTRATOR
+                );
+
+        setAdminVisible(isAuctionAdmin);
+
+        adminDashboardButton.setVisible(isAuctionAdmin);
+        adminDashboardButton.setManaged(isAuctionAdmin);
+
+        setActiveButton(exploreButton);
     }
 
+    private void setAdminVisible(boolean visible) {
+        adminSectionTitle.setVisible(visible);
+        adminSectionTitle.setManaged(visible);
 
+        adminDashboardButton.setVisible(visible);
+        adminDashboardButton.setManaged(visible);
+
+        usersButton.setVisible(visible);
+        usersButton.setManaged(visible);
+
+        adminAuctionsButton.setVisible(visible);
+        adminAuctionsButton.setManaged(visible);
+
+        itemsButton.setVisible(visible);
+        itemsButton.setManaged(visible);
+
+        paymentsButton.setVisible(visible);
+        paymentsButton.setManaged(visible);
+
+        reportsButton.setVisible(visible);
+        reportsButton.setManaged(visible);
+
+        adminSeparator.setVisible(visible);
+        adminSeparator.setManaged(visible);
+    }
 
     private void setActiveButton(Button activeButton) {
         Button[] buttons = {
-                dashboardButton,
+                adminDashboardButton,
+                usersButton,
+                adminAuctionsButton,
+                itemsButton,
+                paymentsButton,
+                reportsButton,
+                exploreButton,
                 bidsHistoryButton,
                 auctionsButton,
-//                paymentsButton,
-//                reportsButton,
                 profileButton
         };
 
         for (Button button : buttons) {
-            button.getStyleClass().remove("active");
+            if (button != null) {
+                button.getStyleClass().remove("active");
+            }
         }
 
         if (activeButton != null && !activeButton.getStyleClass().contains("active")) {
             activeButton.getStyleClass().add("active");
         }
     }
+    @FXML private Label adminSectionTitle;
+    @FXML private Separator adminSeparator;
 
     @FXML
-    private void showDashboard() {
-        setActiveButton(dashboardButton);
+    private void showExplore() {
+        setActiveButton(exploreButton);
         NavigationService.loadPage(contentArea, "/com/group01/asm2/views/explore-view.fxml");
+    }
+
+    @FXML
+    private void showAdminDashboard() {
+        setActiveButton(adminDashboardButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/admin-dashboard.fxml");
     }
 
     @FXML
@@ -78,31 +138,61 @@ public class SidebarController {
         NavigationService.loadPage(contentArea, "/com/group01/asm2/views/auctions-view.fxml");
     }
 
-//    @FXML
-//    private void showPayments() {
-//        setActiveButton(paymentsButton);
-//    }
-//
-//    @FXML
-//    private void showReports() {
-//        setActiveButton(reportsButton);
-//    }
-
     @FXML
     private void showProfile() {
         setActiveButton(profileButton);
         NavigationService.loadPage(contentArea, "/com/group01/asm2/views/profile-view.fxml");
     }
 
+    @FXML
+    private void showUsersManagement() {
+        setActiveButton(usersButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/users-management.fxml");
+    }
+
+    @FXML
+    private void showAuctionsManagement() {
+        setActiveButton(adminAuctionsButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/auctions-management.fxml");
+    }
+
+    @FXML
+    private void showItemsManagement() {
+        setActiveButton(itemsButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/items-management.fxml");
+    }
+
+    @FXML
+    private void showPaymentsManagement() {
+        setActiveButton(paymentsButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/payments-management.fxml");
+    }
+
+    @FXML
+    private void showReports() {
+        setActiveButton(reportsButton);
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/reports.fxml");
+    }
+
     // =========================
     // Icon helpers
     // =========================
 
+    private StackPane createItemIcon() {
+        return createAuctionIcon();
+    }
+
+    private StackPane createPaymentIcon() {
+        return createBidsHistoryIcon();
+    }
+
+    private StackPane createReportIcon() {
+        return createAdminDashboardIcon();
+    }
+
     private StackPane wrap(Shape... shapes) {
-        // Đưa tất cả nét vẽ vào 1 Group để giữ nguyên toạ độ gốc (đặc biệt là với SVG)
         javafx.scene.Group group = new javafx.scene.Group(shapes);
 
-        // TÙY CHỈNH KÍCH THƯỚC TẠI ĐÂY (0.75 = 75% kích thước gốc)
         double scaleFactor = 0.75;
         group.setScaleX(scaleFactor);
         group.setScaleY(scaleFactor);
@@ -111,6 +201,7 @@ public class SidebarController {
         pane.setMinSize(22, 22);
         pane.setPrefSize(22, 22);
         pane.setMaxSize(22, 22);
+
         return pane;
     }
 
@@ -121,9 +212,8 @@ public class SidebarController {
         shape.getStyleClass().add("icon-shape");
     }
 
-    private StackPane createDashboardIcon() {
-        // Icon Explore (Compass)
-        Circle c1 = new Circle(12, 12, 10); // cx="12" cy="12" r="10"
+    private StackPane createExploreIcon() {
+        Circle c1 = new Circle(12, 12, 10);
 
         SVGPath p1 = new SVGPath();
         p1.setContent("m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z");
@@ -134,84 +224,72 @@ public class SidebarController {
         return wrap(c1, p1);
     }
 
-    private StackPane createGavelIcon() {
-        // Icon Bids History (Shopping Bag)
-        SVGPath p1 = new SVGPath(); p1.setContent("M16 10a4 4 0 0 1-8 0");
-        SVGPath p2 = new SVGPath(); p2.setContent("M3.103 6.034h17.794");
-        SVGPath p3 = new SVGPath(); p3.setContent("M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z");
+    private StackPane createAdminDashboardIcon() {
+        SVGPath rect1 = new SVGPath();
+        rect1.setContent("M3 4a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z");
 
-        for (SVGPath p : new SVGPath[]{p1, p2, p3}) {
-            styleStroke(p);
+        SVGPath rect2 = new SVGPath();
+        rect2.setContent("M14 4a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1z");
+
+        SVGPath rect3 = new SVGPath();
+        rect3.setContent("M14 13a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1z");
+
+        SVGPath rect4 = new SVGPath();
+        rect4.setContent("M3 17a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z");
+
+        for (SVGPath path : new SVGPath[]{rect1, rect2, rect3, rect4}) {
+            styleStroke(path);
+        }
+
+        return wrap(rect1, rect2, rect3, rect4);
+    }
+
+    private StackPane createBidsHistoryIcon() {
+        SVGPath p1 = new SVGPath();
+        p1.setContent("M16 10a4 4 0 0 1-8 0");
+
+        SVGPath p2 = new SVGPath();
+        p2.setContent("M3.103 6.034h17.794");
+
+        SVGPath p3 = new SVGPath();
+        p3.setContent("M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z");
+
+        for (SVGPath path : new SVGPath[]{p1, p2, p3}) {
+            styleStroke(path);
         }
 
         return wrap(p1, p2, p3);
     }
 
-    private StackPane createBoxIcon() {
-        // Icon Auction (Package Check)
-        SVGPath p1 = new SVGPath(); p1.setContent("M12 22V12");
-        SVGPath p2 = new SVGPath(); p2.setContent("m16 17 2 2 4-4");
-        SVGPath p3 = new SVGPath(); p3.setContent("M21 11.127V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.32-.753");
-        SVGPath p4 = new SVGPath(); p4.setContent("M3.29 7 12 12l8.71-5");
-        SVGPath p5 = new SVGPath(); p5.setContent("m7.5 4.27 8.997 5.148");
+    private StackPane createAuctionIcon() {
+        SVGPath p1 = new SVGPath();
+        p1.setContent("M12 22V12");
 
-        for (SVGPath p : new SVGPath[]{p1, p2, p3, p4, p5}) {
-            styleStroke(p);
+        SVGPath p2 = new SVGPath();
+        p2.setContent("m16 17 2 2 4-4");
+
+        SVGPath p3 = new SVGPath();
+        p3.setContent("M21 11.127V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.32-.753");
+
+        SVGPath p4 = new SVGPath();
+        p4.setContent("M3.29 7 12 12l8.71-5");
+
+        SVGPath p5 = new SVGPath();
+        p5.setContent("m7.5 4.27 8.997 5.148");
+
+        for (SVGPath path : new SVGPath[]{p1, p2, p3, p4, p5}) {
+            styleStroke(path);
         }
 
         return wrap(p1, p2, p3, p4, p5);
     }
 
-    private StackPane createWalletIcon() {
-        Rectangle body = new Rectangle(16, 11);
-        body.setArcWidth(4);
-        body.setArcHeight(4);
-
-        Rectangle flap = new Rectangle(8, 4);
-        flap.setArcWidth(2);
-        flap.setArcHeight(2);
-        flap.setTranslateX(4);
-        flap.setTranslateY(-1);
-
-        Circle dot = new Circle(1.2);
-        dot.setFill(Color.web("#DCE6FF"));
-        dot.setTranslateX(5);
-        dot.setTranslateY(-1);
-
-        styleStroke(body);
-        styleStroke(flap);
-
-        return wrap(body, flap, dot);
-    }
-
-    private StackPane createChartIcon() {
-        Line axisX = new Line(-8, 8, 8, 8);
-        Line axisY = new Line(-8, 8, -8, -8);
-
-        Rectangle b1 = new Rectangle(3, 5);
-        Rectangle b2 = new Rectangle(3, 9);
-        Rectangle b3 = new Rectangle(3, 12);
-
-        styleStroke(axisX);
-        styleStroke(axisY);
-        styleStroke(b1);
-        styleStroke(b2);
-        styleStroke(b3);
-
-        b1.setTranslateX(-3); b1.setTranslateY(5);
-        b2.setTranslateX(1.5); b2.setTranslateY(3);
-        b3.setTranslateX(6);   b3.setTranslateY(1.5);
-
-        return wrap(axisX, axisY, b1, b2, b3);
-    }
-
     private StackPane createUserIcon() {
-        // Icon Profile (Circle User Round)
         SVGPath p1 = new SVGPath();
         p1.setContent("M17.925 20.056a6 6 0 0 0-11.851.001");
 
-        Circle c1 = new Circle(12, 11, 4); // cx="12" cy="11" r="4"
-        Circle c2 = new Circle(12, 12, 10); // cx="12" cy="12" r="10"
+        Circle c1 = new Circle(12, 11, 4);
+        Circle c2 = new Circle(12, 12, 10);
 
         styleStroke(p1);
         styleStroke(c1);

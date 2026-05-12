@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group01.asm2.controllers.AdminDashboardController"
+            stylesheets="@../../styles/admin/admin-dashboard.css"
+            styleClass="admin-dashboard-root">
+
+    <VBox spacing="22"
+          AnchorPane.topAnchor="24"
+          AnchorPane.leftAnchor="28"
+          AnchorPane.rightAnchor="28"
+          AnchorPane.bottomAnchor="24">
+
+        <VBox spacing="5">
+            <Label text="Admin Dashboard" styleClass="dashboard-title"/>
+            <Label text="System overview for users, auctions, items, payments, top-up requests, and reports."
+                   styleClass="dashboard-subtitle"/>
+        </VBox>
+
+        <GridPane hgap="16" vgap="16">
+
+            <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="stat-card">
+                <Label text="Total Users" styleClass="stat-label"/>
+                <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value"/>
+                <Label text="Registered accounts" styleClass="stat-desc"/>
+            </VBox>
+
+            <VBox GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="stat-card">
+                <Label text="Active Auctions" styleClass="stat-label"/>
+                <Label fx:id="activeAuctionsLabel" text="0" styleClass="stat-value"/>
+                <Label text="Currently running" styleClass="stat-desc"/>
+            </VBox>
+
+            <VBox GridPane.rowIndex="0" GridPane.columnIndex="2" styleClass="stat-card">
+                <Label text="Total Items" styleClass="stat-label"/>
+                <Label fx:id="totalItemsLabel" text="0" styleClass="stat-value"/>
+                <Label text="Listed items" styleClass="stat-desc"/>
+            </VBox>
+
+            <VBox GridPane.rowIndex="0" GridPane.columnIndex="3" styleClass="stat-card">
+                <Label text="Pending Top-ups" styleClass="stat-label"/>
+                <Label fx:id="pendingTopupsLabel" text="0" styleClass="stat-value"/>
+                <Label text="Need review" styleClass="stat-desc"/>
+            </VBox>
+
+        </GridPane>
+
+<!--        <VBox spacing="12">-->
+<!--            <Label text="Management Modules" styleClass="section-title"/>-->
+
+<!--            <GridPane hgap="16" vgap="16">-->
+
+<!--                <VBox GridPane.rowIndex="0" GridPane.columnIndex="0"-->
+<!--                      styleClass="module-card"-->
+<!--                      onMouseClicked="#showUsers">-->
+<!--                    <Label text="Users / Persons" styleClass="module-title"/>-->
+<!--                    <Label text="Manage registered users and administrator accounts."-->
+<!--                           styleClass="module-desc"/>-->
+<!--                </VBox>-->
+
+<!--                <VBox GridPane.rowIndex="0" GridPane.columnIndex="1"-->
+<!--                      styleClass="module-card"-->
+<!--                      onMouseClicked="#showAuctions">-->
+<!--                    <Label text="Auctions" styleClass="module-title"/>-->
+<!--                    <Label text="Manage auction lifecycle, status, winners, and due auctions."-->
+<!--                           styleClass="module-desc"/>-->
+<!--                </VBox>-->
+
+<!--                <VBox GridPane.rowIndex="0" GridPane.columnIndex="2"-->
+<!--                      styleClass="module-card"-->
+<!--                      onMouseClicked="#showItems">-->
+<!--                    <Label text="Items" styleClass="module-title"/>-->
+<!--                    <Label text="Moderate item listings, prices, conditions, and images."-->
+<!--                           styleClass="module-desc"/>-->
+<!--                </VBox>-->
+
+<!--                <VBox GridPane.rowIndex="0" GridPane.columnIndex="3"-->
+<!--                      styleClass="module-card"-->
+<!--                      onMouseClicked="#showPayments">-->
+<!--                    <Label text="Payments" styleClass="module-title"/>-->
+<!--                    <Label text="Review payment status, commission, and seller payout."-->
+<!--                           styleClass="module-desc"/>-->
+<!--                </VBox>-->
+
+<!--                <VBox GridPane.rowIndex="1" GridPane.columnIndex="0"-->
+<!--                      styleClass="module-card"-->
+<!--                      onMouseClicked="#showBids">-->
+<!--                    <Label text="Bids" styleClass="module-title"/>-->
+<!--                    <Label text="View bid records, bidders, bid amount, and bid time."-->
+<!--                           styleClass="module-desc"/>-->
+<!--                </VBox>-->
+
+<!--                <VBox GridPane.rowIndex="1" GridPane.columnIndex="1"-->
+<!--                      styleClass="module-card"-->
+<!--                      onMouseClicked="#showCategories">-->
+<!--                    <Label text="Categories" styleClass="module-title"/>-->
+<!--                    <Label text="Manage category details and commission rates."-->
+<!--                           styleClass="module-desc"/>-->
+<!--                </VBox>-->
+
+<!--                <VBox GridPane.rowIndex="1" GridPane.columnIndex="2"-->
+<!--                      styleClass="module-card"-->
+<!--                      onMouseClicked="#showTopUpRequests">-->
+<!--                    <Label text="Top-up Requests" styleClass="module-title"/>-->
+<!--                    <Label text="Approve or reject user balance top-up requests."-->
+<!--                           styleClass="module-desc"/>-->
+<!--                </VBox>-->
+
+<!--                <VBox GridPane.rowIndex="1" GridPane.columnIndex="3"-->
+<!--                      styleClass="module-card report-card"-->
+<!--                      onMouseClicked="#showReports">-->
+<!--                    <Label text="Reports" styleClass="module-title"/>-->
+<!--                    <Label text="Generate downloadable reports and system summaries."-->
+<!--                           styleClass="module-desc"/>-->
+<!--                </VBox>-->
+
+<!--            </GridPane>-->
+<!--        </VBox>-->
+
+    </VBox>
+</AnchorPane>
