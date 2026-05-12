@@ -1,132 +1,548 @@
 package com.group01.asm2.services;
 
+import com.group01.asm2.configs.DatabaseConfig;
+import com.group01.asm2.core.SessionManager;
+import com.group01.asm2.dtos.CreatedListingResult;
+import com.group01.asm2.dtos.ItemFilter;
+import com.group01.asm2.enums.ActivityActionType;
+import com.group01.asm2.enums.AuctionStatus;
+import com.group01.asm2.enums.ItemCondition;
+import com.group01.asm2.enums.ItemStatus;
+import com.group01.asm2.enums.UserRole;
+import com.group01.asm2.exceptions.AppException;
+import com.group01.asm2.models.Auction;
+import com.group01.asm2.models.Category;
 import com.group01.asm2.models.Item;
+import com.group01.asm2.models.Person;
+import com.group01.asm2.repositories.AuctionRepository;
+import com.group01.asm2.repositories.CategoryRepository;
+import com.group01.asm2.repositories.ItemRepository;
+import com.group01.asm2.security.Permission;
+import com.group01.asm2.utils.CloudinaryUploaderUtil;
 
+import java.io.File;
+import java.math.BigDecimal;
+import java.sql.Connection;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class ItemService {
+public class ItemService extends BaseService {
+    private static final int MAX_TITLE_LENGTH = 120;
+    private static final int MAX_DESCRIPTION_LENGTH = 2000;
+    private static final int DEFAULT_AUCTION_DAYS = 7;
+    private static final long MAX_IMAGE_SIZE_BYTES = 5L * 1024L * 1024L;
 
-    private static final List<Item> itemsDb = new ArrayList<>();
+    private final ItemRepository itemRepository;
+    private final AuctionRepository auctionRepository;
+    private final CategoryRepository categoryRepository;
+    private final ActivityLogService activityLogService;
 
-    static {
-//        itemsDb.add(new Item(1, 99, 101, "Đồng hồ Rolex Submariner 2020",
-//                "Đồng hồ Rolex nguyên bản, đầy đủ giấy tờ, hộp sổ thẻ.",
-//                "Like New", "Rolex", "Ho Chi Minh City",
-//                new BigDecimal("150000000.00"), null, LocalDateTime.now(), LocalDateTime.now()));
-//
-//        itemsDb.add(new Item(2, 99, 102, "Bức tranh sơn dầu thế kỷ 19",
-//                "Tác phẩm nghệ thuật độc bản từ thế kỷ 19.",
-//                "Vintage", "Unknown", "Hanoi",
-//                new BigDecimal("45000000.00"), null, LocalDateTime.now(), LocalDateTime.now()));
-//
-//        itemsDb.add(new Item(3, 99, 103, "Siêu xe Ford Mustang 1969 Classic",
-//                "Xe cơ bắp Mỹ cổ điển, động cơ V8 mạnh mẽ.",
-//                "Restored", "Ford", "Danang",
-//                new BigDecimal("800000000.00"), null, LocalDateTime.now(), LocalDateTime.now()));
+    public ItemService() {
+        this(
+            new ItemRepository(),
+            new AuctionRepository(),
+            new CategoryRepository(),
+            new ActivityLogService()
+        );
     }
 
-    /** GET ALL ITEMS */
-    public static List<Item> getAllItems() {
-        return new ArrayList<>(itemsDb);
+    public ItemService(ItemRepository itemRepository,
+                       AuctionRepository auctionRepository,
+                       CategoryRepository categoryRepository,
+                       ActivityLogService activityLogService) {
+        this.itemRepository = itemRepository;
+        this.auctionRepository = auctionRepository;
+        this.categoryRepository = categoryRepository;
+        this.activityLogService = activityLogService;
     }
 
-    /** GET ITEM BY ID */
-    public static Item getItemById(Integer id) {
-        if (id == null) return null;
+    public CreatedListingResult createItem(String title,
+                                           String description,
+                                           Integer categoryId,
+                                           BigDecimal startingPrice,
+                                           BigDecimal reservePrice,
+                                           ItemCondition condition,
+                                           File imageFile) {
+        // 1. Check current user and authorization
+        Person currentUser = getCurrentUserOrThrow();
+        requireCurrentUser(Permission.CREATE_ITEM);
 
-        return itemsDb.stream()
-                .filter(item -> item.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
-
-    /** CREATE ITEM */
-    public static Item createItem(Item newItem) {
-        if (newItem == null) return null;
-
-        Integer newId = generateNextId();
-
-//        Item item = new Item(
-//                newId,
-//                newItem.getCategoryId(),
-//                newItem.getSellerId(),
-//                newItem.getTitle(),
-//                newItem.getDescription(),
-//                newItem.getCondition(),
-//                newItem.getStartingPrice(),
-//                newItem.getReservePrice(),
-//                LocalDateTime.now(),
-//                LocalDateTime.now()
-//        );
-
-        // UI Fields
-//        item.setCurrentBid(newItem.getCurrentBid());
-//        item.setBidCount(newItem.getBidCount());
-//        item.setRecommended(newItem.isRecommended());
-//        item.setMainBgClass(newItem.getMainBgClass());
-//        item.setThumbBgClasses(newItem.getThumbBgClasses());
-
-//        itemsDb.add(item);
-
-        return null;
-    }
-
-    /** UPDATE ITEM */
-    public static Item updateItem(Integer id, Item updatedItem) {
-        if (id == null || updatedItem == null) return null;
-
-        Item existingItem = getItemById(id);
-
-        if (existingItem == null) return null;
-
-        existingItem.setCategoryId(updatedItem.getCategoryId());
-        existingItem.setSellerId(updatedItem.getSellerId());
-        existingItem.setTitle(updatedItem.getTitle());
-        existingItem.setDescription(updatedItem.getDescription());
-        existingItem.setCondition(updatedItem.getCondition());
-        existingItem.setStartingPrice(updatedItem.getStartingPrice());
-        existingItem.setReservePrice(updatedItem.getReservePrice());
-
-//        existingItem.setCurrentBid(updatedItem.getCurrentBid());
-//        existingItem.setBidCount(updatedItem.getBidCount());
-//        existingItem.setRecommended(updatedItem.isRecommended());
-//        existingItem.setMainBgClass(updatedItem.getMainBgClass());
-//        existingItem.setThumbBgClasses(updatedItem.getThumbBgClasses());
-
-        existingItem.setUpdatedAt(LocalDateTime.now());
-
-        return existingItem;
-    }
-
-    /** DELETE ITEM */
-    public static Item deleteItem(Integer id) {
-        if (id == null) return null;
-
-        Item existingItem = getItemById(id);
-
-        if (existingItem == null) return null;
-
-        itemsDb.remove(existingItem);
-
-        return existingItem;
-    }
-
-    /** CHECK EXIST */
-    public static boolean existsById(Integer id) {
-        return getItemById(id) != null;
-    }
-
-    /** AUTO GENERATE ID */
-    private static Integer generateNextId() {
-        if (itemsDb.isEmpty()) {
-            return 1;
+        if (!isRegisteredUser(currentUser)) {
+            throw AppException.authorization("Only registered users can create item listings.");
         }
 
-        return itemsDb.stream()
-                .map(Item::getId)
-                .max(Integer::compareTo)
-                .orElse(0) + 1;
+        // 2. Normalize and validate item input
+        String normalizedTitle = normalizeRequiredText(title, "Item title", MAX_TITLE_LENGTH);
+        String normalizedDescription = normalizeRequiredText(description, "Item description", MAX_DESCRIPTION_LENGTH);
+        Integer validCategoryId = validateId(categoryId, "Category ID");
+
+        validatePrice(startingPrice, "Starting price", true);
+        validateReservePrice(startingPrice, reservePrice);
+        validateCondition(condition);
+
+        // 3. Check category exists
+        Category category = categoryRepository.readCategoryById(validCategoryId);
+        if (category == null) {
+            throw AppException.notFound("Category not found.");
+        }
+
+        // 4. Validate and upload image if provided
+        String imageUrl = uploadImageIfPresent(imageFile);
+
+        // 5. Build item
+        Item item = new Item();
+        item.setTitle(normalizedTitle);
+        item.setDescription(normalizedDescription);
+        item.setCategoryId(validCategoryId);
+        item.setSellerId(currentUser.getId());
+        item.setStartingPrice(startingPrice);
+        item.setReservePrice(reservePrice);
+        item.setCondition(condition);
+        item.setImageUrl(imageUrl);
+        item.setStatus(ItemStatus.ACTIVE);
+
+        // 6. Create item and auction in one transaction
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try {
+                Item createdItem = itemRepository.createItem(conn, item);
+
+                LocalDateTime now = LocalDateTime.now();
+
+                Auction auction = new Auction();
+                auction.setItemId(createdItem.getId());
+                auction.setStatus(AuctionStatus.ACTIVE);
+                auction.setCurrentHighestBidId(null);
+                auction.setWinnerId(null);
+                auction.setFinalSalePrice(null);
+                auction.setStartDateTime(now);
+                auction.setEndDateTime(now.plusDays(DEFAULT_AUCTION_DAYS));
+                auction.setRecommended(false);
+
+                Auction createdAuction = auctionRepository.createAuction(conn, auction);
+
+                conn.commit();
+
+                // 7. Record activity logs
+                activityLogService.createActivityLog(
+                    ActivityActionType.CREATE_ITEM,
+                    "Item",
+                    createdItem.getId(),
+                    "Created item listing: " + createdItem.getTitle()
+                );
+
+                activityLogService.createActivityLog(
+                    ActivityActionType.CREATE_AUCTION,
+                    "Auction",
+                    createdAuction.getId(),
+                    "Automatically created auction for item ID " + createdItem.getId()
+                );
+
+                // 8. Return created listing result
+                return new CreatedListingResult(createdItem, createdAuction);
+
+            } catch (Exception exception) {
+                conn.rollback();
+                throw exception;
+            }
+
+        } catch (AppException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw AppException.database("Could not create item listing.");
+        }
+    }
+
+    public Item readItem(Integer itemId) {
+        // 1. Validate item ID
+        Integer validItemId = validateId(itemId, "Item ID");
+
+        // 2. Read existing item
+        Item item = itemRepository.readItemById(validItemId);
+        if (item == null) {
+            throw AppException.notFound("Item not found.");
+        }
+
+        // 3. Check visibility
+        Person currentUser = SessionManager.getCurrentUser();
+        Auction auction = auctionRepository.readAuctionByItemId(validItemId);
+
+        if (!canViewItem(currentUser, item, auction)) {
+            throw AppException.notFound("Item not available.");
+        }
+
+        // 4. Return item
+        return item;
+    }
+
+    public List<Item> readItems(ItemFilter filter) {
+        // 1. Normalize filter
+        ItemFilter safeFilter = filter == null ? new ItemFilter() : filter;
+        Person currentUser = SessionManager.getCurrentUser();
+
+        // 2. Validate filter
+        validateItemFilter(safeFilter);
+
+        // 3. Choose broad repository query
+        List<Item> items;
+
+        if (Boolean.TRUE.equals(safeFilter.getOnlyMine())) {
+            Person owner = getCurrentUserOrThrow();
+            items = itemRepository.readItemsBySellerId(owner.getId());
+
+        } else if (safeFilter.getSellerId() != null) {
+            items = itemRepository.readItemsBySellerId(safeFilter.getSellerId());
+
+        } else if (canReadInactiveItems(currentUser, safeFilter)) {
+            items = itemRepository.readItems();
+
+        } else {
+            items = itemRepository.readActiveItems();
+        }
+
+        // 4. Apply visibility and filter rules
+        return items.stream()
+            .filter(item -> {
+                Auction auction = auctionRepository.readAuctionByItemId(item.getId());
+                return canViewItem(currentUser, item, auction);
+            })
+            .filter(item -> matchesItemFilter(item, safeFilter))
+            .collect(Collectors.toList());
+    }
+
+    public Item updateItem(Integer itemId,
+                           String title,
+                           String description,
+                           Integer categoryId,
+                           BigDecimal startingPrice,
+                           BigDecimal reservePrice,
+                           ItemCondition condition,
+                           File newImageFile) {
+        // 1. Check current user
+        Person currentUser = getCurrentUserOrThrow();
+
+        // 2. Validate target item ID
+        Integer validItemId = validateId(itemId, "Item ID");
+
+        // 3. Read existing item and auction
+        Item existingItem = itemRepository.readItemById(validItemId);
+        if (existingItem == null) {
+            throw AppException.notFound("Item not found.");
+        }
+
+        Auction auction = auctionRepository.readAuctionByItemId(validItemId);
+        if (auction == null) {
+            throw AppException.notFound("Auction for item not found.");
+        }
+
+        // 4. Check authorization
+        boolean owner = existingItem.isOwnedBy(currentUser.getId());
+
+        if (owner) {
+            requireCurrentUser(Permission.UPDATE_OWN_ITEM);
+        } else {
+            requireCurrentUser(Permission.MODERATE_ITEM);
+        }
+
+        // 5. Check editability
+        if (owner) {
+            if (!auction.isActive()) {
+                throw AppException.conflict("Cannot update item because the auction is no longer active.");
+            }
+
+            if (auctionRepository.hasBids(auction.getId())) {
+                throw AppException.conflict("Cannot update item because the auction already has bids.");
+            }
+        }
+
+        // 6. Normalize and validate input
+        String normalizedTitle = normalizeRequiredText(title, "Item title", MAX_TITLE_LENGTH);
+        String normalizedDescription = normalizeRequiredText(description, "Item description", MAX_DESCRIPTION_LENGTH);
+        Integer validCategoryId = validateId(categoryId, "Category ID");
+
+        validatePrice(startingPrice, "Starting price", true);
+        validateReservePrice(startingPrice, reservePrice);
+        validateCondition(condition);
+
+        Category category = categoryRepository.readCategoryById(validCategoryId);
+        if (category == null) {
+            throw AppException.notFound("Category not found.");
+        }
+
+        // 7. Upload new image if provided
+        String imageUrl = newImageFile == null
+            ? existingItem.getImageUrl()
+            : uploadImageIfPresent(newImageFile);
+
+        // 8. Apply allowed updates
+        existingItem.setTitle(normalizedTitle);
+        existingItem.setDescription(normalizedDescription);
+        existingItem.setCategoryId(validCategoryId);
+        existingItem.setStartingPrice(startingPrice);
+        existingItem.setReservePrice(reservePrice);
+        existingItem.setCondition(condition);
+        existingItem.setImageUrl(imageUrl);
+
+        // 9. Save item
+        Item updatedItem = itemRepository.updateItem(existingItem);
+        if (updatedItem == null) {
+            throw AppException.notFound("Item not found.");
+        }
+
+        // 10. Record activity log
+        activityLogService.createActivityLog(
+            owner ? ActivityActionType.UPDATE_ITEM : ActivityActionType.MODERATE_ITEM,
+            "Item",
+            updatedItem.getId(),
+            "Updated item: " + updatedItem.getTitle()
+        );
+
+        // 11. Return updated item
+        return updatedItem;
+    }
+
+    public void deleteItem(Integer itemId) {
+        // 1. Check current user and authorization
+        getCurrentUserOrThrow();
+        requireCurrentUser(Permission.MODERATE_ITEM);
+
+        // 2. Validate target item ID
+        Integer validItemId = validateId(itemId, "Item ID");
+
+        // 3. Read existing item and auction
+        Item item = itemRepository.readItemById(validItemId);
+        if (item == null) {
+            throw AppException.notFound("Item not found.");
+        }
+
+        Auction auction = auctionRepository.readAuctionByItemId(validItemId);
+        if (auction == null) {
+            throw AppException.notFound("Auction for item not found.");
+        }
+
+        // 4. Decide hard delete or soft remove
+        boolean hasBids = auctionRepository.hasBids(auction.getId());
+        boolean hasPayment = auctionRepository.hasPayment(auction.getId());
+
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try {
+                if (!hasBids && !hasPayment) {
+                    auctionRepository.deleteAuction(conn, auction.getId());
+                    itemRepository.deleteItem(conn, item.getId());
+                } else {
+                    item.setStatus(ItemStatus.REMOVED);
+                    auction.setStatus(AuctionStatus.CANCELLED);
+
+                    itemRepository.updateItem(conn, item);
+                    auctionRepository.updateAuction(conn, auction);
+                }
+
+                conn.commit();
+
+            } catch (Exception exception) {
+                conn.rollback();
+                throw exception;
+            }
+
+        } catch (AppException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw AppException.database("Could not delete item.");
+        }
+
+        // 5. Record activity log
+        activityLogService.createActivityLog(
+            ActivityActionType.DELETE_ITEM,
+            "Item",
+            validItemId,
+            "Deleted or removed item ID " + validItemId
+        );
+    }
+
+    private boolean canViewItem(Person currentUser, Item item, Auction auction) {
+        if (item == null) {
+            return false;
+        }
+
+        if (currentUser != null && isAdmin(currentUser)) {
+            return true;
+        }
+
+        if (currentUser != null && item.isOwnedBy(currentUser.getId())) {
+            return true;
+        }
+
+        if (!item.isActive()) {
+            return false;
+        }
+
+        if (auction == null) {
+            return false;
+        }
+
+        return auction.getStatus() == AuctionStatus.ACTIVE
+            && auction.getEndDateTime() != null
+            && auction.getEndDateTime().isAfter(LocalDateTime.now());
+    }
+
+    private boolean canReadInactiveItems(Person currentUser, ItemFilter filter) {
+        if (!Boolean.TRUE.equals(filter.getIncludeInactive())) {
+            return false;
+        }
+
+        return currentUser != null && isAdmin(currentUser);
+    }
+
+    private boolean matchesItemFilter(Item item, ItemFilter filter) {
+        if (filter.getCategoryId() != null && !Objects.equals(item.getCategoryId(), filter.getCategoryId())) {
+            return false;
+        }
+
+        if (filter.getCondition() != null && item.getCondition() != filter.getCondition()) {
+            return false;
+        }
+
+        if (filter.getStatus() != null && item.getStatus() != filter.getStatus()) {
+            return false;
+        }
+
+        if (filter.getMinPrice() != null && item.getStartingPrice().compareTo(filter.getMinPrice()) < 0) {
+            return false;
+        }
+
+        if (filter.getMaxPrice() != null && item.getStartingPrice().compareTo(filter.getMaxPrice()) > 0) {
+            return false;
+        }
+
+        if (filter.getKeyword() != null && !filter.getKeyword().isBlank()) {
+            String keyword = filter.getKeyword().trim().toLowerCase();
+
+            String title = item.getTitle() == null ? "" : item.getTitle().toLowerCase();
+            String description = item.getDescription() == null ? "" : item.getDescription().toLowerCase();
+
+            return title.contains(keyword) || description.contains(keyword);
+        }
+
+        return true;
+    }
+
+    private void validateItemFilter(ItemFilter filter) {
+        if (filter.getSellerId() != null) {
+            validateId(filter.getSellerId(), "Seller ID");
+        }
+
+        if (filter.getCategoryId() != null) {
+            validateId(filter.getCategoryId(), "Category ID");
+        }
+
+        if (filter.getMinPrice() != null) {
+            validatePrice(filter.getMinPrice(), "Minimum price", false);
+        }
+
+        if (filter.getMaxPrice() != null) {
+            validatePrice(filter.getMaxPrice(), "Maximum price", false);
+        }
+
+        if (filter.getMinPrice() != null && filter.getMaxPrice() != null
+            && filter.getMaxPrice().compareTo(filter.getMinPrice()) < 0) {
+            throw AppException.validation("Maximum price cannot be lower than minimum price.");
+        }
+    }
+
+    private String uploadImageIfPresent(File imageFile) {
+        if (imageFile == null) {
+            return null;
+        }
+
+        if (!imageFile.exists() || !imageFile.isFile()) {
+            throw AppException.validation("Image file is invalid.");
+        }
+
+        if (imageFile.length() > MAX_IMAGE_SIZE_BYTES) {
+            throw AppException.validation("Image file must not exceed 5MB.");
+        }
+
+        String fileName = imageFile.getName().toLowerCase();
+
+        if (!fileName.endsWith(".jpg")
+            && !fileName.endsWith(".jpeg")
+            && !fileName.endsWith(".png")
+            && !fileName.endsWith(".webp")) {
+            throw AppException.validation("Image file must be JPG, PNG, or WEBP.");
+        }
+
+        return CloudinaryUploaderUtil.uploadImage(imageFile);
+    }
+
+    private Integer validateId(Integer id, String fieldName) {
+        if (id == null || id <= 0) {
+            throw AppException.validation(fieldName + " must be a positive number.");
+        }
+
+        return id;
+    }
+
+    private String normalizeRequiredText(String value, String fieldName, int maxLength) {
+        if (value == null || value.trim().isEmpty()) {
+            throw AppException.validation(fieldName + " is required.");
+        }
+
+        String normalized = value.trim();
+
+        if (normalized.length() > maxLength) {
+            throw AppException.validation(fieldName + " must not exceed " + maxLength + " characters.");
+        }
+
+        return normalized;
+    }
+
+    private void validatePrice(BigDecimal price, String fieldName, boolean mustBeGreaterThanZero) {
+        if (price == null) {
+            throw AppException.validation(fieldName + " is required.");
+        }
+
+        int comparison = price.compareTo(BigDecimal.ZERO);
+
+        if (mustBeGreaterThanZero && comparison <= 0) {
+            throw AppException.validation(fieldName + " must be greater than 0.");
+        }
+
+        if (!mustBeGreaterThanZero && comparison < 0) {
+            throw AppException.validation(fieldName + " cannot be negative.");
+        }
+    }
+
+    private void validateReservePrice(BigDecimal startingPrice, BigDecimal reservePrice) {
+        if (reservePrice == null) {
+            return;
+        }
+
+        if (reservePrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw AppException.validation("Reserve price cannot be negative.");
+        }
+
+        if (reservePrice.compareTo(startingPrice) < 0) {
+            throw AppException.validation("Reserve price cannot be lower than starting price.");
+        }
+    }
+
+    private void validateCondition(ItemCondition condition) {
+        if (condition == null) {
+            throw AppException.validation("Item condition is required.");
+        }
+    }
+
+    private boolean isRegisteredUser(Person person) {
+        return person.getRole() == UserRole.BUYER || person.getRole() == UserRole.SELLER;
+    }
+
+    private boolean isAdmin(Person person) {
+        return person.getRole() == UserRole.AUCTION_ADMINISTRATOR
+            || person.getRole() == UserRole.SYSTEM_ADMINISTRATOR;
     }
 }

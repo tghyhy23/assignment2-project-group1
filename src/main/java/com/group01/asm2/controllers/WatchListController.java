@@ -18,6 +18,9 @@ import java.util.List;
 
 public class WatchListController {
 
+    private AuctionService auctionService = new AuctionService();
+    private ItemService itemService = new ItemService();
+
     @FXML
     private VBox watchListContainer;
 
@@ -26,7 +29,7 @@ public class WatchListController {
 
     @FXML
     public void initialize() {
-        watchList.addAll(AuctionService.getWatchList());
+//        watchList.addAll(auctionService.readWatchlistAuctions());
         renderWatchList();
     }
 
@@ -101,7 +104,7 @@ public class WatchListController {
 
         removeButton.setOnAction(event -> {
             event.consume();
-            AuctionService.removeFromWatchList(auction.getId());
+//            auctionService.removeFromWatchList(auction.getId());
             watchList.remove(auction);
             renderWatchList();
         });
@@ -110,7 +113,7 @@ public class WatchListController {
     }
 
     private HBox createAuctionInfoBox(Auction auction) {
-        Item item = ItemService.getItemById(auction.getItemId());
+        Item item = itemService.readItem(auction.getItemId());
         String itemName = item != null ? item.getTitle() : "Unknown Item";
 
         Label imageBox = new Label("IMAGE");

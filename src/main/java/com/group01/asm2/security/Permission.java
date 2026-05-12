@@ -10,10 +10,13 @@ public enum Permission {
     CREATE_ITEM("item", "create"),
     UPDATE_OWN_ITEM("item", "update_own"),
     DELETE_OWN_ITEM("item", "delete_own"),
+    MODERATE_ITEM("item", "moderate"),
 
     CREATE_AUCTION("auction", "create"),
     UPDATE_OWN_AUCTION("auction", "update_own"),
     PROCESS_AUCTION("auction", "process"),
+    UPDATE_AUCTION("auction", "update"),
+    DELETE_AUCTION("auction", "delete"),
 
     CREATE_CATEGORY("category", "create"),
     UPDATE_CATEGORY("category", "update"),

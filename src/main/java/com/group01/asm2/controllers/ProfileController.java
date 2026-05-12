@@ -1,5 +1,6 @@
 package com.group01.asm2.controllers;
 
+import com.group01.asm2.dtos.ItemFilter;
 import com.group01.asm2.models.Item;
 import javafx.scene.shape.SVGPath;
 import javafx.animation.TranslateTransition;
@@ -23,6 +24,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ProfileController {
+
+    private final ItemService itemService = new ItemService();
 
     @FXML private ScrollPane profileScrollPane;
 
@@ -130,17 +133,24 @@ public class ProfileController {
     }
 
     private void loadDataFromServices() {
-        listings.setAll(ItemService.getAllItems());
+        ItemFilter filter = new ItemFilter();
+        filter.setOnlyMine(true);
+
+        listings.setAll(itemService.readItems(filter));
 
         activities.addAll(
-                new ActivityLog("07 May 2026, 09:20", "Logged in", "User logged into BidBlitz successfully."),
-                new ActivityLog("05 May 2026, 14:30", "Requested top-up", "Requested a balance top-up of $500.00."),
-                new ActivityLog("02 May 2026, 20:15", "Updated profile", "Updated phone number and address.")
+            new ActivityLog("07 May 2026, 09:20", "Logged in", "User logged into BidBlitz successfully."),
+            new ActivityLog("05 May 2026, 14:30", "Requested top-up", "Requested a balance top-up of $500.00."),
+            new ActivityLog("02 May 2026, 20:15", "Updated profile", "Updated phone number and address.")
         );
     }
 
     private void reloadListingsFromService() {
-        listings.setAll(ItemService.getAllItems());
+        ItemFilter filter = new ItemFilter();
+        filter.setOnlyMine(true);
+
+        listings.setAll(itemService.readItems(filter));
+
         filterListings();
         updateSummaryLabels();
     }
@@ -666,7 +676,7 @@ public class ProfileController {
 //            newItem.setRecommended(false);
 //            newItem.setMainBgClass(icon);
 
-//            Item createdItem = ItemService.createItem(newItem);
+//            Item createdItem = itemService.createItem(newItem);
 
             reloadListingsFromService();
 
@@ -681,12 +691,11 @@ public class ProfileController {
     private void handleDeleteItem(Item item) {
         if (item == null || item.getId() == null) return;
 
-        Item deletedItem = ItemService.deleteItem(item.getId());
+        String deletedTitle = item.getTitle();
+        itemService.deleteItem(item.getId());
 
-        if (deletedItem != null) {
-            reloadListingsFromService();
-            addActivity("Deleted item", "Deleted item: " + deletedItem.getTitle() + ".");
-        }
+        reloadListingsFromService();
+        addActivity("Deleted item", "Deleted item: " + deletedTitle + ".");
     }
 
     private void clearAddListingForm() {

@@ -1,5 +1,7 @@
 package com.group01.asm2.controllers;
 
+import com.group01.asm2.dtos.AuctionFilter;
+import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.models.Auction;
 import com.group01.asm2.models.Item;
 import javafx.scene.layout.HBox;
@@ -26,6 +28,8 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
 public class AuctionsController {
+    private AuctionService auctionService = new AuctionService();
+    private ItemService itemService = new ItemService();
 
     @FXML private TableView<Auction> auctionsTable;
     @FXML private TableColumn<Auction, String> auctionDateColumn;
@@ -40,8 +44,11 @@ public class AuctionsController {
 
     @FXML
     public void initialize() {
+        AuctionFilter filter = new AuctionFilter();
+        filter.setRecommendedOnly(true);
+        filter.setStatus(AuctionStatus.ACTIVE);
 
-        auctionsList.addAll(AuctionService.getAll());
+        auctionsList.addAll(auctionService.readAuctions(filter));
 
         // PAGE TABLE AUCTIONS
         if (auctionsTable != null) {
@@ -76,7 +83,11 @@ public class AuctionsController {
     private void loadAllAuctionsToExplore() {
         allAuctionsContainer.getChildren().clear();
 
-        for (Auction auction : AuctionService.getAll()) {
+        AuctionFilter filter = new AuctionFilter();
+        filter.setRecommendedOnly(true);
+        filter.setStatus(AuctionStatus.ACTIVE);
+
+        for (Auction auction : auctionService.readAuctions(filter)) {
             VBox card = createAuctionCard(auction);
             allAuctionsContainer.getChildren().add(card);
         }
@@ -85,7 +96,7 @@ public class AuctionsController {
     //    Create AuctionCard
     private VBox createAuctionCard(Auction auction) {
 
-        Item item = ItemService.getItemById(auction.getItemId());
+        Item item = itemService.readItem(auction.getItemId());
 
         String itemName = item != null
                 ? item.getTitle()
@@ -226,7 +237,7 @@ public class AuctionsController {
         // ĐIỂM SÁNG: Dùng ItemService để tra cứu tên sản phẩm theo Item ID
         auctionItemColumn.setCellValueFactory(cellData -> {
             Integer itemId = cellData.getValue().getItemId();
-            Item item = ItemService.getItemById(itemId);
+            Item item = itemService.readItem(itemId);
             String itemName = (item != null) ? item.getTitle() : "Unknown Item";
             return new SimpleStringProperty(itemName);
         });

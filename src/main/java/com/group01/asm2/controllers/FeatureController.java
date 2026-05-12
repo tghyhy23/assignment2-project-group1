@@ -1,5 +1,7 @@
 package com.group01.asm2.controllers;
 
+import com.group01.asm2.dtos.AuctionFilter;
+import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.models.Auction;
 import com.group01.asm2.models.Item;
 import com.group01.asm2.services.AuctionService;
@@ -20,6 +22,9 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 public class FeatureController {
+
+    private final ItemService itemService = new ItemService();
+    private final AuctionService auctionService = new AuctionService();
 
     // 1. CHỈNH SỬA: featureCard trong FXML của bạn là một HBox (feature-card)
     @FXML private HBox featureCard;
@@ -44,7 +49,11 @@ public class FeatureController {
 
     @FXML
     public void initialize() {
-        recommendedAuctions = AuctionService.getRecommendedAuctions();
+        AuctionFilter filter = new AuctionFilter();
+        filter.setRecommendedOnly(true);
+        filter.setStatus(AuctionStatus.ACTIVE);
+
+        recommendedAuctions = auctionService.readAuctions(filter);
 
         if (recommendedAuctions == null || recommendedAuctions.isEmpty()) return;
 
@@ -57,17 +66,12 @@ public class FeatureController {
 
         loadFeaturedAuction(currentIndex);
 
-        // 2. THIẾT LẬP SỰ KIỆN CLICK CHO THẺ BỌC (feature-card)
         if (featureCard != null) {
             featureCard.setCursor(Cursor.HAND);
             featureCard.setOnMouseClicked(event -> {
                 if (recommendedAuctions != null && !recommendedAuctions.isEmpty()) {
                     Auction currentSelectedAuction = recommendedAuctions.get(currentIndex);
-
-                    // Tìm vùng chứa nội dung chính để chuyển trang
                     Pane contentArea = (Pane) featureCard.getScene().lookup("#contentArea");
-
-                    // Sử dụng NavigationService để chuyển trang (chuẩn DRY)
                     NavigationService.goToAuctionDetails(contentArea, currentSelectedAuction);
                 }
             });
@@ -107,7 +111,7 @@ public class FeatureController {
 
     private void loadFeaturedAuction(int index) {
         Auction auction = recommendedAuctions.get(index);
-        Item item = ItemService.getItemById(auction.getItemId());
+        Item item = itemService.readItem(auction.getItemId());
 
         if (item == null) return;
 
