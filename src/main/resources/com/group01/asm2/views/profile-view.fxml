@@ -697,4 +697,68 @@
         </VBox>
     </StackPane>
 
+    <StackPane fx:id="topUpOverlay"
+               visible="false"
+               managed="false"
+               styleClass="modal-overlay">
+
+        <VBox fx:id="topUpModal"
+              spacing="22"
+              alignment="TOP_LEFT"
+              styleClass="edit-profile-modal"
+              maxHeight="-Infinity">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT"
+                  spacing="12"
+                  styleClass="modal-header">
+
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="Request Account Top-up"
+                           styleClass="modal-title"/>
+
+                    <Label text="Enter the amount you want to add. Your request will be sent to an administrator for approval."
+                           wrapText="true"
+                           styleClass="modal-subtitle"/>
+                </VBox>
+
+                <Button text="✕"
+                        onAction="#handleCloseTopUp"
+                        styleClass="modal-close-button"/>
+            </HBox>
+
+            <!-- Form -->
+            <VBox spacing="16"
+                  styleClass="modal-form">
+
+                <VBox spacing="6">
+                    <Label text="Top-up Amount"
+                           styleClass="form-label"/>
+
+                    <TextField fx:id="topUpAmountField"
+                               promptText="Enter amount between 10 and 5000"
+                               styleClass="form-input"/>
+                </VBox>
+
+                <Label fx:id="topUpErrorLabel"
+                       text=""
+                       styleClass="error-label"/>
+            </VBox>
+
+            <!-- Footer -->
+            <HBox spacing="12"
+                  alignment="CENTER_RIGHT"
+                  styleClass="modal-footer">
+
+                <Button text="Cancel"
+                        onAction="#handleCloseTopUp"
+                        styleClass="modal-cancel-button"/>
+
+                <Button text="Submit Request"
+                        onAction="#handleSubmitTopUp"
+                        styleClass="modal-save-button"/>
+            </HBox>
+
+        </VBox>
+    </StackPane>
 </StackPane>

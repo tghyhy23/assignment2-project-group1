@@ -1,7 +1,15 @@
+/* =========================
+   Root
+========================= */
+
 .bids-root {
     -fx-background-color: #0b1120;
     -fx-font-family: "Inter", "Segoe UI", Arial, sans-serif;
 }
+
+/* =========================
+   Page Header
+========================= */
 
 .page-title {
     -fx-text-fill: #f8fafc;
@@ -14,63 +22,483 @@
     -fx-font-size: 13px;
 }
 
-.content-card {
-    -fx-background-color: #111827;
-    -fx-background-radius: 22;
-    -fx-border-radius: 22;
-    -fx-border-color: rgba(255, 255, 255, 0.08);
+/* =========================
+   Status Tabs
+========================= */
+
+.status-tabs-box {
+    -fx-background-color: transparent;
+    -fx-background-radius: 16 16 0 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+    -fx-spacing: 0;
+}
+
+.status-tab {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-color: transparent;
+    -fx-border-radius: 12 12 0 0;
     -fx-border-width: 1;
-    -fx-padding: 22;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 18, 0.15, 0, 7);
+    -fx-padding: 12 18;
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-alignment: CENTER;
+    -fx-cursor: hand;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.status-tab:hover {
+-fx-background-color: rgba(56, 189, 248, 0.10);
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-color: rgba(56, 189, 248, 0.55);
+    -fx-border-radius: 12 12 0 0;
+    -fx-border-width: 1;
+    -fx-text-fill: #e0f2fe;
+    -fx-cursor: hand;
+}
+
+.status-tab-active {
+-fx-background-color: #1e3a5f;
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-color: #38bdf8;
+    -fx-border-radius: 12 12 0 0;
+    -fx-border-width: 1;
+    -fx-text-fill: #f8fafc;
+}
+
+.status-tab-active:hover {
+    -fx-background-color: #1e4f7a;
+    -fx-border-color: #7dd3fc;
+    -fx-text-fill: #ffffff;
+    -fx-cursor: hand;
 }
 
 /* =========================
-   Modern Tables
+   Search Bar
 ========================= */
-.modern-table {
-    -fx-background-color: transparent;
-    -fx-background-radius: 14;
-    -fx-border-color: rgba(255, 255, 255, 0.08);
-    -fx-border-radius: 14;
-    -fx-border-width: 1;
-}
 
-.modern-table .column-header-background {
-    -fx-background-color: #1e293b;
-    -fx-background-radius: 14 14 0 0;
-}
-
-.modern-table .column-header {
-    -fx-background-color: transparent;
-    -fx-padding: 10 8;
-}
-
-.modern-table .column-header .label {
-    -fx-text-fill: #cbd5e1;
-    -fx-font-size: 12px;
-    -fx-font-weight: 800;
-    -fx-alignment: CENTER;
-    -fx-text-alignment: CENTER;
-}
-
-.modern-table .table-row-cell {
-    -fx-background-color: #0f172a;
-    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.04) transparent;
-    -fx-table-cell-border-color: transparent;
-}
-
-.modern-table .table-row-cell:odd {
+.search-field {
     -fx-background-color: #111827;
-}
-
-.modern-table .table-row-cell:selected {
-    -fx-background-color: rgba(56, 189, 248, 0.18);
-}
-
-.modern-table .table-cell {
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1;
     -fx-text-fill: #e5e7eb;
+    -fx-prompt-text-fill: #64748b;
+    -fx-font-size: 14px;
+    -fx-padding: 14 18;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.search-field:hover {
+    -fx-background-color: rgba(56, 189, 248, 0.08);
+    -fx-border-color: rgba(56, 189, 248, 0.55);
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.search-field:focused {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #38bdf8;
+    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.18), 14, 0.2, 0, 0);
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.search-field:focused:hover {
+    -fx-background-color: #111827;
+    -fx-border-color: #7dd3fc;
+    -fx-effect: dropshadow(gaussian, rgba(125, 211, 252, 0.22), 16, 0.22, 0, 0);
+}
+
+/* =========================
+   Scroll Pane
+========================= */
+.bids-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.bids-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.bids-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #0b1120;
+    -fx-pref-width: 12px;
+}
+
+.bids-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #3b4b5e;
+    -fx-background-radius: 6px;
+}
+
+.bids-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #556a84;
+}
+
+/* =========================
+   Bid Card
+========================= */
+
+.bid-card {
+    -fx-background-color: #111827;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 16, 0.14, 0, 6);
+    -fx-cursor: hand;
+}
+
+.bid-card:hover {
+    -fx-background-color: #151f32;
+    -fx-border-color: rgba(56, 189, 248, 0.55);
+    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.16), 18, 0.18, 0, 6);
+}
+
+.card-header {
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.08) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 0 14 0;
+}
+
+.bid-card:hover .card-header {
+    -fx-border-color: transparent transparent rgba(56, 189, 248, 0.22) transparent;
+}
+
+.seller-name {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+}
+
+.auction-id {
+    -fx-text-fill: #94a3b8;
     -fx-font-size: 12px;
-    -fx-padding: 10 8;
-    -fx-alignment: CENTER;
-    -fx-text-alignment: CENTER;
+}
+
+.item-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 17px;
+    -fx-font-weight: 800;
+}
+
+.item-meta {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+}
+
+.price-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+}
+
+.price-value {
+    -fx-text-fill: #38bdf8;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+}
+
+.price-highlight {
+    -fx-text-fill: #38bdf8;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+}
+
+.bid-card:hover .price-highlight {
+    -fx-text-fill: #7dd3fc;
+}
+
+.card-footer {
+    -fx-border-color: rgba(255, 255, 255, 0.08) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 14 0 0 0;
+}
+
+.bid-card:hover .card-footer {
+    -fx-border-color: rgba(56, 189, 248, 0.22) transparent transparent transparent;
+}
+
+/* =========================
+   Bid Item Image
+========================= */
+
+.bid-item-image {
+    -fx-min-width: 96;
+    -fx-pref-width: 96;
+    -fx-max-width: 96;
+
+    -fx-min-height: 96;
+    -fx-pref-height: 96;
+    -fx-max-height: 96;
+
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-width: 1;
+
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.bid-card:hover .bid-item-image {
+    -fx-border-color: rgba(56, 189, 248, 0.45);
+}
+
+.item-image-placeholder {
+    -fx-background-color: #1e293b;
+}
+
+/* =========================
+   Badges
+========================= */
+
+.status-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+    -fx-padding: 5 10;
+    -fx-background-radius: 999;
+}
+
+.status-winning {
+    -fx-background-color: rgba(34, 197, 94, 0.16);
+    -fx-text-fill: #4ade80;
+}
+
+.status-outbid {
+    -fx-background-color: rgba(249, 115, 22, 0.16);
+    -fx-text-fill: #fb923c;
+}
+
+.status-won {
+    -fx-background-color: rgba(56, 189, 248, 0.16);
+    -fx-text-fill: #7dd3fc;
+}
+
+.status-lost {
+    -fx-background-color: rgba(148, 163, 184, 0.16);
+    -fx-text-fill: #cbd5e1;
+}
+
+.status-cancelled {
+    -fx-background-color: rgba(239, 68, 68, 0.16);
+    -fx-text-fill: #f87171;
+}
+
+.payment-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+    -fx-padding: 5 10;
+    -fx-background-radius: 999;
+}
+
+.payment-pending {
+    -fx-background-color: rgba(234, 179, 8, 0.16);
+    -fx-text-fill: #facc15;
+}
+
+.payment-paid {
+    -fx-background-color: rgba(34, 197, 94, 0.16);
+    -fx-text-fill: #4ade80;
+}
+
+.payment-not-required {
+    -fx-background-color: rgba(148, 163, 184, 0.16);
+    -fx-text-fill: #cbd5e1;
+}
+
+.payment-cancelled {
+    -fx-background-color: rgba(239, 68, 68, 0.16);
+    -fx-text-fill: #f87171;
+}
+
+/* =========================
+   Buttons
+========================= */
+
+.primary-action-button {
+    -fx-background-color: #1e3a5f;
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-padding: 10 22;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #38bdf8;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.primary-action-button:hover {
+    -fx-background-color: #1e4f7a;
+    -fx-border-color: #7dd3fc;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.22), 14, 0.2, 0, 0);}
+
+.secondary-action-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 10 22;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.secondary-action-button:hover {
+    -fx-background-color: rgba(56, 189, 248, 0.10);
+    -fx-border-color: rgba(56, 189, 248, 0.55);
+    -fx-text-fill: #e0f2fe;
+}
+
+/* =========================
+   Empty State
+========================= */
+
+.empty-state {
+    -fx-background-color: #111827;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1;
+    -fx-padding: 48;
+    -fx-alignment: center;
+}
+
+.empty-state:hover {
+    -fx-background-color: #151f32;
+    -fx-border-color: rgba(56, 189, 248, 0.55);
+}
+
+.empty-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+}
+
+.empty-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+}
+/* =========================
+   Receipt Dialog Modal
+========================= */
+
+.receipt-dialog-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.receipt-dialog-pane > .content {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.receipt-dialog-pane .button-bar {
+    -fx-padding: 0;
+}
+
+.receipt-modal-box {
+    -fx-background-color: #111827;
+    -fx-background-radius: 24;
+    -fx-border-radius: 24;
+    -fx-border-color: rgba(56, 189, 248, 0.45);
+    -fx-border-width: 1;
+    -fx-padding: 24;
+    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.22), 28, 0.18, 0, 8);
+}
+
+.receipt-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+}
+
+.receipt-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+}
+
+.receipt-close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 26px;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+    -fx-padding: 0 8;
+}
+
+.receipt-close-button:hover {
+    -fx-text-fill: #f8fafc;
+}
+
+.receipt-paid-badge {
+    -fx-background-color: rgba(34, 197, 94, 0.16);
+    -fx-text-fill: #4ade80;
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+    -fx-padding: 5 12;
+    -fx-background-radius: 999;
+    -fx-max-width: 48;
+}
+
+.receipt-item-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 17px;
+    -fx-font-weight: 800;
+}
+
+.receipt-muted-text {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+}
+
+.receipt-details-box {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1;
+    -fx-padding: 16;
+}
+
+.receipt-row-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.receipt-row-value {
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.receipt-separator .line {
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-width: 1 0 0 0;
+}
+
+.receipt-total-label {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+}
+
+.receipt-total-amount {
+    -fx-text-fill: #38bdf8;
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
 }

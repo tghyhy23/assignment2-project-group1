@@ -1,9 +1,9 @@
 package com.group01.asm2.controllers;
 
 import com.group01.asm2.enums.AuctionStatus;
-import com.group01.asm2.models.Auction;
-import com.group01.asm2.models.Item;
+import com.group01.asm2.models.*;
 import com.group01.asm2.utils.ScrollUtils;
+import com.group01.asm2.utils.UiMessageUtils;
 import javafx.scene.control.ScrollPane;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -17,7 +17,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -25,13 +24,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.math.RoundingMode;
 
 public class AuctionDetailsController {
     @FXML private ScrollPane detailScrollPane;
 
-    @FXML private VBox pageWrapper;
     @FXML private Label headerStatusBadge;
-    @FXML private ImageView mainItemImageView;
     @FXML private Label auctionTitleLabel;
     @FXML private Label sellerNameLabel;
     @FXML private Label currentBidLabel;
@@ -68,9 +66,8 @@ public class AuctionDetailsController {
 
     private BigDecimal startingPrice;
     private BigDecimal currentHighestBid;
-    private final BigDecimal minimumBidIncrement = new BigDecimal("5.00");
 
-    private final List<BidHistoryEntry> bidHistory = new ArrayList<>();
+    private final List<AuctionBidEntry> bidHistory = new ArrayList<>();
 
     private final DateTimeFormatter dateTimeFormatter =
             DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
@@ -88,11 +85,11 @@ public class AuctionDetailsController {
         this.currentAuction = auction;
 
         // 1. Lấy thông tin sản phẩm (Item) dựa trên itemId
-        fetchItemDetailsMock(auction.getItemId());
+        loadAuctionDetailData(auction.getItemId());
 
         // 2. Xử lý giá tiền (Lấy từ Auction)
-        currentHighestBid = auction.getFinalSalePrice() != null ? auction.getFinalSalePrice() : BigDecimal.ZERO;
-        startingPrice = currentItem.getStartingPrice() != null ? currentItem.getStartingPrice() : currentHighestBid.multiply(new BigDecimal("0.7"));
+        currentHighestBid = getCurrentHighestBid(auction);
+        startingPrice = getStartingPrice(currentItem, currentHighestBid);
 
         // 3. Render Text lên UI
         auctionTitleLabel.setText(currentItem.getTitle());
@@ -101,8 +98,7 @@ public class AuctionDetailsController {
 
         currentBidLabel.setText(formatMoney(currentHighestBid));
         startingPriceLabel.setText(formatMoney(startingPrice));
-        minimumNextBidLabel.setText(formatMoney(getMinimumNextBid()));
-        numberOfBidsLabel.setText(String.valueOf(bidHistory.size()));
+        minimumNextBidLabel.setText(formatMoney(getMinimumNextBid(currentHighestBid, startingPrice)));        numberOfBidsLabel.setText(String.valueOf(bidHistory.size()));
 
         startDateLabel.setText(formatDateTime(auction.getStartDateTime()));
         endDateLabel.setText(formatDateTime(auction.getEndDateTime()));
@@ -120,147 +116,70 @@ public class AuctionDetailsController {
         populateRelatedAuctions();
     }
 
-    /**
-     * Giả lập việc truy vấn DB: Lấy dữ liệu Item dựa vào ID
-     */
-    private void fetchItemDetailsMock(Integer itemId) {
-        // Tạo Base Item
-        this.currentItem = new Item(
-                itemId,
-                99, // categoryId mock
-                101, // sellerId mock
-                "Item #" + itemId, // title default
-                "Detailed description for item ID #" + itemId, // desc default
-                "Used", // condition
-                "Unknown Brand", // brand
-                "Ho Chi Minh City, Vietnam", // location
-                new BigDecimal("100.00"), // startingPrice
-                null, // reservePrice
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+    private void loadAuctionDetailData(Integer itemId) {
+        this.currentItem = getItemById(itemId);
+        this.sellerName = getSellerNameByItemId(itemId);
 
-        this.sellerName = "Premium Seller";
-
-        // Ghi đè dữ liệu cụ thể để khớp với các ID 1, 2, 3 từ trang danh sách
-        if (itemId == 1) {
-            currentItem.setTitle("Đồng hồ Rolex Submariner 2020");
-            currentItem.setBrand("Rolex");
-            currentItem.setCondition("Like New");
-            currentItem.setDescription("Đồng hồ Rolex nguyên bản, đầy đủ giấy tờ, hộp sổ thẻ. Tình trạng hoàn hảo, chưa qua đánh bóng. Phù hợp cho giới sưu tầm.");
-            currentItem.setStartingPrice(new BigDecimal("150000000.00"));
-        } else if (itemId == 2) {
-            currentItem.setTitle("Bức tranh sơn dầu thế kỷ 19");
-            currentItem.setCondition("Vintage");
-            currentItem.setDescription("Tác phẩm nghệ thuật độc bản từ thế kỷ 19. Đã được thẩm định bởi chuyên gia mỹ thuật quốc tế.");
-            currentItem.setStartingPrice(new BigDecimal("50000000.00"));
-        } else if (itemId == 3) {
-            currentItem.setTitle("Siêu xe Ford Mustang 1969 Classic");
-            currentItem.setBrand("Ford");
-            currentItem.setDescription("Xe cơ bắp Mỹ cổ điển, động cơ V8 mạnh mẽ, đã phục chế toàn bộ nội ngoại thất giữ nguyên bản sắc năm 1969.");
-            currentItem.setStartingPrice(new BigDecimal("800000000.00"));
-        }
-
-        // Tạo sẵn lịch sử Bid giả lập
         bidHistory.clear();
-        BigDecimal bid1 = currentAuction.getFinalSalePrice() != null ? currentAuction.getFinalSalePrice() : new BigDecimal("100");
-        BigDecimal bid2 = bid1.subtract(new BigDecimal("5000000")); // Mock trừ đi 5 triệu
-        BigDecimal bid3 = bid2.subtract(new BigDecimal("10000000"));
-
-        bidHistory.add(new BidHistoryEntry("Minh T.", bid1, LocalDateTime.now().minusHours(1), "Highest"));
-        bidHistory.add(new BidHistoryEntry("Alex N.", bid2, LocalDateTime.now().minusHours(3), "Outbid"));
-        if (bid3.compareTo(BigDecimal.ZERO) > 0) {
-            bidHistory.add(new BidHistoryEntry("Sarah L.", bid3, LocalDateTime.now().minusHours(5), "Outbid"));
-        }
+        bidHistory.addAll(getMockBidHistory(currentAuction));
     }
 
     @FXML
     public void handlePlaceBid() {
-        clearBidMessage();
+        UiMessageUtils.clearMessage(bidMessageLabel);
 
-        if (currentAuction == null) {
-            showBidError("Auction data is not available.");
+        BidResult result = placeBid(
+                currentAuction,
+                bidAmountField.getText(),
+                currentHighestBid,
+                startingPrice,
+                bidHistory
+        );
+
+        if (!result.isSuccess()) {
+            UiMessageUtils.showError(bidMessageLabel, result.getMessage());
             return;
         }
 
-        String rawAmount = bidAmountField.getText();
+        currentHighestBid = result.getNewHighestBid();
 
-        if (rawAmount == null || rawAmount.trim().isEmpty()) {
-            showBidError("Please enter a bid amount.");
-            return;
-        }
-
-        BigDecimal bidAmount;
-        try {
-            bidAmount = new BigDecimal(rawAmount.trim()).setScale(2, RoundingMode.HALF_UP);
-        } catch (NumberFormatException ex) {
-            showBidError("Bid amount must be a valid number.");
-            return;
-        }
-
-        String validationMessage = validateBid(bidAmount);
-
-        if (validationMessage != null) {
-            showBidError(validationMessage);
-            return;
-        }
-
-        currentHighestBid = bidAmount;
-        currentAuction.setCurrentHighestBidId(generateMockBidId());
-
-        bidHistory.add(0, new BidHistoryEntry(
-                "You",
-                bidAmount,
-                LocalDateTime.now(),
-                "Highest"
-        ));
-
-        for (int i = 1; i < bidHistory.size(); i++) {
-            if ("Highest".equalsIgnoreCase(bidHistory.get(i).status())) {
-                bidHistory.set(i, new BidHistoryEntry(
-                        bidHistory.get(i).bidderName(),
-                        bidHistory.get(i).amount(),
-                        bidHistory.get(i).bidTime(),
-                        "Outbid"
-                ));
-            }
-        }
+        bidHistory.clear();
+        bidHistory.addAll(result.getUpdatedBidHistory());
 
         bidAmountField.clear();
 
+        refreshBidSection();
+
+        UiMessageUtils.showSuccess(bidMessageLabel, result.getMessage());
+    }
+
+    private void refreshBidSection() {
         currentBidLabel.setText(formatMoney(currentHighestBid));
-        minimumNextBidLabel.setText(formatMoney(getMinimumNextBid()));
+
+        minimumNextBidLabel.setText(formatMoney(
+                getMinimumNextBid(currentHighestBid, startingPrice)
+        ));
+
         numberOfBidsLabel.setText(String.valueOf(bidHistory.size()));
         bidHistoryCountLabel.setText(bidHistory.size() + " bids");
 
         populateAuctionInfoGrid(currentAuction);
         populateBidHistory();
-
-        showBidSuccess("Your bid has been placed successfully.");
     }
 
     @FXML
     public void handleAddToWatchlist() {
-        showBidInfo("This auction has been added to your watchlist.");
-    }
+        UiMessageUtils.showInfo(
+                bidMessageLabel,
+                "This auction has been added to your watchlist."
+        );    }
 
     @FXML
     public void handleContactSeller() {
-        showBidInfo("Contact seller feature is ready to connect with your messaging service.");
-    }
-
-    public String validateBid(BigDecimal bidAmount) {
-        if (bidAmount == null) return "Please enter a bid amount.";
-        if (bidAmount.compareTo(BigDecimal.ZERO) <= 0) return "Bid amount must be greater than 0.";
-        if (!currentAuction.isActive()) return "You cannot bid because this auction is not active.";
-        if (currentAuction.isDue(LocalDateTime.now())) return "You cannot bid because this auction is already due.";
-
-        BigDecimal minimumRequiredBid = getMinimumNextBid();
-        if (bidAmount.compareTo(minimumRequiredBid) < 0) {
-            return "Your bid must be at least " + formatMoney(minimumRequiredBid) + ".";
-        }
-        return null;
-    }
+        UiMessageUtils.showInfo(
+                bidMessageLabel,
+                "Contact seller feature is ready to connect with your messaging service."
+        );    }
 
     public String formatMoney(BigDecimal amount) {
         if (amount == null) return "N/A";
@@ -384,12 +303,12 @@ public class AuctionDetailsController {
         bidHistoryList.getChildren().clear();
         bidHistoryCountLabel.setText(bidHistory.size() + " bids");
 
-        for (BidHistoryEntry entry : bidHistory) {
+        for (AuctionBidEntry entry : bidHistory) {
             bidHistoryList.getChildren().add(createBidHistoryCard(entry));
         }
     }
 
-    private HBox createBidHistoryCard(BidHistoryEntry entry) {
+    private HBox createBidHistoryCard(AuctionBidEntry entry) {
         HBox card = new HBox(14);
         card.setAlignment(Pos.CENTER_LEFT);
         card.getStyleClass().add("bid-history-card");
@@ -422,9 +341,19 @@ public class AuctionDetailsController {
 
     private void populateRelatedAuctions() {
         relatedAuctionsList.getChildren().clear();
-        relatedAuctionsList.getChildren().add(createRelatedAuctionCard("Gaming Mouse Wireless", new BigDecimal("45.00"), "Ends in 8h"));
-        relatedAuctionsList.getChildren().add(createRelatedAuctionCard("USB-C Docking Station", new BigDecimal("78.00"), "Ends in 1d 4h"));
-        relatedAuctionsList.getChildren().add(createRelatedAuctionCard("Mechanical Keycap Set", new BigDecimal("32.00"), "Ends in 3d"));
+
+        List<RelatedAuction> relatedAuctions =
+                getRelatedAuctions(currentAuction.getItemId());
+
+        for (RelatedAuction auction : relatedAuctions) {
+            relatedAuctionsList.getChildren().add(
+                    createRelatedAuctionCard(
+                            auction.title(),
+                            auction.price(),
+                            auction.meta()
+                    )
+            );
+        }
     }
 
     private VBox createRelatedAuctionCard(String title, BigDecimal price, String meta) {
@@ -457,42 +386,238 @@ public class AuctionDetailsController {
         grid.add(valueLabel, 1, rowIndex);
     }
 
-    private BigDecimal getMinimumNextBid() {
-        BigDecimal baseAmount = currentHighestBid != null ? currentHighestBid : startingPrice;
-        if (baseAmount == null) baseAmount = BigDecimal.ZERO;
-        return baseAmount.add(minimumBidIncrement);
-    }
-
-    private int generateMockBidId() {
-        return 3000 + bidHistory.size() + 1;
-    }
-
     private String valueOrNA(Object value) {
         return value == null ? "N/A" : String.valueOf(value);
     }
 
-    private void clearBidMessage() {
-        bidMessageLabel.setText("");
-        bidMessageLabel.getStyleClass().removeAll("error-message", "success-message", "info-message");
+    private Item getItemById(Integer itemId) {
+        Item item = new Item(
+                itemId,
+                99,
+                101,
+                "Item #" + itemId,
+                "Detailed description for item ID #" + itemId,
+                "Used",
+                "Unknown Brand",
+                "Ho Chi Minh City, Vietnam",
+                new BigDecimal("100.00"),
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        if (itemId == 1) {
+            item.setTitle("Đồng hồ Rolex Submariner 2020");
+            item.setBrand("Rolex");
+            item.setCondition("Like New");
+            item.setDescription("Đồng hồ Rolex nguyên bản, đầy đủ giấy tờ, hộp sổ thẻ. Tình trạng hoàn hảo, chưa qua đánh bóng. Phù hợp cho giới sưu tầm.");
+            item.setStartingPrice(new BigDecimal("150000000.00"));
+        } else if (itemId == 2) {
+            item.setTitle("Bức tranh sơn dầu thế kỷ 19");
+            item.setCondition("Vintage");
+            item.setDescription("Tác phẩm nghệ thuật độc bản từ thế kỷ 19. Đã được thẩm định bởi chuyên gia mỹ thuật quốc tế.");
+            item.setStartingPrice(new BigDecimal("50000000.00"));
+        } else if (itemId == 3) {
+            item.setTitle("Siêu xe Ford Mustang 1969 Classic");
+            item.setBrand("Ford");
+            item.setDescription("Xe cơ bắp Mỹ cổ điển, động cơ V8 mạnh mẽ, đã phục chế toàn bộ nội ngoại thất giữ nguyên bản sắc năm 1969.");
+            item.setStartingPrice(new BigDecimal("800000000.00"));
+        }
+
+        return item;
     }
 
-    private void showBidError(String message) {
-        bidMessageLabel.setText(message);
-        bidMessageLabel.getStyleClass().removeAll("success-message", "info-message");
-        if (!bidMessageLabel.getStyleClass().contains("error-message")) bidMessageLabel.getStyleClass().add("error-message");
+    private String getSellerNameByItemId(Integer itemId) {
+        return "Premium Seller";
     }
 
-    private void showBidSuccess(String message) {
-        bidMessageLabel.setText(message);
-        bidMessageLabel.getStyleClass().removeAll("error-message", "info-message");
-        if (!bidMessageLabel.getStyleClass().contains("success-message")) bidMessageLabel.getStyleClass().add("success-message");
+    private List<AuctionBidEntry> getMockBidHistory(Auction auction) {
+        List<AuctionBidEntry> mockBidHistory = new ArrayList<>();
+
+        if (auction == null) {
+            return mockBidHistory;
+        }
+
+        BigDecimal bid1 = auction.getFinalSalePrice() != null
+                ? auction.getFinalSalePrice()
+                : new BigDecimal("100");
+
+        BigDecimal bid2 = bid1.subtract(new BigDecimal("5000000"));
+        BigDecimal bid3 = bid2.subtract(new BigDecimal("10000000"));
+
+        mockBidHistory.add(new AuctionBidEntry("Minh T.", bid1, LocalDateTime.now().minusHours(1), "Highest"));
+        mockBidHistory.add(new AuctionBidEntry("Alex N.", bid2, LocalDateTime.now().minusHours(3), "Outbid"));
+
+        if (bid3.compareTo(BigDecimal.ZERO) > 0) {
+            mockBidHistory.add(new AuctionBidEntry("Sarah L.", bid3, LocalDateTime.now().minusHours(5), "Outbid"));
+        }
+
+        return mockBidHistory;
     }
 
-    private void showBidInfo(String message) {
-        bidMessageLabel.setText(message);
-        bidMessageLabel.getStyleClass().removeAll("error-message", "success-message");
-        if (!bidMessageLabel.getStyleClass().contains("info-message")) bidMessageLabel.getStyleClass().add("info-message");
+    private BidResult placeBid(
+            Auction auction,
+            String rawAmount,
+            BigDecimal currentHighestBid,
+            BigDecimal startingPrice,
+            List<AuctionBidEntry> currentBidHistory
+    ) {
+        if (auction == null) {
+            return new BidResult(false, "Auction data is not available.", currentHighestBid, currentBidHistory);
+        }
+
+        if (rawAmount == null || rawAmount.trim().isEmpty()) {
+            return new BidResult(false, "Please enter a bid amount.", currentHighestBid, currentBidHistory);
+        }
+
+        BigDecimal bidAmount;
+
+        try {
+            bidAmount = new BigDecimal(rawAmount.trim()).setScale(2, RoundingMode.HALF_UP);
+        } catch (NumberFormatException ex) {
+            return new BidResult(false, "Bid amount must be a valid number.", currentHighestBid, currentBidHistory);
+        }
+
+        String validationMessage = validateBid(
+                auction,
+                bidAmount,
+                currentHighestBid,
+                startingPrice
+        );
+
+        if (validationMessage != null) {
+            return new BidResult(false, validationMessage, currentHighestBid, currentBidHistory);
+        }
+
+        auction.setCurrentHighestBidId(generateMockBidId(currentBidHistory.size()));
+
+        List<AuctionBidEntry> updatedBidHistory = new ArrayList<>();
+
+        updatedBidHistory.add(new AuctionBidEntry(
+                "You",
+                bidAmount,
+                LocalDateTime.now(),
+                "Highest"
+        ));
+
+        for (AuctionBidEntry entry : currentBidHistory) {
+            if ("Highest".equalsIgnoreCase(entry.status())) {
+                updatedBidHistory.add(new AuctionBidEntry(
+                        entry.bidderName(),
+                        entry.amount(),
+                        entry.bidTime(),
+                        "Outbid"
+                ));
+            } else {
+                updatedBidHistory.add(entry);
+            }
+        }
+
+        return new BidResult(
+                true,
+                "Your bid has been placed successfully.",
+                bidAmount,
+                updatedBidHistory
+        );
     }
 
-    private record BidHistoryEntry(String bidderName, BigDecimal amount, LocalDateTime bidTime, String status) {}
+    private String validateBid(
+            Auction auction,
+            BigDecimal bidAmount,
+            BigDecimal currentHighestBid,
+            BigDecimal startingPrice
+    ) {
+        if (auction == null) {
+            return "Auction data is not available.";
+        }
+
+        if (bidAmount == null) {
+            return "Please enter a bid amount.";
+        }
+
+        if (bidAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            return "Bid amount must be greater than 0.";
+        }
+
+        if (!auction.isActive()) {
+            return "You cannot bid because this auction is not active.";
+        }
+
+        if (auction.isDue(LocalDateTime.now())) {
+            return "You cannot bid because this auction is already due.";
+        }
+
+        BigDecimal minimumRequiredBid = getMinimumNextBid(currentHighestBid, startingPrice);
+
+        if (bidAmount.compareTo(minimumRequiredBid) < 0) {
+            return "Your bid must be at least " + minimumRequiredBid.toPlainString() + ".";
+        }
+
+        return null;
+    }
+
+    private int generateMockBidId(int bidHistorySize) {
+        return 3000 + bidHistorySize + 1;
+    }
+
+    private BigDecimal getMinimumNextBid(
+            BigDecimal currentHighestBid,
+            BigDecimal startingPrice
+    ) {
+        BigDecimal minimumBidIncrement = new BigDecimal("5.00");
+
+        BigDecimal baseAmount = currentHighestBid != null
+                ? currentHighestBid
+                : startingPrice;
+
+        if (baseAmount == null) {
+            baseAmount = BigDecimal.ZERO;
+        }
+
+        return baseAmount.add(minimumBidIncrement);
+    }
+
+    private List<RelatedAuction> getRelatedAuctions(Integer itemId) {
+        List<RelatedAuction> relatedAuctions = new ArrayList<>();
+
+        relatedAuctions.add(new RelatedAuction(
+                "Gaming Mouse Wireless",
+                new BigDecimal("45.00"),
+                "Ends in 8h"
+        ));
+
+        relatedAuctions.add(new RelatedAuction(
+                "USB-C Docking Station",
+                new BigDecimal("78.00"),
+                "Ends in 1d 4h"
+        ));
+
+        relatedAuctions.add(new RelatedAuction(
+                "Mechanical Keycap Set",
+                new BigDecimal("32.00"),
+                "Ends in 3d"
+        ));
+
+        return relatedAuctions;
+    }
+
+    private BigDecimal getCurrentHighestBid(Auction auction) {
+        if (auction == null || auction.getFinalSalePrice() == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return auction.getFinalSalePrice();
+    }
+
+    private BigDecimal getStartingPrice(Item item, BigDecimal currentHighestBid) {
+        if (item != null && item.getStartingPrice() != null) {
+            return item.getStartingPrice();
+        }
+
+        if (currentHighestBid == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return currentHighestBid.multiply(new BigDecimal("0.7"));
+    }
 }
