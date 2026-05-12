@@ -320,13 +320,13 @@ public class ProfileController {
         Label currentBidLabel = new Label("Current bid");
         currentBidLabel.getStyleClass().add("price-label");
 
-        Label currentBidValue = new Label(formatPrice(item.getCurrentBid()));
-        currentBidValue.getStyleClass().add("current-bid-value");
+//        Label currentBidValue = new Label(formatPrice(item.getCurrentBid()));
+//        currentBidValue.getStyleClass().add("current-bid-value");
 
         HBox priceRow = new HBox(22);
         priceRow.getChildren().addAll(
-                new VBox(3, startingPriceLabel, startingPriceValue),
-                new VBox(3, currentBidLabel, currentBidValue)
+//                new VBox(3, startingPriceLabel, startingPriceValue),
+//                new VBox(3, currentBidLabel, currentBidValue)
         );
 
         Label dateLabel = new Label(
@@ -646,31 +646,31 @@ public class ProfileController {
 
             if (icon.isEmpty()) icon = "📦";
 
-            Item newItem = new Item(
-                    null,
-                    convertCategoryToId(category),
-                    99,
-                    name,
-                    "No description yet.",
-                    "Used",
-                    "Unknown",
-                    "Ho Chi Minh City",
-                    startingPrice,
-                    null,
-                    null,
-                    null
-            );
+//            Item newItem = new Item(
+//                    null,
+//                    convertCategoryToId(category),
+//                    99,
+//                    name,
+//                    "No description yet.",
+//                    "Used",
+//                    "Unknown",
+//                    "Ho Chi Minh City",
+//                    startingPrice,
+//                    null,
+//                    null,
+//                    null
+//            );
+//
+//            newItem.setCurrentBid(currentBid);
+//            newItem.setBidCount(0);
+//            newItem.setRecommended(false);
+//            newItem.setMainBgClass(icon);
 
-            newItem.setCurrentBid(currentBid);
-            newItem.setBidCount(0);
-            newItem.setRecommended(false);
-            newItem.setMainBgClass(icon);
-
-            Item createdItem = ItemService.createItem(newItem);
+//            Item createdItem = ItemService.createItem(newItem);
 
             reloadListingsFromService();
 
-            addActivity("Created item", "Created new item: " + createdItem.getTitle() + ".");
+//            addActivity("Created item", "Created new item: " + createdItem.getTitle() + ".");
             handleCloseAddListing();
 
         } catch (NumberFormatException exception) {
@@ -771,11 +771,11 @@ public class ProfileController {
     private String getItemIcon(Item item) {
         if (item == null) return "📦";
 
-        String mainBgClass = item.getMainBgClass();
+//        String mainBgClass = item.getMainBgClass();
 
-        if (mainBgClass != null && !mainBgClass.trim().isEmpty()) {
-            return mainBgClass;
-        }
+//        if (mainBgClass != null && !mainBgClass.trim().isEmpty()) {
+//            return mainBgClass;
+//        }
 
         String category = convertCategoryToName(item.getCategoryId());
 
