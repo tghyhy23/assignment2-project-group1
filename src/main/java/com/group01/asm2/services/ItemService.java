@@ -13,7 +13,9 @@ import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Auction;
 import com.group01.asm2.models.Category;
 import com.group01.asm2.models.Item;
+import com.group01.asm2.models.ItemImage;
 import com.group01.asm2.models.Person;
+import com.group01.asm2.repositories.ItemImageRepository;
 import com.group01.asm2.repositories.AuctionRepository;
 import com.group01.asm2.repositories.CategoryRepository;
 import com.group01.asm2.repositories.ItemRepository;
@@ -27,23 +29,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 public class ItemService extends BaseService {
     private static final int MAX_TITLE_LENGTH = 120;
     private static final int MAX_DESCRIPTION_LENGTH = 2000;
     private static final int DEFAULT_AUCTION_DAYS = 7;
     private static final long MAX_IMAGE_SIZE_BYTES = 5L * 1024L * 1024L;
+    private static final int MAX_ITEM_IMAGES = 5;
 
     private final ItemRepository itemRepository;
     private final AuctionRepository auctionRepository;
     private final CategoryRepository categoryRepository;
     private final ActivityLogService activityLogService;
+    private final ItemImageRepository itemImageRepository;
 
     public ItemService() {
         this(
             new ItemRepository(),
             new AuctionRepository(),
             new CategoryRepository(),
+            new ItemImageRepository(),
             new ActivityLogService()
         );
     }
@@ -51,10 +57,12 @@ public class ItemService extends BaseService {
     public ItemService(ItemRepository itemRepository,
                        AuctionRepository auctionRepository,
                        CategoryRepository categoryRepository,
+                       ItemImageRepository itemImageRepository,
                        ActivityLogService activityLogService) {
         this.itemRepository = itemRepository;
         this.auctionRepository = auctionRepository;
         this.categoryRepository = categoryRepository;
+        this.itemImageRepository = itemImageRepository;
         this.activityLogService = activityLogService;
     }
 
@@ -64,7 +72,7 @@ public class ItemService extends BaseService {
                                            BigDecimal startingPrice,
                                            BigDecimal reservePrice,
                                            ItemCondition condition,
-                                           File imageFile) {
+                                           List<File> imageFiles) {
         // 1. Check current user and authorization
         Person currentUser = getCurrentUserOrThrow();
         requireCurrentUser(Permission.CREATE_ITEM);
@@ -88,8 +96,9 @@ public class ItemService extends BaseService {
             throw AppException.notFound("Category not found.");
         }
 
-        // 4. Validate and upload image if provided
-        String imageUrl = uploadImageIfPresent(imageFile);
+        // 4. Validate and upload item images
+        List<String> imageUrls = uploadImagesIfPresent(imageFiles);
+        String primaryImageUrl = imageUrls.isEmpty() ? null : imageUrls.get(0);
 
         // 5. Build item
         Item item = new Item();
@@ -100,15 +109,18 @@ public class ItemService extends BaseService {
         item.setStartingPrice(startingPrice);
         item.setReservePrice(reservePrice);
         item.setCondition(condition);
-        item.setImageUrl(imageUrl);
         item.setStatus(ItemStatus.ACTIVE);
 
-        // 6. Create item and auction in one transaction
+        // 6. Create item, item images, and auction in one transaction
         try (Connection conn = DatabaseConfig.getConnection()) {
             conn.setAutoCommit(false);
 
             try {
                 Item createdItem = itemRepository.createItem(conn, item);
+
+                List<ItemImage> itemImages = buildItemImages(createdItem.getId(), imageUrls);
+                List<ItemImage> createdImages = itemImageRepository.createItemImages(conn, itemImages);
+                createdItem.setImages(createdImages);
 
                 LocalDateTime now = LocalDateTime.now();
 
@@ -174,7 +186,10 @@ public class ItemService extends BaseService {
             throw AppException.notFound("Item not available.");
         }
 
-        // 4. Return item
+        // 4. Attach images
+        attachImages(item);
+
+        // 5. Return item
         return item;
     }
 
@@ -204,13 +219,19 @@ public class ItemService extends BaseService {
         }
 
         // 4. Apply visibility and filter rules
-        return items.stream()
+        List<Item> result = items.stream()
             .filter(item -> {
                 Auction auction = auctionRepository.readAuctionByItemId(item.getId());
                 return canViewItem(currentUser, item, auction);
             })
             .filter(item -> matchesItemFilter(item, safeFilter))
             .collect(Collectors.toList());
+
+        // 5. Attach images
+        result.forEach(this::attachImages);
+
+        // 6. Return items
+        return result;
     }
 
     public Item updateItem(Integer itemId,
@@ -220,7 +241,7 @@ public class ItemService extends BaseService {
                            BigDecimal startingPrice,
                            BigDecimal reservePrice,
                            ItemCondition condition,
-                           File newImageFile) {
+                           List<File> newImageFiles) {
         // 1. Check current user
         Person currentUser = getCurrentUserOrThrow();
 
@@ -272,10 +293,9 @@ public class ItemService extends BaseService {
             throw AppException.notFound("Category not found.");
         }
 
-        // 7. Upload new image if provided
-        String imageUrl = newImageFile == null
-            ? existingItem.getImageUrl()
-            : uploadImageIfPresent(newImageFile);
+        // 7. Upload new images if provided
+        List<String> newImageUrls = uploadImagesIfPresent(newImageFiles);
+        boolean replacingImages = !newImageUrls.isEmpty();
 
         // 8. Apply allowed updates
         existingItem.setTitle(normalizedTitle);
@@ -284,24 +304,52 @@ public class ItemService extends BaseService {
         existingItem.setStartingPrice(startingPrice);
         existingItem.setReservePrice(reservePrice);
         existingItem.setCondition(condition);
-        existingItem.setImageUrl(imageUrl);
 
-        // 9. Save item
-        Item updatedItem = itemRepository.updateItem(existingItem);
-        if (updatedItem == null) {
-            throw AppException.notFound("Item not found.");
+        // 9. Save item and image changes
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try {
+                Item updatedItem = itemRepository.updateItem(conn, existingItem);
+
+                if (updatedItem == null) {
+                    throw AppException.notFound("Item not found.");
+                }
+
+                if (replacingImages) {
+                    itemImageRepository.deleteItemImagesByItemId(conn, updatedItem.getId());
+
+                    List<ItemImage> itemImages = buildItemImages(updatedItem.getId(), newImageUrls);
+                    List<ItemImage> createdImages = itemImageRepository.createItemImages(conn, itemImages);
+
+                    updatedItem.setImages(createdImages);
+                } else {
+                    updatedItem.setImages(itemImageRepository.readItemImagesByItemId(conn, updatedItem.getId()));
+                }
+
+                conn.commit();
+
+                // 10. Record activity log
+                activityLogService.createActivityLog(
+                    owner ? ActivityActionType.UPDATE_ITEM : ActivityActionType.MODERATE_ITEM,
+                    "Item",
+                    updatedItem.getId(),
+                    "Updated item: " + updatedItem.getTitle()
+                );
+
+                // 11. Return updated item
+                return updatedItem;
+
+            } catch (Exception exception) {
+                conn.rollback();
+                throw exception;
+            }
+
+        } catch (AppException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw AppException.database("Could not update item.");
         }
-
-        // 10. Record activity log
-        activityLogService.createActivityLog(
-            owner ? ActivityActionType.UPDATE_ITEM : ActivityActionType.MODERATE_ITEM,
-            "Item",
-            updatedItem.getId(),
-            "Updated item: " + updatedItem.getTitle()
-        );
-
-        // 11. Return updated item
-        return updatedItem;
     }
 
     public void deleteItem(Integer itemId) {
@@ -454,6 +502,33 @@ public class ItemService extends BaseService {
         }
     }
 
+    private List<String> uploadImagesIfPresent(List<File> imageFiles) {
+        if (imageFiles == null || imageFiles.isEmpty()) {
+            return List.of();
+        }
+
+        List<File> validImageFiles = imageFiles.stream()
+            .filter(Objects::nonNull)
+            .toList();
+
+        if (validImageFiles.isEmpty()) {
+            return List.of();
+        }
+
+        if (validImageFiles.size() > MAX_ITEM_IMAGES) {
+            throw AppException.validation("You can upload at most " + MAX_ITEM_IMAGES + " item images.");
+        }
+
+        List<String> imageUrls = new ArrayList<>();
+
+        for (File imageFile : validImageFiles) {
+            String imageUrl = uploadImageIfPresent(imageFile);
+            imageUrls.add(imageUrl);
+        }
+
+        return imageUrls;
+    }
+
     private String uploadImageIfPresent(File imageFile) {
         if (imageFile == null) {
             return null;
@@ -477,6 +552,34 @@ public class ItemService extends BaseService {
         }
 
         return CloudinaryUploaderUtil.uploadImage(imageFile);
+    }
+
+    private List<ItemImage> buildItemImages(Integer itemId, List<String> imageUrls) {
+        if (imageUrls == null || imageUrls.isEmpty()) {
+            return List.of();
+        }
+
+        List<ItemImage> itemImages = new ArrayList<>();
+
+        for (int i = 0; i < imageUrls.size(); i++) {
+            ItemImage itemImage = new ItemImage();
+            itemImage.setItemId(itemId);
+            itemImage.setImageUrl(imageUrls.get(i));
+            itemImage.setDisplayOrder(i);
+
+            itemImages.add(itemImage);
+        }
+
+        return itemImages;
+    }
+
+    private void attachImages(Item item) {
+        if (item == null || item.getId() == null) {
+            return;
+        }
+
+        List<ItemImage> images = itemImageRepository.readItemImagesByItemId(item.getId());
+        item.setImages(images);
     }
 
     private Integer validateId(Integer id, String fieldName) {

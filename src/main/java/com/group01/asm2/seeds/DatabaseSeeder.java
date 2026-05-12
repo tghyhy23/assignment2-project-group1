@@ -6,18 +6,20 @@ import java.sql.Connection;
 import java.util.List;
 
 public final class DatabaseSeeder {
-
     private DatabaseSeeder() {
     }
 
     public static void seedAll() {
         List<Seeder> seeders = List.of(
-            new PersonSeed()
-            // Later:
-            // new AuctionSeed(),
-            // new ItemSeed(),
-            // new BidSeed(),
-            // new TransactionSeed()
+            new PersonSeed(),
+            new CategorySeed(),
+            new ItemSeed(),
+            new ItemImageSeed(),
+            new AuctionSeed(),
+            new BidSeed(),
+            new AuctionWatchlistSeed(),
+            new PaymentSeed(),
+            new ActivityLogSeed()
         );
 
         Connection conn = null;

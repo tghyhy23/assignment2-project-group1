@@ -24,7 +24,7 @@ public final class SqlExecutor {
         } catch (AppException exception) {
             throw exception;
         } catch (Exception exception) {
-            throw AppException.database("Database query failed.");
+            throw AppException.database("Database query one failed.");
         }
     }
 
@@ -62,7 +62,7 @@ public final class SqlExecutor {
         } catch (AppException exception) {
             throw exception;
         } catch (Exception exception) {
-            throw AppException.database("Database query failed.");
+            throw AppException.database("Database query many failed.");
         }
     }
 
@@ -88,7 +88,7 @@ public final class SqlExecutor {
         } catch (AppException exception) {
             throw exception;
         } catch (Exception exception) {
-            throw AppException.database("Database query failed.");
+            throw AppException.database("Database query many conn failed.");
         }
     }
 

@@ -5,6 +5,8 @@ import com.group01.asm2.enums.ItemStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Item {
     private Integer id;
@@ -15,17 +17,18 @@ public class Item {
     private BigDecimal startingPrice;
     private BigDecimal reservePrice;
     private ItemCondition condition;
-    private String imageUrl;
+    private List<ItemImage> images;
     private ItemStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public Item() {
+        this.images = new ArrayList<>();
     }
 
     public Item(Integer id, String title, String description, Integer categoryId, Integer sellerId,
                 BigDecimal startingPrice, BigDecimal reservePrice, ItemCondition condition,
-                String imageUrl, ItemStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                ItemStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -34,7 +37,25 @@ public class Item {
         this.startingPrice = startingPrice;
         this.reservePrice = reservePrice;
         this.condition = condition;
-        this.imageUrl = imageUrl;
+        this.images = new ArrayList<>();
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Item(Integer id, String title, String description, Integer categoryId, Integer sellerId,
+                BigDecimal startingPrice, BigDecimal reservePrice, ItemCondition condition,
+                List<ItemImage> images, ItemStatus status,
+                LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.categoryId = categoryId;
+        this.sellerId = sellerId;
+        this.startingPrice = startingPrice;
+        this.reservePrice = reservePrice;
+        this.condition = condition;
+        this.images = images != null ? images : new ArrayList<>();
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -50,6 +71,33 @@ public class Item {
 
     public boolean isActive() {
         return status == ItemStatus.ACTIVE;
+    }
+
+    public boolean hasImages() {
+        return images != null && !images.isEmpty();
+    }
+
+    public ItemImage getPrimaryImage() {
+        if (images == null || images.isEmpty()) {
+            return null;
+        }
+
+        return images.get(0);
+    }
+
+    public String getPrimaryImageUrl() {
+        ItemImage primaryImage = getPrimaryImage();
+        return primaryImage == null ? null : primaryImage.getImageUrl();
+    }
+
+    public void addImage(ItemImage image) {
+        if (images == null) {
+            images = new ArrayList<>();
+        }
+
+        if (image != null) {
+            images.add(image);
+        }
     }
 
     public Integer getId() {
@@ -116,12 +164,12 @@ public class Item {
         this.condition = condition;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public List<ItemImage> getImages() {
+        return images;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImages(List<ItemImage> images) {
+        this.images = images != null ? images : new ArrayList<>();
     }
 
     public ItemStatus getStatus() {

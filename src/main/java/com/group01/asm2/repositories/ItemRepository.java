@@ -13,7 +13,6 @@ import java.sql.Types;
 import java.util.List;
 
 public class ItemRepository {
-
     public Item createItem(Item item) {
         String sql = getCreateItemSql();
 
@@ -38,11 +37,11 @@ public class ItemRepository {
     public Item readItemById(Integer id) {
         String sql = """
             SELECT id, title, description, category_id, seller_id,
-                   starting_price, reserve_price, condition, image_url,
+                   starting_price, reserve_price, condition,
                    status, created_at, updated_at
             FROM items
             WHERE id = ?
-        """;
+            """;
 
         return SqlExecutor.queryOne(
             sql,
@@ -54,11 +53,11 @@ public class ItemRepository {
     public List<Item> readItems() {
         String sql = """
             SELECT id, title, description, category_id, seller_id,
-                   starting_price, reserve_price, condition, image_url,
+                   starting_price, reserve_price, condition,
                    status, created_at, updated_at
             FROM items
             ORDER BY created_at DESC, id DESC
-        """;
+            """;
 
         return SqlExecutor.queryMany(
             sql,
@@ -71,12 +70,12 @@ public class ItemRepository {
     public List<Item> readActiveItems() {
         String sql = """
             SELECT id, title, description, category_id, seller_id,
-                   starting_price, reserve_price, condition, image_url,
+                   starting_price, reserve_price, condition,
                    status, created_at, updated_at
             FROM items
             WHERE status = 'ACTIVE'
             ORDER BY created_at DESC, id DESC
-        """;
+            """;
 
         return SqlExecutor.queryMany(
             sql,
@@ -89,12 +88,12 @@ public class ItemRepository {
     public List<Item> readItemsBySellerId(Integer sellerId) {
         String sql = """
             SELECT id, title, description, category_id, seller_id,
-                   starting_price, reserve_price, condition, image_url,
+                   starting_price, reserve_price, condition,
                    status, created_at, updated_at
             FROM items
             WHERE seller_id = ?
             ORDER BY created_at DESC, id DESC
-        """;
+            """;
 
         return SqlExecutor.queryMany(
             sql,
@@ -128,7 +127,7 @@ public class ItemRepository {
         String sql = """
             DELETE FROM items
             WHERE id = ?
-        """;
+            """;
 
         SqlExecutor.update(
             sql,
@@ -140,7 +139,7 @@ public class ItemRepository {
         String sql = """
             DELETE FROM items
             WHERE id = ?
-        """;
+            """;
 
         SqlExecutor.update(
             conn,
@@ -155,7 +154,7 @@ public class ItemRepository {
             FROM items
             WHERE id = ?
             LIMIT 1
-        """;
+            """;
 
         return SqlExecutor.queryOne(
             sql,
@@ -174,14 +173,13 @@ public class ItemRepository {
                 starting_price,
                 reserve_price,
                 condition,
-                image_url,
                 status
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             RETURNING id, title, description, category_id, seller_id,
-                      starting_price, reserve_price, condition, image_url,
+                      starting_price, reserve_price, condition,
                       status, created_at, updated_at
-        """;
+            """;
     }
 
     private String getUpdateItemSql() {
@@ -193,14 +191,13 @@ public class ItemRepository {
                 starting_price = ?,
                 reserve_price = ?,
                 condition = ?,
-                image_url = ?,
                 status = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
             RETURNING id, title, description, category_id, seller_id,
-                      starting_price, reserve_price, condition, image_url,
+                      starting_price, reserve_price, condition,
                       status, created_at, updated_at
-        """;
+            """;
     }
 
     private void bindCreateItem(java.sql.PreparedStatement ps, Item item) throws Exception {
@@ -217,8 +214,7 @@ public class ItemRepository {
         }
 
         ps.setString(7, item.getCondition().name());
-        ps.setString(8, item.getImageUrl());
-        ps.setString(9, item.getStatus().name());
+        ps.setString(8, item.getStatus().name());
     }
 
     private void bindUpdateItem(java.sql.PreparedStatement ps, Item item) throws Exception {
@@ -234,9 +230,8 @@ public class ItemRepository {
         }
 
         ps.setString(6, item.getCondition().name());
-        ps.setString(7, item.getImageUrl());
-        ps.setString(8, item.getStatus().name());
-        ps.setInt(9, item.getId());
+        ps.setString(7, item.getStatus().name());
+        ps.setInt(8, item.getId());
     }
 
     private Item mapItem(ResultSet rs) throws Exception {
@@ -254,8 +249,6 @@ public class ItemRepository {
         if (condition != null) {
             item.setCondition(ItemCondition.valueOf(condition));
         }
-
-        item.setImageUrl(rs.getString("image_url"));
 
         String status = rs.getString("status");
         if (status != null) {
