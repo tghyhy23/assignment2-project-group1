@@ -1,34 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.group01.asm2.controllers.BidsHistoryController"
-      spacing="16"
-      stylesheets="@../styles/views/bids_history.css"
-      styleClass="bids-root">
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group01.asm2.controllers.BidsHistoryController"
+            fx:id="BidHistoryScrollPane"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            pannable="true"
+            stylesheets="@../styles/views/bids_history.css"
+            styleClass="bids-scroll-pane">
+    <content>
+        <VBox spacing="18"
+              styleClass="bids-root">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
 
-    <padding>
-        <Insets top="24" right="24" bottom="24" left="24"/>
-    </padding>
+            <!-- Page Header -->
+            <VBox spacing="6">
+                <Label text="Bid History" styleClass="page-title"/>
+                <Label text="View and track your current and past bids." styleClass="page-subtitle"/>
+            </VBox>
 
-    <Label text="Bid History" styleClass="page-title"/>
-    <Label text="View and track your current and past bids." styleClass="page-subtitle"/>
+            <!-- Category Tabs -->
+            <HBox fx:id="statusTabsBox"
+                  spacing="0"
+                  styleClass="status-tabs-box"/>
 
-    <VBox styleClass="content-card" VBox.vgrow="ALWAYS">
-        <TableView fx:id="bidsTable" styleClass="modern-table">
-            <columns>
-                <TableColumn fx:id="bidItemNameColumn" text="Item Name" prefWidth="200"/>
-                <TableColumn fx:id="bidMyAmountColumn" text="My Bid" prefWidth="120"/>
-                <TableColumn fx:id="bidHighestAmountColumn" text="Current Highest" prefWidth="120"/>
-                <TableColumn fx:id="bidStatusColumn" text="Status" prefWidth="100"/>
-                <TableColumn fx:id="bidDateColumn" text="Date" prefWidth="120"/>
-            </columns>
-        </TableView>
-    </VBox>
+            <!-- Search Bar -->
+            <TextField fx:id="searchField"
+                       promptText="Search by item name, auction ID, bid status, or payment status"
+                       styleClass="search-field"/>
 
-</VBox>
+            <!-- Bid History List -->
+                    <VBox fx:id="bidCardsContainer"
+                          spacing="16"
+                          styleClass="bid-cards-container"/>
+        </VBox>
+    </content>
+
+</ScrollPane>
