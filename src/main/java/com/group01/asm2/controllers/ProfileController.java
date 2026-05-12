@@ -10,6 +10,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.utils.ScrollUtils;
+import com.group01.asm2.utils.TopUpValidator;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -20,9 +21,11 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-
+import com.group01.asm2.models.TopUpRequest;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 
 public class ProfileController {
@@ -30,6 +33,18 @@ public class ProfileController {
     private ItemService itemService = new ItemService();
 
     @FXML private ScrollPane profileScrollPane;
+
+    //==========================
+    // Top up Balance
+    //==========================
+    @FXML private StackPane topUpOverlay;
+    @FXML private VBox topUpModal;
+    @FXML private TextField topUpAmountField;
+    @FXML private Label topUpErrorLabel;
+
+    private final List<TopUpRequest> topUpRequests = new ArrayList<>();
+
+    private final int currentUserId = 1; // temporary mock user id
 
     @FXML private Label avatarLabel;
     @FXML private Label statusLabel;
@@ -530,67 +545,121 @@ public class ProfileController {
         addActivity("Updated profile", "Updated profile information.");
     }
 
+//    @FXML
+//    private void handleOpenTopUp() {
+//        Dialog<ButtonType> dialog = new Dialog<>();
+//        dialog.setTitle("Request Top-up");
+//
+//        DialogPane dialogPane = dialog.getDialogPane();
+//        dialogPane.getStyleClass().add("profile-dialog");
+//        dialogPane.getStylesheets().add(
+//            getClass().getResource("/com/group01/asm2/styles/views/profile.css").toExternalForm()
+//        );
+//
+//        ButtonType submitButtonType = new ButtonType("Submit Request", ButtonBar.ButtonData.OK_DONE);
+//        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+//        dialogPane.getButtonTypes().addAll(submitButtonType, cancelButtonType);
+//
+//        TextField amountField = new TextField();
+//        amountField.setPromptText("Enter amount between 10 and 5000");
+//        amountField.getStyleClass().add("profile-text-field");
+//
+//        Label errorLabel = new Label();
+//        errorLabel.getStyleClass().add("error-label");
+//
+//        VBox content = new VBox(12);
+//        content.getStyleClass().add("dialog-card");
+//        content.setPadding(new Insets(20));
+//
+//        Label title = new Label("Request Account Top-up");
+//        title.getStyleClass().add("dialog-title");
+//
+//        Label subtitle = new Label("Enter the amount you want to add. The request will be sent to an administrator for approval.");
+//        subtitle.getStyleClass().add("dialog-subtitle");
+//
+//        content.getChildren().addAll(title, subtitle, createFieldGroup("Top-up Amount", amountField), errorLabel);
+//        dialogPane.setContent(content);
+//
+//        Node submitButton = dialogPane.lookupButton(submitButtonType);
+//        submitButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+//            try {
+//                double amount = Double.parseDouble(amountField.getText().trim());
+//
+//                if (amount < 10 || amount > 5000) {
+//                    errorLabel.setText("Amount must be between $10 and $5000.");
+//                    event.consume();
+//                    return;
+//                }
+//
+//                topUpStatusLabel.setText(String.format("Pending approval: $%,.2f", amount));
+//                topUpStatusLabel.getStyleClass().removeAll("status-neutral", "status-success", "status-warning");
+//                topUpStatusLabel.getStyleClass().add("status-warning");
+//
+//                addActivity("Requested top-up", String.format("Requested a top-up of $%,.2f.", amount));
+//
+//                dialog.close();
+//
+//            } catch (NumberFormatException exception) {
+//                errorLabel.setText("Please enter a valid number.");
+//                event.consume();
+//            }
+//        });
+//
+//        dialog.showAndWait();
+//    }
+
     @FXML
     private void handleOpenTopUp() {
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Request Top-up");
+        topUpAmountField.clear();
+        topUpErrorLabel.setText("");
 
-        DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.getStyleClass().add("profile-dialog");
-        dialogPane.getStylesheets().add(
-            getClass().getResource("/com/group01/asm2/styles/views/profile.css").toExternalForm()
+        topUpOverlay.setVisible(true);
+        topUpOverlay.setManaged(true);
+
+        topUpAmountField.requestFocus();
+    }
+
+    @FXML
+    private void handleCloseTopUp() {
+        topUpOverlay.setVisible(false);
+        topUpOverlay.setManaged(false);
+    }
+
+    private void showPendingTopUpStatus(double amount) {
+        topUpStatusLabel.setText(String.format("Pending approval: $%,.2f", amount));
+
+        topUpStatusLabel.getStyleClass().removeAll(
+            "status-neutral",
+            "status-success",
+            "status-warning",
+            "status-error"
         );
 
-        ButtonType submitButtonType = new ButtonType("Submit Request", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialogPane.getButtonTypes().addAll(submitButtonType, cancelButtonType);
+        topUpStatusLabel.getStyleClass().add("status-warning");
+    }
 
-        TextField amountField = new TextField();
-        amountField.setPromptText("Enter amount between 10 and 5000");
-        amountField.getStyleClass().add("profile-text-field");
+    @FXML
+    private void handleSubmitTopUp() {
+        try {
+            double amount = TopUpValidator.validateAmount(topUpAmountField.getText());
 
-        Label errorLabel = new Label();
-        errorLabel.getStyleClass().add("error-label");
+            TopUpRequest request = createTopUpRequest(currentUserId, amount);
 
-        VBox content = new VBox(12);
-        content.getStyleClass().add("dialog-card");
-        content.setPadding(new Insets(20));
+            showPendingTopUpStatus(request.getAmount());
 
-        Label title = new Label("Request Account Top-up");
-        title.getStyleClass().add("dialog-title");
+            addActivity(
+                "Requested top-up",
+                String.format(
+                    "Requested a top-up of $%,.2f. Waiting for admin approval.",
+                    request.getAmount()
+                )
+            );
 
-        Label subtitle = new Label("Enter the amount you want to add. The request will be sent to an administrator for approval.");
-        subtitle.getStyleClass().add("dialog-subtitle");
+            handleCloseTopUp();
 
-        content.getChildren().addAll(title, subtitle, createFieldGroup("Top-up Amount", amountField), errorLabel);
-        dialogPane.setContent(content);
-
-        Node submitButton = dialogPane.lookupButton(submitButtonType);
-        submitButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
-            try {
-                double amount = Double.parseDouble(amountField.getText().trim());
-
-                if (amount < 10 || amount > 5000) {
-                    errorLabel.setText("Amount must be between $10 and $5000.");
-                    event.consume();
-                    return;
-                }
-
-                topUpStatusLabel.setText(String.format("Pending approval: $%,.2f", amount));
-                topUpStatusLabel.getStyleClass().removeAll("status-neutral", "status-success", "status-warning");
-                topUpStatusLabel.getStyleClass().add("status-warning");
-
-                addActivity("Requested top-up", String.format("Requested a top-up of $%,.2f.", amount));
-
-                dialog.close();
-
-            } catch (NumberFormatException exception) {
-                errorLabel.setText("Please enter a valid number.");
-                event.consume();
-            }
-        });
-
-        dialog.showAndWait();
+        } catch (IllegalArgumentException exception) {
+            topUpErrorLabel.setText(exception.getMessage());
+        }
     }
 
     private VBox createFieldGroup(String labelText, TextField textField) {
@@ -782,6 +851,17 @@ public class ProfileController {
     private void addActivity(String action, String description) {
         String now = LocalDateTime.now().format(dateTimeFormatter);
         activities.add(0, new ActivityLog(now, action, description));
+    }
+
+    private TopUpRequest createTopUpRequest(int userId, double amount) {
+        TopUpRequest request = new TopUpRequest(userId, amount);
+        topUpRequests.add(request);
+
+        return request;
+    }
+
+    private List<TopUpRequest> getTopUpRequests() {
+        return topUpRequests;
     }
 
     private String formatPrice(double value) {
