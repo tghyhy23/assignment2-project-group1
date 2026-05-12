@@ -2,6 +2,7 @@ package com.group01.asm2.controllers;
 
 import com.group01.asm2.models.Auction;
 import com.group01.asm2.models.Item;
+import javafx.scene.layout.HBox;
 import com.group01.asm2.services.AuctionService;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.services.NavigationService;
@@ -16,7 +17,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import java.math.BigDecimal;
-import javafx.animation.ScaleTransition;
+import javafx.scene.layout.StackPane;
 import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 import java.time.LocalDateTime;
@@ -98,7 +99,7 @@ public class AuctionsController {
                 ? auction.getEndDateTime().format(formatter)
                 : "N/A";
 
-        Label imageBox = new Label("IMAGE");
+        StackPane imageBox = new StackPane();
         imageBox.getStyleClass().add("auction-image-placeholder");
         imageBox.setMaxWidth(Double.MAX_VALUE);
 
@@ -109,11 +110,42 @@ public class AuctionsController {
         nameLabel.setPrefHeight(38);
         nameLabel.setMaxHeight(38);
 
-        Label currentBidLabel = new Label("Current bid: ");
-        currentBidLabel.getStyleClass().add("auction-price-title");
+        Label startingPriceTitle = new Label("Starting price");
+        startingPriceTitle.getStyleClass().add("auction-price-title");
 
-        Label priceLabel = new Label(price);
-        priceLabel.getStyleClass().add("auction-price");
+        Label startingPriceValue = new Label(
+                item != null && item.getStartingPrice() != null
+                        ? "$" + item.getStartingPrice().toPlainString()
+                        : "N/A"
+        );
+        startingPriceValue.getStyleClass().add("auction-starting-price");
+
+        Label currentBidTitle = new Label("Current bid");
+        currentBidTitle.getStyleClass().add("auction-price-title");
+
+        Label currentBidValue = new Label(price);
+        currentBidValue.getStyleClass().add("auction-price");
+
+        VBox leftPriceBox = new VBox(
+                startingPriceTitle,
+                startingPriceValue
+        );
+
+        leftPriceBox.setSpacing(2);
+
+        VBox rightPriceBox = new VBox(
+                currentBidTitle,
+                currentBidValue
+        );
+
+        rightPriceBox.setSpacing(2);
+
+        HBox bidSection = new HBox(
+                leftPriceBox,
+                rightPriceBox
+        );
+
+        bidSection.setSpacing(28);
 
         Label statusLabel = new Label(auction.getStatus().name());
         statusLabel.getStyleClass().add("auction-status");
@@ -136,34 +168,28 @@ public class AuctionsController {
         Label dateLabel = new Label("End: " + endDate);
         dateLabel.getStyleClass().add("auction-date");
 
-        VBox bidSection = new VBox(
-                currentBidLabel,
-                priceLabel
-        );
-
-        bidSection.setSpacing(2);
-
-        VBox card = new VBox(
-                imageBox,
+        VBox contentBox = new VBox(
                 nameLabel,
                 bidSection,
                 statusLabel,
                 dateLabel
         );
 
+        contentBox.setSpacing(8);
+        contentBox.setStyle("-fx-padding: 12;");
+
+        VBox card = new VBox(
+                imageBox,
+                contentBox
+        );
+
         card.setSpacing(8);
         card.setFillWidth(true);
         card.getStyleClass().add("auction-card");
 
-        ScaleTransition imageScale = new ScaleTransition(Duration.seconds(0.18), imageBox);
         TranslateTransition cardMove = new TranslateTransition(Duration.seconds(0.18), card);
-        TranslateTransition contentMove = new TranslateTransition(Duration.seconds(0.18), nameLabel);
 
         card.setOnMouseEntered(event -> {
-
-            imageScale.setToX(1.04);
-            imageScale.setToY(1.04);
-            imageScale.playFromStart();
 
             cardMove.setToY(-5);
             cardMove.playFromStart();
@@ -171,10 +197,6 @@ public class AuctionsController {
         });
 
         card.setOnMouseExited(event -> {
-
-            imageScale.setToX(1.0);
-            imageScale.setToY(1.0);
-            imageScale.playFromStart();
 
             cardMove.setToY(0);
             cardMove.playFromStart();

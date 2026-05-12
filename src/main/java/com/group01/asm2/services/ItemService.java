@@ -2,7 +2,6 @@ package com.group01.asm2.services;
 
 import com.group01.asm2.models.Item;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,17 +27,106 @@ public class ItemService {
 //                new BigDecimal("800000000.00"), null, LocalDateTime.now(), LocalDateTime.now()));
     }
 
-    /** Lấy tất cả Items: */
+    /** GET ALL ITEMS */
     public static List<Item> getAllItems() {
         return new ArrayList<>(itemsDb);
     }
 
-    /** Tìm Item theo ID */
+    /** GET ITEM BY ID */
     public static Item getItemById(Integer id) {
         if (id == null) return null;
+
         return itemsDb.stream()
                 .filter(item -> item.getId().equals(id))
                 .findFirst()
                 .orElse(null);
+    }
+
+    /** CREATE ITEM */
+    public static Item createItem(Item newItem) {
+        if (newItem == null) return null;
+
+        Integer newId = generateNextId();
+
+//        Item item = new Item(
+//                newId,
+//                newItem.getCategoryId(),
+//                newItem.getSellerId(),
+//                newItem.getTitle(),
+//                newItem.getDescription(),
+//                newItem.getCondition(),
+//                newItem.getStartingPrice(),
+//                newItem.getReservePrice(),
+//                LocalDateTime.now(),
+//                LocalDateTime.now()
+//        );
+
+        // UI Fields
+//        item.setCurrentBid(newItem.getCurrentBid());
+//        item.setBidCount(newItem.getBidCount());
+//        item.setRecommended(newItem.isRecommended());
+//        item.setMainBgClass(newItem.getMainBgClass());
+//        item.setThumbBgClasses(newItem.getThumbBgClasses());
+
+//        itemsDb.add(item);
+
+        return null;
+    }
+
+    /** UPDATE ITEM */
+    public static Item updateItem(Integer id, Item updatedItem) {
+        if (id == null || updatedItem == null) return null;
+
+        Item existingItem = getItemById(id);
+
+        if (existingItem == null) return null;
+
+        existingItem.setCategoryId(updatedItem.getCategoryId());
+        existingItem.setSellerId(updatedItem.getSellerId());
+        existingItem.setTitle(updatedItem.getTitle());
+        existingItem.setDescription(updatedItem.getDescription());
+        existingItem.setCondition(updatedItem.getCondition());
+        existingItem.setStartingPrice(updatedItem.getStartingPrice());
+        existingItem.setReservePrice(updatedItem.getReservePrice());
+
+//        existingItem.setCurrentBid(updatedItem.getCurrentBid());
+//        existingItem.setBidCount(updatedItem.getBidCount());
+//        existingItem.setRecommended(updatedItem.isRecommended());
+//        existingItem.setMainBgClass(updatedItem.getMainBgClass());
+//        existingItem.setThumbBgClasses(updatedItem.getThumbBgClasses());
+
+        existingItem.setUpdatedAt(LocalDateTime.now());
+
+        return existingItem;
+    }
+
+    /** DELETE ITEM */
+    public static Item deleteItem(Integer id) {
+        if (id == null) return null;
+
+        Item existingItem = getItemById(id);
+
+        if (existingItem == null) return null;
+
+        itemsDb.remove(existingItem);
+
+        return existingItem;
+    }
+
+    /** CHECK EXIST */
+    public static boolean existsById(Integer id) {
+        return getItemById(id) != null;
+    }
+
+    /** AUTO GENERATE ID */
+    private static Integer generateNextId() {
+        if (itemsDb.isEmpty()) {
+            return 1;
+        }
+
+        return itemsDb.stream()
+                .map(Item::getId)
+                .max(Integer::compareTo)
+                .orElse(0) + 1;
     }
 }
