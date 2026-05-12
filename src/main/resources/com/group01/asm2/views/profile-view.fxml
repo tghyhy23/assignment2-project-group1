@@ -229,7 +229,7 @@
 
                                 <Region HBox.hgrow="ALWAYS"/>
 
-                                <Button text="+ Add Item"
+                                <Button text="Add Item"
                                         onAction="#handleAddListing"
                                         styleClass="add-listing-button"/>
                             </HBox>
@@ -278,104 +278,79 @@
                managed="false"
                styleClass="modal-overlay">
 
-        <ScrollPane fx:id="editProfileModalScrollPane"
-                    fitToWidth="true"
-                    hbarPolicy="NEVER"
-                    vbarPolicy="AS_NEEDED"
-                    styleClass="modal-scroll-pane">
+        <VBox fx:id="editProfileModal"
+              spacing="18"
+              alignment="TOP_LEFT"
+              styleClass="add-listing-modal"
+              maxHeight="-Infinity">
 
-            <VBox fx:id="editProfileModal"
-                  spacing="22"
-                  alignment="TOP_LEFT"
-                  styleClass="edit-profile-modal"
-                  maxHeight="-Infinity">
+            <VBox spacing="6" alignment="TOP_LEFT">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Edit Profile" styleClass="modal-title"/>
 
-                <HBox alignment="CENTER_LEFT" spacing="12" styleClass="modal-header">
-                    <VBox spacing="4" HBox.hgrow="ALWAYS">
-                        <Label text="Edit Profile" styleClass="modal-title"/>
-                        <Label text="Update your profile details."
-                               styleClass="modal-subtitle"/>
-                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
 
                     <Button text="✕"
                             onAction="#handleCloseEditProfile"
                             styleClass="modal-close-button"/>
                 </HBox>
 
-                <HBox spacing="14"
-                      alignment="CENTER_LEFT"
-                      styleClass="modal-profile-preview">
+                <Label text="Update your profile details."
+                       styleClass="modal-subtitle"/>
+            </VBox>
 
-                    <StackPane styleClass="modal-avatar-circle">
-                        <Label fx:id="modalAvatarLabel"
-                               text=""
-                               styleClass="modal-avatar-text"/>
-                    </StackPane>
-
-                    <VBox spacing="4">
-                        <Label fx:id="modalNamePreviewLabel"
-                               text=""
-                               styleClass="modal-preview-name"/>
-
-                        <Label fx:id="modalEmailPreviewLabel"
-                               text=""
-                               styleClass="modal-preview-email"/>
-                    </VBox>
-                </HBox>
-
-                <VBox spacing="16" styleClass="modal-form">
-                    <VBox spacing="6">
-                        <Label text="Full Name" styleClass="form-label"/>
-                        <TextField fx:id="editFullNameField"
-                                   promptText="Enter full name"
-                                   styleClass="form-input"/>
-                    </VBox>
-
-                    <VBox spacing="6">
-                        <Label text="Email" styleClass="form-label"/>
-                        <TextField fx:id="editEmailField"
-                                   promptText="Enter email"
-                                   styleClass="form-input"/>
-                    </VBox>
-
-                    <HBox spacing="14">
-                        <VBox spacing="6" HBox.hgrow="ALWAYS">
-                            <Label text="Phone" styleClass="form-label"/>
-                            <TextField fx:id="editPhoneField"
-                                       promptText="Enter phone number"
-                                       styleClass="form-input"/>
-                        </VBox>
-
-                        <VBox spacing="6" HBox.hgrow="ALWAYS">
-                            <Label text="Date of Birth" styleClass="form-label"/>
-                            <TextField fx:id="editDateOfBirthField"
-                                       promptText="Example: 15 March 2003"
-                                       styleClass="form-input"/>
-                        </VBox>
-                    </HBox>
-
-                    <VBox spacing="6">
-                        <Label text="Address" styleClass="form-label"/>
-                        <TextField fx:id="editAddressField"
-                                   promptText="Enter address"
-                                   styleClass="form-input"/>
-                    </VBox>
+            <VBox spacing="16" styleClass="modal-form">
+                <VBox spacing="6">
+                    <Label text="Full Name" styleClass="form-label"/>
+                    <TextField fx:id="editFullNameField"
+                               promptText="Enter full name"
+                               styleClass="form-input"/>
                 </VBox>
 
-                <HBox spacing="12"
-                      alignment="CENTER_RIGHT"
-                      styleClass="modal-footer">
+                <VBox spacing="6">
+                    <Label text="Email" styleClass="form-label"/>
+                    <TextField fx:id="editEmailField"
+                               promptText="Enter email"
+                               styleClass="form-input"/>
+                </VBox>
 
-                    <Button text="Cancel"
-                            onAction="#handleCloseEditProfile"
-                            styleClass="modal-cancel-button"/>
+                <HBox spacing="14">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Phone" styleClass="form-label"/>
+                        <TextField fx:id="editPhoneField"
+                                   promptText="Enter phone number"
+                                   styleClass="form-input"/>
+                    </VBox>
 
-                    <Button text="Save Changes"
-                            onAction="#handleSaveEditProfile"
-                            styleClass="modal-save-button"/>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Date of Birth" styleClass="form-label"/>
+                        <TextField fx:id="editDateOfBirthField"
+                                   promptText="Example: 15 March 2003"
+                                   styleClass="form-input"/>
+                    </VBox>
                 </HBox>
+
+                <VBox spacing="6">
+                    <Label text="Address" styleClass="form-label"/>
+                    <TextField fx:id="editAddressField"
+                               promptText="Enter address"
+                               styleClass="form-input"/>
+                </VBox>
             </VBox>
-        </ScrollPane>
+
+            <HBox spacing="12"
+                  alignment="CENTER_RIGHT"
+                  styleClass="modal-footer">
+
+                <Button text="Cancel"
+                        onAction="#handleCloseEditProfile"
+                        styleClass="modal-cancel-button"/>
+
+                <Button text="Save Changes"
+                        onAction="#handleSaveEditProfile"
+                        styleClass="modal-save-button"/>
+            </HBox>
+        </VBox>
     </StackPane>
 
     <StackPane fx:id="addListingOverlay"
@@ -388,17 +363,25 @@
               styleClass="add-listing-modal"
               maxHeight="-Infinity">
 
-            <HBox alignment="CENTER_LEFT" spacing="12">
-                <VBox spacing="4" HBox.hgrow="ALWAYS">
-                    <Label text="Add New Auction Item" styleClass="modal-title"/>
-                    <Label text="Create a new item for your listing collection."
-                           styleClass="modal-subtitle"/>
-                </VBox>
+            <VBox spacing="6" alignment="TOP_LEFT">
 
-                <Button text="✕"
-                        onAction="#handleCloseAddListing"
-                        styleClass="modal-close-button"/>
-            </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+
+                    <Label text="Add New Auction Item"
+                           styleClass="modal-title"/>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <Button text="✕"
+                            onAction="#handleCloseAddListing"
+                            styleClass="modal-close-button"/>
+
+                </HBox>
+
+                <Label text="Create a new item for your listing collection."
+                       styleClass="modal-subtitle"/>
+
+            </VBox>
 
             <VBox spacing="12">
                 <VBox spacing="6">
@@ -412,13 +395,6 @@
                     <VBox spacing="6" HBox.hgrow="ALWAYS">
                         <Label text="Category" styleClass="form-label"/>
                         <ComboBox fx:id="addListingCategoryComboBox"
-                                  maxWidth="Infinity"
-                                  styleClass="form-combo"/>
-                    </VBox>
-
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="Status" styleClass="form-label"/>
-                        <ComboBox fx:id="addListingStatusComboBox"
                                   maxWidth="Infinity"
                                   styleClass="form-combo"/>
                     </VBox>
@@ -437,6 +413,13 @@
                         <TextField fx:id="addListingCurrentBidField"
                                    promptText="620.00"
                                    styleClass="form-input"/>
+                    </VBox>
+
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Status" styleClass="form-label"/>
+                        <ComboBox fx:id="addListingStatusComboBox"
+                                  maxWidth="Infinity"
+                                  styleClass="form-combo"/>
                     </VBox>
                 </HBox>
 

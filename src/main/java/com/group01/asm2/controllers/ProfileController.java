@@ -70,12 +70,8 @@ public class ProfileController {
     @FXML private TableColumn<ActivityLog, String> activityDescriptionColumn;
 
     @FXML private StackPane editProfileOverlay;
-    @FXML private ScrollPane editProfileModalScrollPane;
     @FXML private VBox editProfileModal;
     @FXML private Button editProfileButton;
-    @FXML private Label modalAvatarLabel;
-    @FXML private Label modalNamePreviewLabel;
-    @FXML private Label modalEmailPreviewLabel;
     @FXML private TextField editFullNameField;
     @FXML private TextField editEmailField;
     @FXML private TextField editPhoneField;
@@ -119,7 +115,6 @@ public class ProfileController {
         updateSummaryLabels();
         setupTabSwitching();
         setupResponsiveEditProfileButton();
-        setupResponsiveEditProfileModal();
         setupActivityTable();
         makeTableResponsive(activityTable);
         setupListingsCards();
@@ -215,12 +210,6 @@ public class ProfileController {
         editProfileButton.setMaxWidth(Double.MAX_VALUE);
     }
 
-    private void setupResponsiveEditProfileModal() {
-        editProfileModalScrollPane.maxWidthProperty().bind(editProfileOverlay.widthProperty().multiply(0.72));
-        editProfileModalScrollPane.maxHeightProperty().bind(editProfileOverlay.heightProperty().multiply(0.86));
-        editProfileModal.prefWidthProperty().bind(editProfileModalScrollPane.widthProperty().subtract(24));
-        editProfileModal.setMaxHeight(Region.USE_PREF_SIZE);
-    }
 
     private void setupActivityTable() {
         activityDateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("dateTime"));
@@ -510,10 +499,6 @@ public class ProfileController {
         editPhoneField.setText(phone);
         editDateOfBirthField.setText(dateOfBirth);
         editAddressField.setText(address);
-
-        modalNamePreviewLabel.setText(fullName);
-        modalEmailPreviewLabel.setText(email);
-        modalAvatarLabel.setText(createInitials(fullName));
 
         editProfileOverlay.setVisible(true);
         editProfileOverlay.setManaged(true);
