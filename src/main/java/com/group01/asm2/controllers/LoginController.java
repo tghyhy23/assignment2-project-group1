@@ -102,7 +102,8 @@ public class LoginController extends BaseController {
         showError("Something went wrong while logging in.");
     }
 
-    private void showError(String message) {
+    @Override
+    protected void showError(String message) {
         messageLabel.getStyleClass().remove("success-message");
 
         if (!messageLabel.getStyleClass().contains("error-message")) {
