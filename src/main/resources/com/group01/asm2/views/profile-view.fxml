@@ -18,15 +18,15 @@
 
         <VBox spacing="24" styleClass="profile-container">
 
-            <HBox spacing="16" styleClass="top-row">
-                <VBox spacing="4">
-                    <Label text="Profile" styleClass="page-title"/>
-                    <Label text="Manage your BidBlitz account and auction listings."
-                           styleClass="page-subtitle"/>
-                </VBox>
+            <padding>
+                <Insets top="30" right="40" bottom="30" left="40"/>
+            </padding>
 
-                <Region HBox.hgrow="ALWAYS"/>
-            </HBox>
+            <VBox spacing="4">
+                <Label text="Profile" styleClass="page-title"/>
+                <Label text="Manage your BidBlitz account and auction listings."
+                       styleClass="page-subtitle"/>
+            </VBox>
 
             <HBox spacing="24"
                   alignment="CENTER_LEFT"

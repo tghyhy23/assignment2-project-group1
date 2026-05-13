@@ -10,22 +10,6 @@
         -fx-padding: 0 0 0 50;
 }
 
-.auction-grid {
-    -fx-padding: 0 0 0 50;
-}
-
-.auction-card {
-    -fx-background-color: #152033;
-    -fx-border-color: #334155;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.32), 18, 0, 0, 6);
-    -fx-pref-width: 240px;
-    -fx-min-width: 240px;
-    -fx-max-width: 240px;
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
-    -fx-cursor: hand;
-}
-
 
 .auction-image-placeholder {
     -fx-pref-height: 150px;
@@ -92,4 +76,56 @@
 .auction-date {
     -fx-font-size: 12px;
     -fx-text-fill: #8fa3c1;
+}
+
+.auction-grid {
+    -fx-padding: 0 0 0 50;
+    -fx-pref-width: 1040px;
+    -fx-max-width: 1040px;
+}
+
+.auction-card {
+    -fx-background-color: #152033;
+    -fx-border-color: #334155;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.32), 18, 0, 0, 6);
+
+    -fx-pref-width: 250px;
+    -fx-min-width: 250px;
+    -fx-max-width: 250px;
+
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+}
+
+.pagination-box {
+    -fx-padding: 8 0 20 0;
+    -fx-alignment: center;
+}
+
+.pagination-button {
+    -fx-background-color: #152033;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.pagination-button:hover {
+    -fx-background-color: #1e293b;
+}
+
+.pagination-button:disabled {
+    -fx-opacity: 0.45;
+    -fx-cursor: default;
+}
+
+.pagination-label {
+    -fx-text-fill: #8fa3c1;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
 }

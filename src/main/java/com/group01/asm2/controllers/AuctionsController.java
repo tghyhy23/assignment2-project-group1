@@ -17,6 +17,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Region;
 import java.math.BigDecimal;
 import javafx.scene.layout.StackPane;
@@ -26,12 +27,20 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import java.util.List;
 
 public class AuctionsController {
     private AuctionService auctionService = new AuctionService();
     private ItemService itemService = new ItemService();
+    private static final int ITEMS_PER_PAGE = 20;
+    private int currentPage = 0;
+    private List<Auction> allAuctions;
 
     @FXML private TableView<Auction> auctionsTable;
+    @FXML private HBox paginationBox;
+    @FXML private Button prevPageButton;
+    @FXML private Button nextPageButton;
+    @FXML private Label pageInfoLabel;
     @FXML private TableColumn<Auction, String> auctionDateColumn;
     @FXML private TableColumn<Auction, String> auctionTypeColumn;
     @FXML private FlowPane allAuctionsContainer;
@@ -81,15 +90,57 @@ public class AuctionsController {
     }
 
     private void loadAllAuctionsToExplore() {
-        allAuctionsContainer.getChildren().clear();
-
         AuctionFilter filter = new AuctionFilter();
         filter.setRecommendedOnly(true);
         filter.setStatus(AuctionStatus.ACTIVE);
 
-        for (Auction auction : auctionService.readAuctions(filter)) {
-            VBox card = createAuctionCard(auction);
+        allAuctions = auctionService.readAuctions(filter);
+        currentPage = 0;
+
+        renderCurrentPage();
+    }
+
+    private void renderCurrentPage() {
+        allAuctionsContainer.getChildren().clear();
+
+        if (allAuctions == null || allAuctions.isEmpty()) {
+            pageInfoLabel.setText("Page 0 / 0");
+            prevPageButton.setDisable(true);
+            nextPageButton.setDisable(true);
+            return;
+        }
+
+        int totalPages = (int) Math.ceil((double) allAuctions.size() / ITEMS_PER_PAGE);
+
+        int startIndex = currentPage * ITEMS_PER_PAGE;
+        int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, allAuctions.size());
+
+        for (int i = startIndex; i < endIndex; i++) {
+            VBox card = createAuctionCard(allAuctions.get(i));
             allAuctionsContainer.getChildren().add(card);
+        }
+
+        pageInfoLabel.setText("Page " + (currentPage + 1) + " / " + totalPages);
+
+        prevPageButton.setDisable(currentPage == 0);
+        nextPageButton.setDisable(currentPage >= totalPages - 1);
+    }
+
+    @FXML
+    private void handlePrevPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            renderCurrentPage();
+        }
+    }
+
+    @FXML
+    private void handleNextPage() {
+        int totalPages = (int) Math.ceil((double) allAuctions.size() / ITEMS_PER_PAGE);
+
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            renderCurrentPage();
         }
     }
 
