@@ -53,6 +53,14 @@
             styleClass="nav-button"
             onAction="#showAuctionsManagement"/>
 
+    <Button fx:id="categoriesButton"
+            text="Categories"
+            contentDisplay="TOP"
+            maxWidth="Infinity"
+            prefHeight="50"
+            styleClass="nav-button"
+            onAction="#showCategoriesManagement"/>
+
     <Button fx:id="itemsButton"
             text="Items"
             contentDisplay="TOP"

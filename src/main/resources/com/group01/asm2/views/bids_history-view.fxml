@@ -21,11 +21,11 @@
         <VBox spacing="18"
               styleClass="bids-root">
             <padding>
-                <Insets top="24" right="24" bottom="24" left="24"/>
+                <Insets top="30" right="40" bottom="30" left="40"/>
             </padding>
 
             <!-- Page Header -->
-            <VBox spacing="6">
+            <VBox spacing="4">
                 <Label text="Bid History" styleClass="page-title"/>
                 <Label text="View and track your current and past bids." styleClass="page-subtitle"/>
             </VBox>
@@ -41,7 +41,7 @@
                        styleClass="search-field"/>
 
             <!-- Bid History List -->
-                    <VBox fx:id="bidCardsContainer"
+            <VBox fx:id="bidCardsContainer"
                           spacing="16"
                           styleClass="bid-cards-container"/>
         </VBox>

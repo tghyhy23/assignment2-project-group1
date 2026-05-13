@@ -6,19 +6,20 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.geometry.Insets?>
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group01.asm2.controllers.AdminDashboardController"
             stylesheets="@../../styles/admin/admin-dashboard.css"
             styleClass="admin-dashboard-root">
 
-    <VBox spacing="22"
-          AnchorPane.topAnchor="24"
-          AnchorPane.leftAnchor="28"
-          AnchorPane.rightAnchor="28"
-          AnchorPane.bottomAnchor="24">
+    <VBox spacing="18">
 
-        <VBox spacing="5">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <VBox spacing="4">
             <Label text="Admin Dashboard" styleClass="dashboard-title"/>
             <Label text="System overview for users, auctions, items, payments, top-up requests, and reports."
                    styleClass="dashboard-subtitle"/>

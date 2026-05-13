@@ -10,12 +10,12 @@
 
 .dashboard-subtitle {
     -fx-text-fill: #94a3b8;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
 }
 
 .section-title {
     -fx-text-fill: #f8fafc;
-    -fx-font-size: 15px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 

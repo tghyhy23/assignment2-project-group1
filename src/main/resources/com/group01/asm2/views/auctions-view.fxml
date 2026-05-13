@@ -8,16 +8,18 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.group01.asm2.controllers.AuctionsController"
-      spacing="16"
+      spacing="18"
       stylesheets="@../styles/views/auctions.css"
       styleClass="auctions-root">
 
     <padding>
-        <Insets top="24" right="24" bottom="24" left="24"/>
+        <Insets top="30" right="40" bottom="30" left="40"/>
     </padding>
 
-    <Label text="Auction History" styleClass="page-title"/>
-    <Label text="View your recent purchases and sales." styleClass="page-subtitle"/>
+    <VBox spacing="4">
+        <Label text="Auction History" styleClass="page-title"/>
+        <Label text="View your recent purchases and sales." styleClass="page-subtitle"/>
+    </VBox>
 
     <VBox styleClass="content-card" VBox.vgrow="ALWAYS">
         <TableView fx:id="auctionsTable" styleClass="modern-table">

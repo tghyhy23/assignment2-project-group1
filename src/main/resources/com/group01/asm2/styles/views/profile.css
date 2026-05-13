@@ -29,7 +29,6 @@
 }
 
 .profile-container {
-    -fx-padding: 40;
     -fx-background-color: #0b1120;
 }
 
@@ -40,7 +39,7 @@
 
 .page-title {
     -fx-text-fill: #f8fafc;
-    -fx-font-size: 28px;
+    -fx-font-size: 24px;
     -fx-font-weight: 800;
 }
 
