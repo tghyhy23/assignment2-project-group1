@@ -1,12 +1,14 @@
 package com.group01.asm2.controllers;
 
-import com.group01.asm2.models.BidHistoryViewModel;
-import com.group01.asm2.models.Bid;
+/**
+ * @author Group 01
+ */
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Locale;
+import com.group01.asm2.dtos.BidHistoryDto;
+import com.group01.asm2.models.Auction;
+import com.group01.asm2.services.AuctionService;
+import com.group01.asm2.services.BidService;
+import com.group01.asm2.services.NavigationService;
 import com.group01.asm2.utils.MoneyFormatter;
 import com.group01.asm2.utils.ScrollUtils;
 import javafx.fxml.FXML;
@@ -16,44 +18,70 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class BidsHistoryController {
+public class BidsHistoryController extends BaseController {
 
-    @FXML private HBox statusTabsBox;
-    @FXML private TextField searchField;
-    @FXML private ScrollPane BidHistoryScrollPane;
-    @FXML private VBox bidCardsContainer;
+    private final BidService bidService = new BidService();
+    private final AuctionService auctionService = new AuctionService();
+
+    @FXML
+    private HBox statusTabsBox;
+
+    @FXML
+    private TextField searchField;
+
+    @FXML
+    private ScrollPane BidHistoryScrollPane;
+
+    @FXML
+    private VBox bidCardsContainer;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+
+    private final List<BidHistoryDto> bidHistory = new ArrayList<>();
 
     private String selectedCategory = "All";
 
     private final List<String> categories = List.of(
-            "All",
-            "Winning",
-            "Outbid",
-            "Won",
-            "Lost",
-            "Pending Payment",
-            "Paid",
-            "Cancelled"
+        "All",
+        "Winning",
+        "Outbid",
+        "Won",
+        "Lost",
+        "Pending Payment",
+        "Paid",
+        "Cancelled"
     );
 
     @FXML
     public void initialize() {
         BidHistoryScrollPane.setFitToWidth(true);
-
         ScrollUtils.makeSmooth(BidHistoryScrollPane, 0.003);
 
         renderStatusTabs();
         setupSearchListener();
-        refreshBidCards();
+        loadBidHistory();
+    }
+
+    private void loadBidHistory() {
+        try {
+            bidHistory.clear();
+            bidHistory.addAll(bidService.readMyBidHistory());
+            refreshBidCards();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            bidCardsContainer.getChildren().clear();
+            bidCardsContainer.getChildren().add(createErrorState("Could not load your bid history."));
+        }
     }
 
     private void renderStatusTabs() {
@@ -90,20 +118,19 @@ public class BidsHistoryController {
 
         String keyword = searchField.getText();
 
-        List<BidHistoryViewModel> filteredBids =
-                getFilteredBidHistory(selectedCategory, keyword);
+        List<BidHistoryDto> filteredBids = getFilteredBidHistory(selectedCategory, keyword);
 
         if (filteredBids.isEmpty()) {
             bidCardsContainer.getChildren().add(createEmptyState());
             return;
         }
 
-        for (BidHistoryViewModel bid : filteredBids) {
+        for (BidHistoryDto bid : filteredBids) {
             bidCardsContainer.getChildren().add(createBidCard(bid));
         }
     }
 
-    private VBox createBidCard(BidHistoryViewModel bid) {
+    private VBox createBidCard(BidHistoryDto bid) {
         VBox card = new VBox(16);
         card.getStyleClass().add("bid-card");
         card.setMaxWidth(Double.MAX_VALUE);
@@ -117,7 +144,7 @@ public class BidsHistoryController {
         return card;
     }
 
-    private HBox createCardHeader(BidHistoryViewModel bid) {
+    private HBox createCardHeader(BidHistoryDto bid) {
         HBox header = new HBox(12);
         header.setAlignment(Pos.CENTER_LEFT);
         header.getStyleClass().add("card-header");
@@ -146,7 +173,7 @@ public class BidsHistoryController {
         return header;
     }
 
-    private HBox createCardBody(BidHistoryViewModel bid) {
+    private HBox createCardBody(BidHistoryDto bid) {
         HBox body = new HBox(18);
         body.setAlignment(Pos.CENTER_LEFT);
 
@@ -191,10 +218,10 @@ public class BidsHistoryController {
         highestValue.getStyleClass().add("price-highlight");
 
         priceBox.getChildren().addAll(
-                myBidLabel,
-                myBidValue,
-                highestLabel,
-                highestValue
+            myBidLabel,
+            myBidValue,
+            highestLabel,
+            highestValue
         );
 
         body.getChildren().addAll(itemImage, itemInfo, priceBox);
@@ -202,7 +229,7 @@ public class BidsHistoryController {
         return body;
     }
 
-    private HBox createCardFooter(BidHistoryViewModel bid) {
+    private HBox createCardFooter(BidHistoryDto bid) {
         HBox footer = new HBox(12);
         footer.setAlignment(Pos.CENTER_RIGHT);
         footer.getStyleClass().add("card-footer");
@@ -213,70 +240,102 @@ public class BidsHistoryController {
         return footer;
     }
 
-    private List<Button> createActionButtons(BidHistoryViewModel bid) {
+    private List<Button> createActionButtons(BidHistoryDto bid) {
         String bidStatus = bid.getBidStatus();
         String paymentStatus = bid.getPaymentStatus();
 
         if ("Winning".equalsIgnoreCase(bidStatus)) {
             return List.of(
-                    createSecondaryButton("View Auction", bid),
-                    createPrimaryButton("Increase Bid", bid)
+                createSecondaryButton("View Auction", bid),
+                createPrimaryButton("Increase Bid", bid)
             );
         }
 
         if ("Outbid".equalsIgnoreCase(bidStatus)) {
             return List.of(
-                    createSecondaryButton("View Auction", bid),
-                    createPrimaryButton("Bid Again", bid)
+                createSecondaryButton("View Auction", bid),
+                createPrimaryButton("Bid Again", bid)
             );
         }
 
         if ("Won".equalsIgnoreCase(bidStatus)
-                && "Pending Payment".equalsIgnoreCase(paymentStatus)) {
+            && "Pending Payment".equalsIgnoreCase(paymentStatus)) {
             return List.of(
-                    createSecondaryButton("View Details", bid),
-                    createPrimaryButton("Pay Now", bid)
+                createSecondaryButton("View Details", bid),
+                createPrimaryButton("Pay Now", bid)
             );
         }
 
-        // Won + Paid: no action button
         if ("Won".equalsIgnoreCase(bidStatus)
-                && "Paid".equalsIgnoreCase(paymentStatus)) {
-            return List.of();
+            && "Paid".equalsIgnoreCase(paymentStatus)) {
+            return List.of(
+                createSecondaryButton("View Auction", bid)
+            );
         }
 
         if ("Lost".equalsIgnoreCase(bidStatus)) {
             return List.of(
-                    createSecondaryButton("View Auction", bid)
+                createSecondaryButton("View Auction", bid)
             );
         }
 
         if ("Cancelled".equalsIgnoreCase(bidStatus)) {
             return List.of(
-                    createSecondaryButton("View Details", bid));
+                createSecondaryButton("View Details", bid)
+            );
         }
 
         return List.of(
-                createSecondaryButton("View Details", bid)
+            createSecondaryButton("View Details", bid)
         );
     }
 
-    private Button createPrimaryButton(String text, BidHistoryViewModel bid) {
+    private Button createPrimaryButton(String text, BidHistoryDto bid) {
         Button button = new Button(text);
         button.getStyleClass().add("primary-action-button");
-        button.setOnAction(event ->
-                System.out.println(text + " clicked for bid ID: " + bid.getBid().getId())
-        );
+
+        bindAction(button, event -> {
+            event.consume();
+
+            if ("Pay Now".equalsIgnoreCase(text)) {
+                showInfo("Payment processing will be connected after PaymentService is implemented.");
+                return;
+            }
+
+            goToAuctionDetails(bid);
+        });
+
         return button;
     }
 
-    private Button createSecondaryButton(String text, BidHistoryViewModel bid) {
+    private Button createSecondaryButton(String text, BidHistoryDto bid) {
         Button button = new Button(text);
         button.getStyleClass().add("secondary-action-button");
-        button.setOnAction(event ->
-                System.out.println(text + " clicked for bid ID: " + bid.getBid().getId())
-        );
+
+        bindAction(button, event -> {
+            event.consume();
+            goToAuctionDetails(bid);
+        });
+
         return button;
+    }
+
+    private void goToAuctionDetails(BidHistoryDto bid) {
+        Auction auction = auctionService.readAuction(bid.getBid().getAuctionId());
+
+        if (auction == null) {
+            showError("Auction not found.");
+            return;
+        }
+
+        Pane contentArea = (Pane) bidCardsContainer.getScene().lookup("#contentArea");
+
+        if (contentArea == null) {
+            showError("Could not open auction details.");
+            return;
+        }
+
+        NavigationService.goToAuctionDetails(contentArea, auction);
     }
 
     private VBox createEmptyState() {
@@ -296,251 +355,31 @@ public class BidsHistoryController {
         return emptyState;
     }
 
-    private String getBidStatusStyleClass(String status) {
-        if (status == null) return "status-lost";
+    private VBox createErrorState(String message) {
+        VBox errorState = new VBox(8);
+        errorState.getStyleClass().add("empty-state");
+        errorState.setAlignment(Pos.CENTER);
+        errorState.setMaxWidth(Double.MAX_VALUE);
 
-        return switch (status.toLowerCase()) {
-            case "winning" -> "status-winning";
-            case "outbid" -> "status-outbid";
-            case "won" -> "status-won";
-            case "lost" -> "status-lost";
-            case "cancelled" -> "status-cancelled";
-            default -> "status-lost";
-        };
+        Label title = new Label(message);
+        title.getStyleClass().add("empty-title");
+
+        Label subtitle = new Label("Please try again later.");
+        subtitle.getStyleClass().add("empty-subtitle");
+
+        errorState.getChildren().addAll(title, subtitle);
+
+        return errorState;
     }
 
-    private String getPaymentStatusStyleClass(String status) {
-        if (status == null) return "payment-not-required";
-
-        return switch (status.toLowerCase()) {
-            case "pending payment" -> "payment-pending";
-            case "paid" -> "payment-paid";
-            case "cancelled" -> "payment-cancelled";
-            default -> "payment-not-required";
-        };
+    private List<BidHistoryDto> getFilteredBidHistory(String category, String keyword) {
+        return bidHistory.stream()
+            .filter(bid -> matchesCategory(bid, category))
+            .filter(bid -> matchesKeyword(bid, keyword))
+            .toList();
     }
 
-    private List<BidHistoryViewModel> getAllBidHistory() {
-        List<Bid> bids = getMockBids();
-        List<BidHistoryViewModel> viewModels = new ArrayList<>();
-
-        for (Bid bid : bids) {
-            viewModels.add(mapToViewModel(bid));
-        }
-
-        return viewModels;
-    }
-
-    private List<BidHistoryViewModel> getFilteredBidHistory(String category, String keyword) {
-        List<BidHistoryViewModel> allBids = getAllBidHistory();
-
-        return allBids.stream()
-                .filter(bid -> matchesCategory(bid, category))
-                .filter(bid -> matchesKeyword(bid, keyword))
-                .toList();
-    }
-
-    private List<Bid> getMockBids() {
-        List<Bid> bids = new ArrayList<>();
-
-        bids.add(new Bid(
-                1,
-                101,
-                1,
-                99,
-                new BigDecimal("150000000.00"),
-                LocalDateTime.now().minusHours(4)
-        ));
-
-        bids.add(new Bid(
-                2,
-                102,
-                2,
-                99,
-                new BigDecimal("45000000.00"),
-                LocalDateTime.now().minusDays(1)
-        ));
-
-        bids.add(new Bid(
-                3,
-                103,
-                3,
-                99,
-                new BigDecimal("800000000.00"),
-                LocalDateTime.now().minusDays(2)
-        ));
-
-        bids.add(new Bid(
-                4,
-                104,
-                1,
-                99,
-                new BigDecimal("152000000.00"),
-                LocalDateTime.now().minusDays(4)
-        ));
-
-        bids.add(new Bid(
-                5,
-                105,
-                2,
-                99,
-                new BigDecimal("47000000.00"),
-                LocalDateTime.now().minusDays(7)
-        ));
-
-        bids.add(new Bid(
-                6,
-                106,
-                3,
-                99,
-                new BigDecimal("790000000.00"),
-                LocalDateTime.now().minusDays(10)
-        ));
-
-        return bids;
-    }
-
-    private BidHistoryViewModel mapToViewModel(Bid bid) {
-        String itemName = getItemTitleById(bid.getItemId());
-        String mainBgClass = getMainBgClassByItemId(bid.getItemId());
-
-        BigDecimal currentHighest = calculateCurrentHighestBid(bid);
-        String bidStatus = calculateBidStatus(bid);
-        String paymentStatus = calculatePaymentStatus(bidStatus, bid);
-        String finalResultText = createFinalResultText(bidStatus, paymentStatus, bid, currentHighest);
-
-        return new BidHistoryViewModel(
-                bid,
-                itemName,
-                mainBgClass,
-                bidStatus,
-                paymentStatus,
-                bid.getAmount(),
-                currentHighest,
-                bid.getBidDateTime(),
-                finalResultText
-        );
-    }
-
-    private String getItemTitleById(Integer itemId) {
-        if (itemId == null) {
-            return "Unknown Item";
-        }
-
-        return switch (itemId) {
-            case 1 -> "Đồng hồ Rolex Submariner 2020";
-            case 2 -> "Bức tranh sơn dầu thế kỷ 19";
-            case 3 -> "Siêu xe Ford Mustang 1969 Classic";
-            default -> "Unknown Item";
-        };
-    }
-
-    private String getMainBgClassByItemId(Integer itemId) {
-        if (itemId == null) {
-            return "item-image-placeholder";
-        }
-
-        return switch (itemId) {
-            case 1 -> "watch-bg";
-            case 2 -> "painting-bg";
-            case 3 -> "car-bg";
-            default -> "item-image-placeholder";
-        };
-    }
-
-    private BigDecimal calculateCurrentHighestBid(Bid bid) {
-        if (bid.getAmount() == null) {
-            return BigDecimal.ZERO;
-        }
-
-        Integer bidId = bid.getId();
-
-        if (bidId == null) {
-            return bid.getAmount();
-        }
-
-        // Mock logic only:
-        // Some bids are outbid by another user.
-        if (bidId == 2 || bidId == 5) {
-            return bid.getAmount().add(new BigDecimal("5000000.00"));
-        }
-
-        return bid.getAmount();
-    }
-
-    private String calculateBidStatus(Bid bid) {
-        Integer bidId = bid.getId();
-
-        if (bidId == null) {
-            return "Lost";
-        }
-
-        // Mock status logic for UI testing.
-        return switch (bidId) {
-            case 1 -> "Winning";
-            case 2 -> "Outbid";
-            case 3 -> "Won";
-            case 4 -> "Won";
-            case 5 -> "Lost";
-            case 6 -> "Cancelled";
-            default -> "Lost";
-        };
-    }
-
-    private String calculatePaymentStatus(String bidStatus, Bid bid) {
-        Integer bidId = bid.getId();
-
-        if ("Cancelled".equalsIgnoreCase(bidStatus)) {
-            return "Cancelled";
-        }
-
-        if ("Won".equalsIgnoreCase(bidStatus)) {
-            if (bidId != null && bidId == 3) {
-                return "Pending Payment";
-            }
-
-            return "Paid";
-        }
-
-        return "Not Required";
-    }
-
-    private String createFinalResultText(
-            String bidStatus,
-            String paymentStatus,
-            Bid bid,
-            BigDecimal currentHighest
-    ) {
-        if ("Winning".equalsIgnoreCase(bidStatus)) {
-            return "You are currently the highest bidder.";
-        }
-
-        if ("Outbid".equalsIgnoreCase(bidStatus)) {
-            return "Another bidder has placed a higher bid.";
-        }
-
-        if ("Won".equalsIgnoreCase(bidStatus)
-                && "Pending Payment".equalsIgnoreCase(paymentStatus)) {
-            return "You won this auction. Payment is required.";
-        }
-
-        if ("Won".equalsIgnoreCase(bidStatus)
-                && "Paid".equalsIgnoreCase(paymentStatus)) {
-            return "You won this auction and payment has been completed.";
-        }
-
-        if ("Lost".equalsIgnoreCase(bidStatus)) {
-            return "The auction ended with another winner.";
-        }
-
-        if ("Cancelled".equalsIgnoreCase(bidStatus)) {
-            return "This bid or auction was cancelled.";
-        }
-
-        return "Current highest bid: " + MoneyFormatter.formatUSD(currentHighest);
-    }
-
-    private boolean matchesCategory(BidHistoryViewModel bid, String category) {
+    private boolean matchesCategory(BidHistoryDto bid, String category) {
         if (category == null || category.isBlank() || "All".equalsIgnoreCase(category)) {
             return true;
         }
@@ -556,7 +395,7 @@ public class BidsHistoryController {
         return category.equalsIgnoreCase(bid.getBidStatus());
     }
 
-    private boolean matchesKeyword(BidHistoryViewModel bid, String keyword) {
+    private boolean matchesKeyword(BidHistoryDto bid, String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return true;
         }
@@ -568,10 +407,38 @@ public class BidsHistoryController {
         String highestAmount = MoneyFormatter.formatUSD(bid.getCurrentHighestBidAmount());
 
         return bid.getItemName().toLowerCase(Locale.ROOT).contains(lowerKeyword)
-                || auctionId.toLowerCase(Locale.ROOT).contains(lowerKeyword)
-                || bid.getBidStatus().toLowerCase(Locale.ROOT).contains(lowerKeyword)
-                || bid.getPaymentStatus().toLowerCase(Locale.ROOT).contains(lowerKeyword)
-                || myBidAmount.toLowerCase(Locale.ROOT).contains(lowerKeyword)
-                || highestAmount.toLowerCase(Locale.ROOT).contains(lowerKeyword);
+            || auctionId.toLowerCase(Locale.ROOT).contains(lowerKeyword)
+            || bid.getBidStatus().toLowerCase(Locale.ROOT).contains(lowerKeyword)
+            || bid.getPaymentStatus().toLowerCase(Locale.ROOT).contains(lowerKeyword)
+            || myBidAmount.toLowerCase(Locale.ROOT).contains(lowerKeyword)
+            || highestAmount.toLowerCase(Locale.ROOT).contains(lowerKeyword);
+    }
+
+    private String getBidStatusStyleClass(String status) {
+        if (status == null) {
+            return "status-lost";
+        }
+
+        return switch (status.toLowerCase()) {
+            case "winning" -> "status-winning";
+            case "outbid" -> "status-outbid";
+            case "won" -> "status-won";
+            case "lost" -> "status-lost";
+            case "cancelled" -> "status-cancelled";
+            default -> "status-lost";
+        };
+    }
+
+    private String getPaymentStatusStyleClass(String status) {
+        if (status == null) {
+            return "payment-not-required";
+        }
+
+        return switch (status.toLowerCase()) {
+            case "pending payment" -> "payment-pending";
+            case "paid" -> "payment-paid";
+            case "cancelled" -> "payment-cancelled";
+            default -> "payment-not-required";
+        };
     }
 }

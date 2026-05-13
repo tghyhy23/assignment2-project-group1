@@ -13,6 +13,8 @@ public final class PostgreSQLInitializer {
         try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement()) {
 
+//            dropProjectTables(stmt);
+
             // 1. Create parent/core tables first
             createPersonsTable(stmt);
             createCategoriesTable(stmt);
@@ -188,18 +190,19 @@ public final class PostgreSQLInitializer {
 
     private static void createBidsTable(Statement stmt) throws Exception {
         stmt.execute("""
-            CREATE TABLE IF NOT EXISTS bids (
-                id SERIAL PRIMARY KEY,
+        CREATE TABLE IF NOT EXISTS bids (
+            id SERIAL PRIMARY KEY,
 
-                auction_id INTEGER NOT NULL REFERENCES auctions(id) ON DELETE CASCADE,
-                bidder_id INTEGER NOT NULL REFERENCES persons(id),
+            auction_id INTEGER NOT NULL REFERENCES auctions(id) ON DELETE CASCADE,
+            item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+            bidder_id INTEGER NOT NULL REFERENCES persons(id),
 
-                amount NUMERIC(12, 2) NOT NULL,
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            amount NUMERIC(12, 2) NOT NULL,
+            bid_date_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                CHECK (amount > 0)
-            )
-        """);
+            CHECK (amount > 0)
+        )
+    """);
     }
 
     private static void addAuctionCurrentHighestBidForeignKey(Statement stmt) throws Exception {
@@ -469,5 +472,25 @@ public final class PostgreSQLInitializer {
             CREATE INDEX IF NOT EXISTS idx_activity_logs_timestamp
             ON activity_logs(timestamp DESC)
         """);
+    }
+
+    private static void dropProjectTables(Statement stmt) throws Exception {
+        System.out.println("Development reset enabled. Dropping project tables...");
+
+        stmt.execute("""
+        DROP TABLE IF EXISTS
+            activity_logs,
+            payments,
+            auction_watchlists,
+            bids,
+            auctions,
+            item_images,
+            items,
+            categories,
+            persons
+        CASCADE
+    """);
+
+        System.out.println("Project tables dropped successfully.");
     }
 }

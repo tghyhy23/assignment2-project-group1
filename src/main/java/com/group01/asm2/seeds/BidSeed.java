@@ -30,10 +30,12 @@ public class BidSeed implements Seeder {
         String sql = """
             INSERT INTO bids (
                 auction_id,
+                item_id,
                 bidder_id,
-                amount
+                amount,
+                bid_date_time
             )
-            SELECT a.id, p.id, ?
+            SELECT a.id, i.id, p.id, ?, CURRENT_TIMESTAMP
             FROM auctions a
             JOIN items i ON a.item_id = i.id
             JOIN persons p ON LOWER(p.username) = LOWER(?)
@@ -42,6 +44,7 @@ public class BidSeed implements Seeder {
                   SELECT 1
                   FROM bids b
                   WHERE b.auction_id = a.id
+                    AND b.item_id = i.id
                     AND b.bidder_id = p.id
                     AND b.amount = ?
               )
@@ -71,7 +74,7 @@ public class BidSeed implements Seeder {
                 JOIN auctions inner_a ON b.auction_id = inner_a.id
                 JOIN items i ON inner_a.item_id = i.id
                 WHERE LOWER(i.title) = LOWER(?)
-                ORDER BY b.amount DESC, b.created_at ASC
+                ORDER BY b.amount DESC, b.bid_date_time ASC
                 LIMIT 1
             ) AS highest_bid
             WHERE a.id = highest_bid.auction_id
@@ -97,7 +100,7 @@ public class BidSeed implements Seeder {
                 JOIN auctions inner_a ON b.auction_id = inner_a.id
                 JOIN items i ON inner_a.item_id = i.id
                 WHERE LOWER(i.title) = LOWER(?)
-                ORDER BY b.amount DESC, b.created_at ASC
+                ORDER BY b.amount DESC, b.bid_date_time ASC
                 LIMIT 1
             ) AS highest_bid
             WHERE a.id = highest_bid.auction_id

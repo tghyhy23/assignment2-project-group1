@@ -1,9 +1,11 @@
-package com.group01.asm2.models;
+package com.group01.asm2.dtos;
+
+import com.group01.asm2.models.Bid;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class BidHistoryViewModel {
+public class BidHistoryDto {
 
     private final Bid bid;
     private final String itemName;
@@ -15,7 +17,7 @@ public class BidHistoryViewModel {
     private final LocalDateTime bidDateTime;
     private final String finalResultText;
 
-    public BidHistoryViewModel(
+    public BidHistoryDto(
             Bid bid,
             String itemName,
             String mainBgClass,
