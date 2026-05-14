@@ -77,7 +77,6 @@
     -fx-font-weight: 800;
 }
 
-.verified-pill,
 .role-pill,
 .rating-pill {
     -fx-background-radius: 999;
@@ -87,11 +86,6 @@
     -fx-font-weight: 700;
 }
 
-.verified-pill {
-    -fx-background-color: rgba(34, 197, 94, 0.13);
-    -fx-border-color: rgba(74, 222, 128, 0.35);
-    -fx-text-fill: #86efac;
-}
 
 .role-pill {
     -fx-background-color: rgba(59, 130, 246, 0.16);
@@ -114,10 +108,37 @@
     -fx-font-size: 12px;
 }
 
-.owner-only-title {
-    -fx-text-fill: #cbd5e1;
-    -fx-font-size: 12px;
-    -fx-font-weight: 700;
+.profile-header-card {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 28;
+}
+
+.profile-avatar-section {
+    -fx-alignment: CENTER;
+}
+
+.profile-middle-section {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.profile-basic-info {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.profile-basic-info > .hbox {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.private-details-flex {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.private-details-column {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.profile-action-section {
+    -fx-alignment: CENTER_RIGHT;
 }
 
 .private-info-box {
@@ -438,6 +459,112 @@
     -fx-text-fill: #cbd5e1;
 }
 
+.image-file-name {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.image-preview-box {
+    -fx-background-color: #0b1120;
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 12;
+    -fx-min-height: 140;
+    -fx-alignment: CENTER;
+}
+
+.text-area.form-input {
+    -fx-background-color: #0b1120;
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #e5e7eb;
+    -fx-prompt-text-fill: #64748b;
+}
+
+.text-area.form-input .content {
+    -fx-background-color: #0b1120;
+    -fx-background-radius: 6;
+}
+
+.text-area.form-input:focused {
+    -fx-border-color: #38bdf8;
+}
+
+/* =========================
+   ComboBox Dropdown Styling
+   ========================= */
+
+.form-combo {
+    -fx-background-color: #0b1120;
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-padding: 6 12 6 12;
+    -fx-cursor: hand;
+}
+
+.form-combo:hover {
+    -fx-border-color: rgba(56, 189, 248, 0.45);
+}
+
+.form-combo:focused {
+    -fx-border-color: #38bdf8;
+}
+
+.form-combo .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 14px;
+}
+
+.form-combo .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.form-combo .arrow {
+    -fx-background-color: #cbd5e1;
+}
+
+/* Dropdown popup list */
+.combo-box-popup .list-view {
+    -fx-background-color: #0b1120;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(255, 255, 255, 0.12);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 6;
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 14px;
+    -fx-padding: 10 14;
+    -fx-background-radius: 6;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(56, 189, 248, 0.16);
+    -fx-text-fill: #f8fafc;
+    -fx-cursor: hand;
+}
+
+.combo-box-popup .list-view .list-cell:selected {
+    -fx-background-color: rgba(56, 189, 248, 0.24);
+    -fx-text-fill: #38bdf8;
+    -fx-font-weight: 700;
+}
+
+.combo-box-popup .list-view .list-cell:empty {
+    -fx-background-color: transparent;
+}
+
 /* 3-dot menu */
 .item-more-button {
     -fx-background-color: rgba(17, 24, 39, 0.72);
@@ -678,4 +805,139 @@
     -fx-text-fill: #fca5a5;
     -fx-font-size: 12px;
     -fx-font-weight: 700;
+}
+
+/* DatePicker using shared form-input style */
+.date-picker.form-input {
+    -fx-background-color: #0b1120;
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-padding: 0;
+}
+
+.date-picker.form-input:focused {
+    -fx-border-color: #38bdf8;
+}
+
+/* The text input inside DatePicker */
+.date-picker.form-input .text-field {
+    -fx-background-color: #0b1120;
+    -fx-background-radius: 6 0 0 6;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 10 16 10 16;
+    -fx-text-fill: #e5e7eb;
+    -fx-prompt-text-fill: #64748b;
+}
+
+/* Calendar button area */
+.date-picker.form-input .arrow-button {
+    -fx-background-color: #0b1120;
+    -fx-background-radius: 0 6 6 0;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-width: 0 0 0 1;
+    -fx-cursor: hand;
+}
+
+.date-picker.form-input .arrow-button:hover {
+    -fx-background-color: #1f2937;
+}
+
+/* Calendar icon */
+.date-picker.form-input .arrow {
+    -fx-background-color: #cbd5e1;
+}
+
+/* Seller Statistics */
+.seller-stats-section {
+    -fx-background-color: transparent;
+}
+
+.seller-stats-summary-row {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.seller-stats-chart-row {
+    -fx-alignment: TOP_LEFT;
+}
+
+.chart {
+    -fx-background-color: transparent;
+    -fx-padding: 8 4 4 4;
+}
+
+.chart-plot-background {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 12;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: rgba(255, 255, 255, 0.08);
+}
+
+.axis {
+    -fx-tick-label-fill: #cbd5e1;
+}
+
+.axis-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.chart-title {
+    -fx-text-fill: #f8fafc;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #cbd5e1;
+}
+
+.default-color0.chart-bar {
+    -fx-bar-fill: #38bdf8;
+}
+
+.default-color1.chart-bar {
+    -fx-bar-fill: #6366f1;
+}
+
+.default-color0.chart-series-line {
+    -fx-stroke: #38bdf8;
+    -fx-stroke-width: 2px;
+}
+
+.default-color0.chart-line-symbol {
+    -fx-background-color: #38bdf8, white;
+}
+
+.default-color0.chart-legend-item-symbol {
+    -fx-background-color: #38bdf8;
+}
+
+.default-color1.chart-series-line {
+    -fx-stroke: #f59e0b;
+    -fx-stroke-width: 2px;
+}
+
+.default-color0.chart-pie {
+    -fx-pie-color: #38bdf8;
+}
+
+.default-color1.chart-pie {
+    -fx-pie-color: #38bdf8;
+}
+
+.default-color1.chart-line-symbol {
+    -fx-background-color: #f59e0b, white;
+}
+
+.default-color1.chart-legend-item-symbol {
+    -fx-background-color: #f59e0b;
 }

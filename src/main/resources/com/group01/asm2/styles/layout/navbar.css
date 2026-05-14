@@ -253,30 +253,30 @@
 }
 
 .notification-popup-card {
-    -fx-background-color: #111827;
-    -fx-background-radius: 20;
-    -fx-border-radius: 20;
-    -fx-border-color: rgba(148, 163, 184, 0.22);
+    -fx-background-color: #1f2937;
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 26, 0.22, 0, 10);
-    -fx-padding: 0;
+    -fx-border-radius: 6;
+    -fx-padding: 4;
+    -fx-translate-y: 4px;
 }
 
 .notification-header {
-    -fx-padding: 18 20 14 20;
-    -fx-border-color: transparent transparent rgba(148, 163, 184, 0.14) transparent;
+    -fx-padding: 10 12 8 12;
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.08) transparent;
     -fx-border-width: 0 0 1 0;
 }
 
 .notification-title {
-    -fx-text-fill: #f8fafc;
-    -fx-font-size: 18px;
-    -fx-font-weight: 800;
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
 }
 
 .notification-subtitle {
-    -fx-text-fill: #94a3b8;
-    -fx-font-size: 12.5px;
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 11px;
 }
 
 .notification-scroll {
@@ -290,9 +290,76 @@
     -fx-background-color: transparent;
 }
 
+.notification-list {
+    -fx-background-color: transparent;
+    -fx-padding: 4 0 4 0;
+}
+
+.notification-row {
+    -fx-background-color: transparent;
+    -fx-background-radius: 2;
+    -fx-border-radius: 2;
+    -fx-padding: 9 12 9 12;
+    -fx-cursor: hand;
+}
+
+.notification-row:hover {
+    -fx-background-color: #374151;
+}
+
+.notification-item-title {
+    -fx-text-fill: #e5e7eb;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.notification-item-message {
+    -fx-text-fill: #d1d5db;
+    -fx-font-size: 11.5px;
+    -fx-line-spacing: 2;
+}
+
+.notification-time {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 10.5px;
+}
+
+.notification-item-image {
+    -fx-min-width: 42px;
+    -fx-min-height: 42px;
+    -fx-pref-width: 42px;
+    -fx-pref-height: 42px;
+    -fx-max-width: 42px;
+    -fx-max-height: 42px;
+
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1;
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.notification-item-image-placeholder {
+    -fx-background-color: #374151;
+}
+
+.notification-unread-dot {
+    -fx-background-color: #38bdf8;
+    -fx-background-radius: 999;
+    -fx-min-width: 7px;
+    -fx-min-height: 7px;
+    -fx-pref-width: 7px;
+    -fx-pref-height: 7px;
+    -fx-max-width: 7px;
+    -fx-max-height: 7px;
+}
+
+/* Scrollbar giống dark popup */
 .notification-scroll .scroll-bar:vertical {
-    -fx-background-color: #0b1120;
-    -fx-pref-width: 12px;
+    -fx-background-color: #1f2937;
+    -fx-pref-width: 10px;
 }
 
 .notification-scroll .scroll-bar:vertical .track {
@@ -300,8 +367,12 @@
 }
 
 .notification-scroll .scroll-bar:vertical .thumb {
-    -fx-background-color: #3b4b5e;
-    -fx-background-radius: 6px;
+    -fx-background-color: #4b5563;
+    -fx-background-radius: 6;
+}
+
+.notification-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #6b7280;
 }
 
 .notification-scroll .scroll-bar:vertical .increment-button,
@@ -314,68 +385,4 @@
 .notification-scroll .scroll-bar:vertical .decrement-arrow {
     -fx-shape: "";
     -fx-padding: 0;
-}
-
-.notification-list {
-    -fx-background-color: transparent;
-    -fx-padding: 8 0 8 0;
-}
-
-.notification-row {
-    -fx-padding: 12 18 12 18;
-    -fx-background-color: transparent;
-    -fx-cursor: hand;
-}
-
-.notification-row:hover {
-    -fx-background-color: rgba(249, 115, 22, 0.09);
-}
-
-.notification-item-image {
-    -fx-min-width: 56px;
-    -fx-min-height: 56px;
-    -fx-pref-width: 56px;
-    -fx-pref-height: 56px;
-    -fx-max-width: 56px;
-    -fx-max-height: 56px;
-
-    -fx-background-radius: 14;
-    -fx-border-radius: 14;
-    -fx-border-color: rgba(255, 255, 255, 0.10);
-    -fx-border-width: 1;
-    -fx-background-size: cover;
-    -fx-background-position: center;
-    -fx-background-repeat: no-repeat;
-}
-
-.notification-item-image-placeholder {
-    -fx-background-color: linear-gradient(to bottom right, #334155, #0f172a);
-}
-
-.notification-item-title {
-    -fx-text-fill: #f8fafc;
-    -fx-font-size: 14px;
-    -fx-font-weight: 800;
-}
-
-.notification-item-message {
-    -fx-text-fill: #cbd5e1;
-    -fx-font-size: 12.5px;
-    -fx-line-spacing: 2;
-}
-
-.notification-time {
-    -fx-text-fill: #94a3b8;
-    -fx-font-size: 11.5px;
-}
-
-.notification-unread-dot {
-    -fx-background-color: #f97316;
-    -fx-background-radius: 999;
-    -fx-min-width: 8px;
-    -fx-min-height: 8px;
-    -fx-pref-width: 8px;
-    -fx-pref-height: 8px;
-    -fx-max-width: 8px;
-    -fx-max-height: 8px;
 }

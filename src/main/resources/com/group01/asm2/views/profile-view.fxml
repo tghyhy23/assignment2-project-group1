@@ -4,6 +4,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.image.ImageView?>
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.group01.asm2.controllers.ProfileController"
@@ -28,31 +33,28 @@
                        styleClass="page-subtitle"/>
             </VBox>
 
-            <HBox spacing="24"
+            <HBox spacing="0"
                   alignment="CENTER_LEFT"
                   styleClass="profile-header-card">
 
-                <VBox spacing="10"
-                      alignment="CENTER"
-                      styleClass="profile-avatar-section">
-
-                    <StackPane styleClass="avatar-gradient-circle">
-                        <Label fx:id="avatarLabel"
-                               text=""
-                               styleClass="avatar-initials"/>
-                    </StackPane>
-
-                    <Label fx:id="statusLabel"
-                           text=""
-                           styleClass="verified-pill"/>
-                </VBox>
-
-                <HBox spacing="40"
+                <!-- LEFT GROUP: Avatar + Basic Info -->
+                <HBox spacing="38"
                       alignment="CENTER_LEFT"
-                      HBox.hgrow="ALWAYS"
-                      styleClass="profile-middle-section">
+                      styleClass="profile-left-group">
+
+                    <VBox spacing="10"
+                          alignment="CENTER"
+                          styleClass="profile-avatar-section">
+
+                        <StackPane styleClass="avatar-gradient-circle">
+                            <Label fx:id="avatarLabel"
+                                   text=""
+                                   styleClass="avatar-initials"/>
+                        </StackPane>
+                    </VBox>
 
                     <VBox spacing="14"
+                          alignment="CENTER_LEFT"
                           styleClass="profile-basic-info">
 
                         <HBox spacing="12" alignment="CENTER_LEFT">
@@ -74,55 +76,55 @@
                                    text=""
                                    styleClass="rating-pill"/>
                         </HBox>
-
-                        <HBox spacing="8"
-                              alignment="CENTER_LEFT"
-                              styleClass="owner-only-row">
-
-                            <Label text="🔒" styleClass="owner-lock-icon"/>
-                            <Label text="Owner only information"
-                                   styleClass="owner-only-title"/>
-                        </HBox>
                     </VBox>
-
-                    <HBox spacing="14"
-                          alignment="CENTER_LEFT"
-                          styleClass="private-details-flex">
-
-                        <VBox spacing="12" styleClass="private-details-column">
-                            <VBox spacing="4" styleClass="private-info-box">
-                                <Label text="Phone" styleClass="private-info-label"/>
-                                <Label fx:id="phoneLabel" text="" styleClass="private-info-value"/>
-                            </VBox>
-
-                            <VBox spacing="4" styleClass="private-info-box">
-                                <Label text="Address" styleClass="private-info-label"/>
-                                <Label fx:id="addressLabel" text="" wrapText="true" styleClass="private-info-value"/>
-                            </VBox>
-                        </VBox>
-
-                        <VBox spacing="12" styleClass="private-details-column">
-                            <VBox spacing="4" styleClass="private-info-box">
-                                <Label text="Date of Birth" styleClass="private-info-label"/>
-                                <Label fx:id="dateOfBirthLabel" text="" styleClass="private-info-value"/>
-                            </VBox>
-
-                            <VBox spacing="4" styleClass="private-info-box">
-                                <Label text="Joined Date" styleClass="private-info-label"/>
-                                <Label fx:id="joinedDateLabel" text="" styleClass="private-info-value"/>
-                            </VBox>
-                        </VBox>
-                    </HBox>
                 </HBox>
 
-                <VBox alignment="TOP_RIGHT" styleClass="profile-action-section">
+                <!-- Flexible space between left group and private info -->
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- MIDDLE GROUP: Private Details -->
+                <HBox spacing="14"
+                      alignment="CENTER_LEFT"
+                      styleClass="private-details-flex">
+
+                    <VBox spacing="12" styleClass="private-details-column">
+                        <VBox spacing="4" styleClass="private-info-box">
+                            <Label text="Phone" styleClass="private-info-label"/>
+                            <Label fx:id="phoneLabel" text="" styleClass="private-info-value"/>
+                        </VBox>
+
+                        <VBox spacing="4" styleClass="private-info-box">
+                            <Label text="Address" styleClass="private-info-label"/>
+                            <Label fx:id="addressLabel" text="" wrapText="true" styleClass="private-info-value"/>
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="12" styleClass="private-details-column">
+                        <VBox spacing="4" styleClass="private-info-box">
+                            <Label text="Date of Birth" styleClass="private-info-label"/>
+                            <Label fx:id="dateOfBirthLabel" text="" styleClass="private-info-value"/>
+                        </VBox>
+
+                        <VBox spacing="4" styleClass="private-info-box">
+                            <Label text="Joined Date" styleClass="private-info-label"/>
+                            <Label fx:id="joinedDateLabel" text="" styleClass="private-info-value"/>
+                        </VBox>
+                    </VBox>
+                </HBox>
+
+                <!-- Space between private info and edit button -->
+                <Region minWidth="80" prefWidth="100"/>
+
+                <!-- RIGHT GROUP: Edit Button -->
+                <VBox alignment="CENTER_RIGHT"
+                      styleClass="profile-action-section">
                     <Button fx:id="editProfileButton"
                             text="Edit Profile"
                             onAction="#handleOpenEditProfile"
                             styleClass="edit-profile-button"/>
                 </VBox>
-            </HBox>
 
+            </HBox>
             <HBox fx:id="summaryRow" spacing="16" styleClass="summary-row">
                 <VBox spacing="8" styleClass="summary-card">
                     <Label text="Current Balance" styleClass="summary-title"/>
@@ -268,6 +270,73 @@
                         </VBox>
                     </Tab>
 
+                    <Tab fx:id="sellerStatisticsTab" text="Seller Statistics">
+                        <VBox spacing="18" styleClass="tab-content seller-stats-section">
+
+                            <HBox spacing="16" styleClass="seller-stats-summary-row">
+                                <VBox spacing="8" styleClass="summary-card">
+                                    <Label text="Items Sold" styleClass="summary-title"/>
+                                    <Label fx:id="itemsSoldLabel" text="0" styleClass="summary-value"/>
+                                    <Label text="Completed successful sales" styleClass="summary-note"/>
+                                </VBox>
+
+                                <VBox spacing="8" styleClass="summary-card">
+                                    <Label text="Total Revenue" styleClass="summary-title"/>
+                                    <Label fx:id="totalRevenueLabel" text="0.00" styleClass="summary-value"/>
+                                    <Label text="Total amount earned from sold items" styleClass="summary-note"/>
+                                </VBox>
+
+                                <VBox spacing="8" styleClass="summary-card">
+                                    <Label text="Commission Fees" styleClass="summary-title"/>
+                                    <Label fx:id="commissionFeesLabel" text="0.00" styleClass="summary-value"/>
+                                    <Label text="Platform fees paid on completed sales" styleClass="summary-note"/>
+                                </VBox>
+
+                                <VBox spacing="8" styleClass="summary-card">
+                                    <Label text="Sold Ratio" styleClass="summary-title"/>
+                                    <Label fx:id="soldRatioLabel" text="0%" styleClass="summary-value"/>
+                                    <Label text="Sold vs unsold listing performance" styleClass="summary-note"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="18" styleClass="seller-stats-chart-row">
+                                <VBox spacing="12" styleClass="content-card" HBox.hgrow="ALWAYS">
+                                    <Label text="Average Sale Price by Category" styleClass="section-title"/>
+                                    <BarChart fx:id="averageSalePriceChart"
+                                              categoryGap="18"
+                                              barGap="4"
+                                              legendVisible="false"
+                                              animated="false"
+                                              prefHeight="320">
+                                        <xAxis>
+                                            <CategoryAxis label="Category"/>
+                                        </xAxis>
+                                        <yAxis>
+                                            <NumberAxis label="Average Price"/>
+                                        </yAxis>
+                                    </BarChart>
+                                </VBox>
+
+                            </HBox>
+
+                            <VBox spacing="12" styleClass="content-card">
+                                <Label text="Performance Trend Overview" styleClass="section-title"/>
+                                <LineChart fx:id="listingTrendChart"
+                                           createSymbols="false"
+                                           animated="false"
+                                           prefHeight="320">
+                                    <xAxis>
+                                        <CategoryAxis label="Month"/>
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Listings"/>
+                                    </yAxis>
+                                </LineChart>
+                            </VBox>
+
+                        </VBox>
+                    </Tab>
+
                 </TabPane>
             </VBox>
         </VBox>
@@ -324,10 +393,10 @@
 
                     <VBox spacing="6" HBox.hgrow="ALWAYS">
                         <Label text="Date of Birth" styleClass="form-label"/>
-                        <TextField fx:id="editDateOfBirthField"
-                                   promptText="Example: 15 March 2003"
-                                   styleClass="form-input"/>
-                    </VBox>
+                        <DatePicker fx:id="editDateOfBirthPicker"
+                                    promptText="Select date of birth"
+                                    maxWidth="Infinity"
+                                    styleClass="form-input"/>                    </VBox>
                 </HBox>
 
                 <VBox spacing="6">
@@ -384,13 +453,26 @@
             </VBox>
 
             <VBox spacing="12">
+
+                <!-- Title -->
                 <VBox spacing="6">
-                    <Label text="Item Name" styleClass="form-label"/>
-                    <TextField fx:id="addListingNameField"
+                    <Label text="Title *" styleClass="form-label"/>
+                    <TextField fx:id="addListingTitleField"
                                promptText="Example: Vintage Watch"
                                styleClass="form-input"/>
                 </VBox>
 
+                <!-- Description -->
+                <VBox spacing="6">
+                    <Label text="Description *" styleClass="form-label"/>
+                    <TextArea fx:id="addListingDescriptionArea"
+                              promptText="Describe the item, its features, and important details..."
+                              wrapText="true"
+                              prefRowCount="4"
+                              styleClass="form-input"/>
+                </VBox>
+
+                <!-- Category + Condition -->
                 <HBox spacing="14">
                     <VBox spacing="6" HBox.hgrow="ALWAYS">
                         <Label text="Category" styleClass="form-label"/>
@@ -398,41 +480,62 @@
                                   maxWidth="Infinity"
                                   styleClass="form-combo"/>
                     </VBox>
-                </HBox>
-
-                <HBox spacing="14">
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="Starting Price" styleClass="form-label"/>
-                        <TextField fx:id="addListingStartingPriceField"
-                                   promptText="450.00"
-                                   styleClass="form-input"/>
-                    </VBox>
 
                     <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="Current Bid" styleClass="form-label"/>
-                        <TextField fx:id="addListingCurrentBidField"
-                                   promptText="620.00"
-                                   styleClass="form-input"/>
-                    </VBox>
-
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="Status" styleClass="form-label"/>
-                        <ComboBox fx:id="addListingStatusComboBox"
+                        <Label text="Condition" styleClass="form-label"/>
+                        <ComboBox fx:id="addListingConditionComboBox"
                                   maxWidth="Infinity"
                                   styleClass="form-combo"/>
                     </VBox>
                 </HBox>
 
-                <VBox spacing="6">
-                    <Label text="Icon / Image Placeholder" styleClass="form-label"/>
-                    <TextField fx:id="addListingIconField"
-                               promptText="Example: 📱"
-                               styleClass="form-input"/>
+                <!-- Starting Price + Reserve Price -->
+                <HBox spacing="14">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Starting Price *" styleClass="form-label"/>
+                        <TextField fx:id="addListingStartingPriceField"
+                                   promptText="Example: 450.00"
+                                   styleClass="form-input"/>
+                    </VBox>
+
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Reserve Price (Optional)" styleClass="form-label"/>
+                        <TextField fx:id="addListingReservePriceField"
+                                   promptText="Example: 600.00"
+                                   styleClass="form-input"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Item Image Upload -->
+                <VBox spacing="8">
+                    <Label text="Item Image *" styleClass="form-label"/>
+
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Button text="Upload Image"
+                                onAction="#handleUploadListingImage"
+                                styleClass="modal-cancel-button"/>
+
+                        <Label fx:id="addListingImageNameLabel"
+                               text="No image selected"
+                               styleClass="image-file-name"/>
+                    </HBox>
+
+                    <StackPane fx:id="addListingImagePreviewBox"
+                               visible="false"
+                               managed="false"
+                               styleClass="image-preview-box">
+                        <ImageView fx:id="addListingImagePreview"
+                                   fitWidth="180"
+                                   fitHeight="120"
+                                   preserveRatio="true"
+                                   smooth="true"/>
+                    </StackPane>
                 </VBox>
 
                 <Label fx:id="addListingErrorLabel"
                        text=""
                        styleClass="error-label"/>
+
             </VBox>
 
             <HBox spacing="12"
