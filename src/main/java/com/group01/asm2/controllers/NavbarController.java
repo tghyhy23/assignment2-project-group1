@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.group01.asm2.utils.ScrollUtils;
-import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.*;
@@ -24,8 +23,6 @@ import javafx.stage.Popup;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.application.Platform;
-import javafx.util.Duration;
-import java.math.BigDecimal;
 
 public class NavbarController {
 
@@ -81,9 +78,6 @@ public class NavbarController {
     //Notification
     private Popup notificationPopup;
     private VBox notificationListBox;
-    private PauseTransition hideNotificationDelay;
-    private boolean mouseInsideNotificationButton = false;
-    private boolean mouseInsideNotificationPopup = false;
     private static final double NOTIFICATION_POPUP_WIDTH = 380;
 
     public void setContentArea(AnchorPane contentArea) {
@@ -229,49 +223,19 @@ public class NavbarController {
             return;
         }
 
-        hideNotificationDelay = new PauseTransition(Duration.millis(220));
-        hideNotificationDelay.setOnFinished(event -> {
-            if (!isMouseOverButtonOrPopup()) {
-                hideNotificationDropdown();
-            }
-        });
-
         notificationPopup = new Popup();
-        notificationPopup.setAutoHide(false);
+        notificationPopup.setAutoHide(true);
         notificationPopup.setHideOnEscape(true);
 
         StackPane popupRoot = buildNotificationPopupContent();
         notificationPopup.getContent().add(popupRoot);
 
-        notificationButton.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
-            mouseInsideNotificationButton = true;
-            cancelHideNotificationDropdown();
-            showNotificationDropdown();
-        });
-
-        notificationButton.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
-            mouseInsideNotificationButton = false;
-            hideNotificationDropdownWithDelay();
-        });
-
-        notificationButton.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            cancelHideNotificationDropdown();
-
+        notificationButton.setOnAction(event -> {
             if (notificationPopup.isShowing()) {
                 hideNotificationDropdown();
             } else {
                 showNotificationDropdown();
             }
-        });
-
-        popupRoot.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
-            mouseInsideNotificationPopup = true;
-            cancelHideNotificationDropdown();
-        });
-
-        popupRoot.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
-            mouseInsideNotificationPopup = false;
-            hideNotificationDropdownWithDelay();
         });
 
         populateMockNotifications();
@@ -327,28 +291,6 @@ public class NavbarController {
         popupRoot.getChildren().add(mainWrapper);
 
         return popupRoot;
-    }
-
-    private boolean isMouseOverButtonOrPopup() {
-        if (notificationButton == null) return false;
-
-        try {
-            Point2D mouse = notificationButton.getScene().getWindow().getScene().getRoot()
-                    .localToScreen(0, 0);
-
-            Bounds buttonBounds = notificationButton.localToScreen(notificationButton.getBoundsInLocal());
-
-            if (buttonBounds == null) return false;
-
-            /*
-             * JavaFX does not provide global mouse position directly here,
-             * so this method mainly works together with entered/exited flags.
-             */
-            return mouseInsideNotificationButton || mouseInsideNotificationPopup;
-
-        } catch (Exception exception) {
-            return mouseInsideNotificationButton || mouseInsideNotificationPopup;
-        }
     }
 
     private void populateMockNotifications() {
@@ -524,8 +466,6 @@ public class NavbarController {
     private void showNotificationDropdown() {
         if (notificationPopup == null || notificationButton == null) return;
 
-        cancelHideNotificationDropdown();
-
         Bounds buttonBounds = notificationButton.localToScreen(notificationButton.getBoundsInLocal());
 
         if (buttonBounds == null) {
@@ -538,18 +478,6 @@ public class NavbarController {
 
         if (!notificationPopup.isShowing()) {
             notificationPopup.show(notificationButton, popupX, popupY);
-        }
-    }
-
-    private void hideNotificationDropdownWithDelay() {
-        if (hideNotificationDelay != null) {
-            hideNotificationDelay.playFromStart();
-        }
-    }
-
-    private void cancelHideNotificationDropdown() {
-        if (hideNotificationDelay != null) {
-            hideNotificationDelay.stop();
         }
     }
 

@@ -4,9 +4,15 @@ import com.group01.asm2.dtos.AuctionFilter;
 import com.group01.asm2.dtos.ItemFilter;
 import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.models.Item;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.shape.SVGPath;
 import javafx.animation.TranslateTransition;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.utils.ScrollUtils;
@@ -22,11 +28,15 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import com.group01.asm2.models.TopUpRequest;
+
+import java.io.File;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
+import javafx.scene.control.DatePicker;
 
 public class ProfileController {
 
@@ -95,25 +105,37 @@ public class ProfileController {
     @FXML private TextField editFullNameField;
     @FXML private TextField editEmailField;
     @FXML private TextField editPhoneField;
-    @FXML private TextField editDateOfBirthField;
+    @FXML private DatePicker editDateOfBirthPicker;
     @FXML private TextField editAddressField;
 
     @FXML private StackPane addListingOverlay;
     @FXML private VBox addListingModal;
-    @FXML private TextField addListingNameField;
     @FXML private ComboBox<String> addListingCategoryComboBox;
     @FXML private TextField addListingStartingPriceField;
-    @FXML private TextField addListingCurrentBidField;
-    @FXML private ComboBox<String> addListingStatusComboBox;
-    @FXML private TextField addListingIconField;
+    @FXML private TextField addListingTitleField;
+    @FXML private TextArea addListingDescriptionArea;
+    @FXML private TextField addListingReservePriceField;
+    @FXML private ComboBox<String> addListingConditionComboBox;
+    @FXML private Label addListingImageNameLabel;
+    @FXML private ImageView addListingImagePreview;
+    @FXML private StackPane addListingImagePreviewBox;
     @FXML private Label addListingErrorLabel;
+    private File selectedListingImageFile;
+
+    @FXML private Label itemsSoldLabel;
+    @FXML private Label totalRevenueLabel;
+    @FXML private Label commissionFeesLabel;
+    @FXML private Label soldRatioLabel;
+    @FXML private Tab sellerStatisticsTab;
+
+    @FXML private BarChart<String, Number> averageSalePriceChart;
+    @FXML private LineChart<String, Number> listingTrendChart;
 
     private String fullName = "Sophia Bennett";
     private String email = "sophia.bennett@bidblitz.com";
-    private String role = "User";
+    private String role = "Seller";
     private String phone = "+84 912 345 678";
-    private String dateOfBirth = "15 March 2003";
-    private String address = "District 7, Ho Chi Minh City";
+    private LocalDate dateOfBirth = LocalDate.of(2003, 3, 15);    private String address = "District 7, Ho Chi Minh City";
     private String joinedDate = "12 January 2025";
     private String rating = "4.8 / 5.0";
     private double balance = 1250.75;
@@ -125,6 +147,9 @@ public class ProfileController {
 
     private final DateTimeFormatter dateTimeFormatter =
         DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+
+    private final DateTimeFormatter dateFormatter =
+            DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
     @FXML
     public void initialize() {
@@ -140,6 +165,8 @@ public class ProfileController {
         setupListingsCards();
         setupAddListingModal();
         setupResponsiveLayout();
+        setupSellerStatistics();
+        setupSellerOnlySections();
 
         listingSearchField.textProperty().addListener((observable, oldValue, newValue) -> filterListings());
     }
@@ -167,11 +194,12 @@ public class ProfileController {
         emailLabel.setText(email);
         roleLabel.setText(role);
         phoneLabel.setText(phone);
-        dateOfBirthLabel.setText(dateOfBirth);
+        dateOfBirthLabel.setText(
+                dateOfBirth != null ? dateOfBirth.format(dateFormatter) : "N/A"
+        );
         addressLabel.setText(address);
         joinedDateLabel.setText(joinedDate);
         ratingLabel.setText("★ " + rating);
-        statusLabel.setText("Verified User");
         updateAvatar();
     }
 
@@ -363,6 +391,32 @@ public class ProfileController {
         return card;
     }
 
+    @FXML
+    private void handleUploadListingImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose Item Image");
+
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.webp")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(addListingOverlay.getScene().getWindow());
+
+        if (selectedFile == null) {
+            return;
+        }
+
+        selectedListingImageFile = selectedFile;
+
+        addListingImageNameLabel.setText(selectedFile.getName());
+
+        Image image = new Image(selectedFile.toURI().toString());
+        addListingImagePreview.setImage(image);
+
+        addListingImagePreviewBox.setVisible(true);
+        addListingImagePreviewBox.setManaged(true);
+    }
+
     private void setupListingCardHoverAnimation(VBox card, Node imageContent) {
         TranslateTransition cardMove = new TranslateTransition(Duration.seconds(0.18), card);
 
@@ -479,15 +533,15 @@ public class ProfileController {
 
     private void setupAddListingModal() {
         addListingCategoryComboBox.setItems(FXCollections.observableArrayList(
-            "Electronics", "Fashion", "Collectibles", "Home", "Books", "Other"
+                "Electronics", "Fashion", "Collectibles", "Home", "Books", "Other"
         ));
 
-        addListingStatusComboBox.setItems(FXCollections.observableArrayList(
-            "Active", "Pending", "Sold", "Closed"
+        addListingConditionComboBox.setItems(FXCollections.observableArrayList(
+                "New", "Used", "Refurbished"
         ));
 
         addListingCategoryComboBox.setValue("Electronics");
-        addListingStatusComboBox.setValue("Active");
+        addListingConditionComboBox.setValue("Used");
     }
 
     private void setupResponsiveLayout() {
@@ -514,12 +568,87 @@ public class ProfileController {
         });
     }
 
+    private void setupSellerStatistics() {
+        // Mock summary data
+        int itemsSold = 18;
+        double totalRevenue = 12450.00;
+        double commissionFees = 622.50;
+        int soldListings = 18;
+        int unsoldListings = 7;
+
+        double soldRatio = (soldListings + unsoldListings) == 0
+                ? 0
+                : (soldListings * 100.0) / (soldListings + unsoldListings);
+
+        itemsSoldLabel.setText(String.valueOf(itemsSold));
+        totalRevenueLabel.setText(formatPrice(totalRevenue));
+        commissionFeesLabel.setText(formatPrice(commissionFees));
+        soldRatioLabel.setText(String.format("%.1f%%", soldRatio));
+
+        setupAverageSalePriceChart();
+        setupListingTrendChart();
+    }
+
+    private void setupSellerOnlySections() {
+        boolean isSeller = role != null && role.equalsIgnoreCase("Seller");
+
+        if (!isSeller) {
+            profileTabPane.getTabs().remove(sellerStatisticsTab);
+            return;
+        }
+
+        if (!profileTabPane.getTabs().contains(sellerStatisticsTab)) {
+            profileTabPane.getTabs().add(sellerStatisticsTab);
+        }
+
+        setupSellerStatistics();
+    }
+
+    private void setupAverageSalePriceChart() {
+        averageSalePriceChart.getData().clear();
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.getData().add(new XYChart.Data<>("Electronics", 780));
+        series.getData().add(new XYChart.Data<>("Fashion", 220));
+        series.getData().add(new XYChart.Data<>("Collectibles", 950));
+        series.getData().add(new XYChart.Data<>("Home", 340));
+        series.getData().add(new XYChart.Data<>("Books", 90));
+
+        averageSalePriceChart.getData().add(series);
+    }
+
+    private void setupListingTrendChart() {
+        listingTrendChart.getData().clear();
+
+        XYChart.Series<String, Number> soldSeries = new XYChart.Series<>();
+        soldSeries.setName("Sold");
+
+        soldSeries.getData().add(new XYChart.Data<>("Jan", 2));
+        soldSeries.getData().add(new XYChart.Data<>("Feb", 3));
+        soldSeries.getData().add(new XYChart.Data<>("Mar", 4));
+        soldSeries.getData().add(new XYChart.Data<>("Apr", 5));
+        soldSeries.getData().add(new XYChart.Data<>("May", 2));
+        soldSeries.getData().add(new XYChart.Data<>("Jun", 6));
+
+        XYChart.Series<String, Number> unsoldSeries = new XYChart.Series<>();
+        unsoldSeries.setName("Unsold");
+
+        unsoldSeries.getData().add(new XYChart.Data<>("Jan", 1));
+        unsoldSeries.getData().add(new XYChart.Data<>("Feb", 2));
+        unsoldSeries.getData().add(new XYChart.Data<>("Mar", 1));
+        unsoldSeries.getData().add(new XYChart.Data<>("Apr", 2));
+        unsoldSeries.getData().add(new XYChart.Data<>("May", 3));
+        unsoldSeries.getData().add(new XYChart.Data<>("Jun", 1));
+
+        listingTrendChart.getData().addAll(soldSeries, unsoldSeries);
+    }
+
     @FXML
     private void handleOpenEditProfile() {
         editFullNameField.setText(fullName);
         editEmailField.setText(email);
         editPhoneField.setText(phone);
-        editDateOfBirthField.setText(dateOfBirth);
+        editDateOfBirthPicker.setValue(dateOfBirth);
         editAddressField.setText(address);
 
         editProfileOverlay.setVisible(true);
@@ -537,7 +666,7 @@ public class ProfileController {
         fullName = editFullNameField.getText().trim();
         email = editEmailField.getText().trim();
         phone = editPhoneField.getText().trim();
-        dateOfBirth = editDateOfBirthField.getText().trim();
+        dateOfBirth = editDateOfBirthPicker.getValue();
         address = editAddressField.getText().trim();
 
         setupProfileHeader();
@@ -687,51 +816,95 @@ public class ProfileController {
 
     @FXML
     private void handleSaveListing() {
-        String name = addListingNameField.getText().trim();
-        String category = addListingCategoryComboBox.getValue();
-        String icon = addListingIconField.getText().trim();
+        String title = addListingTitleField.getText() == null
+                ? ""
+                : addListingTitleField.getText().trim();
 
-        if (name.isEmpty()) {
-            addListingErrorLabel.setText("Item name is required.");
+        String description = addListingDescriptionArea.getText() == null
+                ? ""
+                : addListingDescriptionArea.getText().trim();
+
+        String category = addListingCategoryComboBox.getValue();
+        String condition = addListingConditionComboBox.getValue();
+
+        String startingPriceText = addListingStartingPriceField.getText() == null
+                ? ""
+                : addListingStartingPriceField.getText().trim();
+
+        String reservePriceText = addListingReservePriceField.getText() == null
+                ? ""
+                : addListingReservePriceField.getText().trim();
+
+        // Required fields validation
+        if (title.isEmpty()) {
+            addListingErrorLabel.setText("Title is required.");
+            return;
+        }
+
+        if (description.isEmpty()) {
+            addListingErrorLabel.setText("Description is required.");
+            return;
+        }
+
+        if (category == null || category.trim().isEmpty()) {
+            addListingErrorLabel.setText("Category is required.");
+            return;
+        }
+
+        if (condition == null || condition.trim().isEmpty()) {
+            addListingErrorLabel.setText("Condition is required.");
+            return;
+        }
+
+        if (startingPriceText.isEmpty()) {
+            addListingErrorLabel.setText("Starting price is required.");
+            return;
+        }
+
+        if (selectedListingImageFile == null) {
+            addListingErrorLabel.setText("Item image is required.");
             return;
         }
 
         try {
-            BigDecimal startingPrice = new BigDecimal(addListingStartingPriceField.getText().trim());
-            BigDecimal currentBid = new BigDecimal(addListingCurrentBidField.getText().trim());
+            BigDecimal startingPrice = new BigDecimal(startingPriceText);
 
-            if (startingPrice.compareTo(BigDecimal.ZERO) < 0 || currentBid.compareTo(BigDecimal.ZERO) < 0) {
-                addListingErrorLabel.setText("Price values must be positive.");
+            if (startingPrice.compareTo(BigDecimal.ZERO) <= 0) {
+                addListingErrorLabel.setText("Starting price must be greater than 0.");
                 return;
             }
 
-            if (icon.isEmpty()) icon = "📦";
+            BigDecimal reservePrice = null;
 
-//            Item newItem = new Item(
-//                    null,
-//                    convertCategoryToId(category),
-//                    99,
-//                    name,
-//                    "No description yet.",
-//                    "Used",
-//                    "Unknown",
-//                    "Ho Chi Minh City",
-//                    startingPrice,
-//                    null,
-//                    null,
-//                    null
-//            );
-//
-//            newItem.setCurrentBid(currentBid);
-//            newItem.setBidCount(0);
-//            newItem.setRecommended(false);
-//            newItem.setMainBgClass(icon);
+            // Reserve price is optional
+            if (!reservePriceText.isEmpty()) {
+                reservePrice = new BigDecimal(reservePriceText);
 
-//            Item createdItem = ItemService.createItem(newItem);
+                if (reservePrice.compareTo(BigDecimal.ZERO) <= 0) {
+                    addListingErrorLabel.setText("Reserve price must be greater than 0.");
+                    return;
+                }
+
+                if (reservePrice.compareTo(startingPrice) < 0) {
+                    addListingErrorLabel.setText("Reserve price must be greater than or equal to starting price.");
+                    return;
+                }
+            }
+
+            String imagePath = selectedListingImageFile.toURI().toString();
+
+            // Later: save these values into Item model / database
+            // title
+            // description
+            // category
+            // condition
+            // startingPrice
+            // reservePrice
+            // imagePath
 
             reloadListingsFromService();
 
-//            addActivity("Created item", "Created new item: " + createdItem.getTitle() + ".");
+            addActivity("Created item", "Created new item: " + title + ".");
             handleCloseAddListing();
 
         } catch (NumberFormatException exception) {
@@ -749,14 +922,20 @@ public class ProfileController {
     }
 
     private void clearAddListingForm() {
-        addListingNameField.clear();
+        addListingTitleField.clear();
+        addListingDescriptionArea.clear();
         addListingStartingPriceField.clear();
-        addListingCurrentBidField.clear();
-        addListingIconField.clear();
+        addListingReservePriceField.clear();
         addListingErrorLabel.setText("");
 
         addListingCategoryComboBox.setValue("Electronics");
-        addListingStatusComboBox.setValue("Active");
+        addListingConditionComboBox.setValue("Used");
+
+        selectedListingImageFile = null;
+        addListingImageNameLabel.setText("No image selected");
+        addListingImagePreview.setImage(null);
+        addListingImagePreviewBox.setVisible(false);
+        addListingImagePreviewBox.setManaged(false);
     }
 
     @FXML private void handleCategoryAll() { changeCategory("All"); }
@@ -849,7 +1028,7 @@ public class ProfileController {
     }
 
     private void addActivity(String action, String description) {
-        String now = LocalDateTime.now().format(dateTimeFormatter);
+        String now = LocalDateTime.now().format(dateFormatter);
         activities.add(0, new ActivityLog(now, action, description));
     }
 
