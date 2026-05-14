@@ -1,7 +1,9 @@
 package com.group01.asm2.repositories;
 
 import com.group01.asm2.db.SqlExecutor;
+import com.group01.asm2.dtos.WonAuctionDto;
 import com.group01.asm2.enums.AuctionStatus;
+import com.group01.asm2.enums.PaymentStatus;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Auction;
 
@@ -362,5 +364,104 @@ public class AuctionRepository {
         auction.setRecommended(rs.getBoolean("recommended"));
 
         return auction;
+    }
+
+    public List<WonAuctionDto> readWonAuctionsByBuyerId(Integer buyerId) {
+        String sql = """
+        SELECT
+            a.id AS auction_id,
+            a.item_id AS item_id,
+            i.seller_id AS seller_id,
+            a.winner_id AS buyer_id,
+            p.id AS payment_id,
+
+            i.title AS item_title,
+            seller.username AS seller_username,
+            c.name AS category_name,
+            primary_image.image_url AS primary_image_url,
+
+            a.status AS auction_status,
+            p.status AS payment_status,
+
+            a.final_sale_price AS final_sale_price,
+            p.total_amount AS total_amount,
+            p.commission_amount AS commission_amount,
+            p.seller_payout AS seller_payout,
+
+            a.end_date_time AS won_date_time,
+            p.payment_date_time AS payment_date_time
+
+        FROM auctions a
+        JOIN items i ON i.id = a.item_id
+        JOIN persons seller ON seller.id = i.seller_id
+        LEFT JOIN categories c ON c.id = i.category_id
+        LEFT JOIN payments p ON p.auction_id = a.id
+                            AND p.buyer_id = a.winner_id
+        LEFT JOIN LATERAL (
+            SELECT image_url
+            FROM item_images
+            WHERE item_id = i.id
+            ORDER BY display_order ASC, id ASC
+            LIMIT 1
+        ) primary_image ON TRUE
+
+        WHERE a.winner_id = ?
+          AND a.status = 'SOLD'
+
+        ORDER BY a.end_date_time DESC, a.id DESC
+    """;
+
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> ps.setInt(1, buyerId),
+            this::mapWonAuctionDto
+        );
+    }
+
+    private WonAuctionDto mapWonAuctionDto(ResultSet rs) throws Exception {
+        String auctionStatusText = rs.getString("auction_status");
+        String paymentStatusText = rs.getString("payment_status");
+
+        AuctionStatus auctionStatus = auctionStatusText == null
+            ? null
+            : AuctionStatus.valueOf(auctionStatusText);
+
+        PaymentStatus paymentStatus = paymentStatusText == null
+            ? null
+            : PaymentStatus.valueOf(paymentStatusText);
+
+        return new WonAuctionDto(
+            rs.getInt("auction_id"),
+            rs.getInt("item_id"),
+            getNullableInt(rs, "seller_id"),
+            getNullableInt(rs, "buyer_id"),
+            getNullableInt(rs, "payment_id"),
+
+            rs.getString("item_title"),
+            rs.getString("seller_username"),
+            rs.getString("category_name"),
+            rs.getString("primary_image_url"),
+
+            auctionStatus,
+            paymentStatus,
+
+            rs.getBigDecimal("final_sale_price"),
+            rs.getBigDecimal("total_amount"),
+            rs.getBigDecimal("commission_amount"),
+            rs.getBigDecimal("seller_payout"),
+
+            getNullableLocalDateTime(rs, "won_date_time"),
+            getNullableLocalDateTime(rs, "payment_date_time")
+        );
+    }
+
+    private Integer getNullableInt(ResultSet rs, String columnName) throws Exception {
+        int value = rs.getInt(columnName);
+        return rs.wasNull() ? null : value;
+    }
+
+    private LocalDateTime getNullableLocalDateTime(ResultSet rs, String columnName) throws Exception {
+        Timestamp timestamp = rs.getTimestamp(columnName);
+        return timestamp == null ? null : timestamp.toLocalDateTime();
     }
 }

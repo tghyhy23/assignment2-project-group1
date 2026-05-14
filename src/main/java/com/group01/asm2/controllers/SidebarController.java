@@ -141,7 +141,7 @@ public class SidebarController {
     @FXML
     private void showAuctions() {
         setActiveButton(auctionsButton);
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/auctions-view.fxml");
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/won-auctions-view.fxml");
     }
 
     @FXML

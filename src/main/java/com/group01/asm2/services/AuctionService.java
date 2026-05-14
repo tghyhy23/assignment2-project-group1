@@ -3,6 +3,7 @@ package com.group01.asm2.services;
 import com.group01.asm2.configs.DatabaseConfig;
 import com.group01.asm2.core.SessionManager;
 import com.group01.asm2.dtos.AuctionFilter;
+import com.group01.asm2.dtos.WonAuctionDto;
 import com.group01.asm2.enums.ActivityActionType;
 import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.enums.ItemStatus;
@@ -329,6 +330,18 @@ public class AuctionService extends BaseService {
             validAuctionId,
             "Deleted or cancelled auction ID " + validAuctionId
         );
+    }
+
+    public List<WonAuctionDto> readWonAuctionsForCurrentUser() {
+        // 1. Require logged-in user
+        Person currentUser = getCurrentUserOrThrow();
+
+        // 2. Optional authorization check
+        // Use this only if READ_AUCTION exists and is assigned to registered users.
+        requireCurrentUser(Permission.READ_AUCTION);
+
+        // 3. Read won auction purchase records
+        return auctionRepository.readWonAuctionsByBuyerId(currentUser.getId());
     }
 
     private boolean canViewAuction(Person currentUser, Auction auction, Item item) {
