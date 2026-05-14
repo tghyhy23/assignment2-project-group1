@@ -37,15 +37,15 @@ public class SidebarController {
     @FXML
     private void initialize() {
         exploreButton.setGraphic(createExploreIcon());
-        adminDashboardButton.setGraphic(createAdminDashboardIcon());
+//        adminDashboardButton.setGraphic(createAdminDashboardIcon());
         bidsHistoryButton.setGraphic(createBidsHistoryIcon());
         auctionsButton.setGraphic(createAuctionIcon());
         profileButton.setGraphic(createProfileIcon());
-        usersButton.setGraphic(createUserIcon());
+//        usersButton.setGraphic(createUserIcon());
         adminAuctionsButton.setGraphic(createAuctionIcon());
         categoriesButton.setGraphic(createCategoryIcon());
         itemsButton.setGraphic(createItemIcon());
-        paymentsButton.setGraphic(createPaymentIcon());
+//        paymentsButton.setGraphic(createPaymentIcon());
         reportsButton.setGraphic(createReportIcon());
 
         boolean isAuctionAdmin =
@@ -57,8 +57,8 @@ public class SidebarController {
 
         setAdminVisible(isAuctionAdmin);
 
-        adminDashboardButton.setVisible(isAuctionAdmin);
-        adminDashboardButton.setManaged(isAuctionAdmin);
+//        adminDashboardButton.setVisible(isAuctionAdmin);
+//        adminDashboardButton.setManaged(isAuctionAdmin);
 
         setActiveButton(exploreButton);
     }
@@ -67,11 +67,11 @@ public class SidebarController {
         adminSectionTitle.setVisible(visible);
         adminSectionTitle.setManaged(visible);
 
-        adminDashboardButton.setVisible(visible);
-        adminDashboardButton.setManaged(visible);
+//        adminDashboardButton.setVisible(visible);
+//        adminDashboardButton.setManaged(visible);
 
-        usersButton.setVisible(visible);
-        usersButton.setManaged(visible);
+//        usersButton.setVisible(visible);
+//        usersButton.setManaged(visible);
 
         adminAuctionsButton.setVisible(visible);
         adminAuctionsButton.setManaged(visible);
@@ -82,8 +82,8 @@ public class SidebarController {
         itemsButton.setVisible(visible);
         itemsButton.setManaged(visible);
 
-        paymentsButton.setVisible(visible);
-        paymentsButton.setManaged(visible);
+//        paymentsButton.setVisible(visible);
+//        paymentsButton.setManaged(visible);
 
         reportsButton.setVisible(visible);
         reportsButton.setManaged(visible);
@@ -94,12 +94,12 @@ public class SidebarController {
 
     private void setActiveButton(Button activeButton) {
         Button[] buttons = {
-                adminDashboardButton,
-                usersButton,
+//                adminDashboardButton,
+//                usersButton,
                 adminAuctionsButton,
                 categoriesButton,
                 itemsButton,
-                paymentsButton,
+//                paymentsButton,
                 reportsButton,
                 exploreButton,
                 bidsHistoryButton,
@@ -126,11 +126,11 @@ public class SidebarController {
         NavigationService.loadPage(contentArea, "/com/group01/asm2/views/explore-view.fxml");
     }
 
-    @FXML
-    private void showAdminDashboard() {
-        setActiveButton(adminDashboardButton);
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/admin-dashboard.fxml");
-    }
+//    @FXML
+//    private void showAdminDashboard() {
+//        setActiveButton(adminDashboardButton);
+//        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/admin-dashboard.fxml");
+//    }
 
     @FXML
     private void showBidsHistory() {
@@ -150,11 +150,11 @@ public class SidebarController {
         NavigationService.loadPage(contentArea, "/com/group01/asm2/views/profile-view.fxml");
     }
 
-    @FXML
-    private void showUsersManagement() {
-        setActiveButton(usersButton);
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/users-management.fxml");
-    }
+//    @FXML
+//    private void showUsersManagement() {
+//        setActiveButton(usersButton);
+//        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/users-management.fxml");
+//    }
 
     @FXML
     private void showAuctionsManagement() {
@@ -174,11 +174,11 @@ public class SidebarController {
         NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/items-management.fxml");
     }
 
-    @FXML
-    private void showPaymentsManagement() {
-        setActiveButton(paymentsButton);
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/payments-management.fxml");
-    }
+//    @FXML
+//    private void showPaymentsManagement() {
+//        setActiveButton(paymentsButton);
+//        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/payments-management.fxml");
+//    }
 
     @FXML
     private void showReports() {

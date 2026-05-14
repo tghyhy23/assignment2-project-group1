@@ -221,35 +221,8 @@
                     <Tab text="My Listings">
                         <VBox spacing="18" styleClass="tab-content listings-section">
 
-                            <HBox spacing="14" alignment="CENTER_LEFT" styleClass="listings-top-row">
-                                <TextField fx:id="listingSearchField"
-                                           promptText="Search your listings..."
-                                           styleClass="listing-search-field"
-                                           HBox.hgrow="ALWAYS"/>
-
-                                <Region HBox.hgrow="ALWAYS"/>
-
-                                <Button text="Add Item"
-                                        onAction="#handleAddListing"
-                                        styleClass="add-listing-button"/>
-                            </HBox>
-
-                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="listing-category-bar">
-                                <Button fx:id="categoryAllButton" text="All" onAction="#handleCategoryAll" styleClass="category-chip"/>
-                                <Button fx:id="categoryElectronicsButton" text="Electronics" onAction="#handleCategoryElectronics" styleClass="category-chip"/>
-                                <Button fx:id="categoryFashionButton" text="Fashion" onAction="#handleCategoryFashion" styleClass="category-chip"/>
-                                <Button fx:id="categoryCollectiblesButton" text="Collectibles" onAction="#handleCategoryCollectibles" styleClass="category-chip"/>
-                                <Button fx:id="categoryHomeButton" text="Home" onAction="#handleCategoryHome" styleClass="category-chip"/>
-                                <Button fx:id="categoryBooksButton" text="Books" onAction="#handleCategoryBooks" styleClass="category-chip"/>
-                                <Button fx:id="categoryOtherButton" text="Other" onAction="#handleCategoryOther" styleClass="category-chip"/>
-                            </HBox>
-
-                            <TilePane fx:id="listingsCardContainer"
-                                      hgap="28"
-                                      vgap="28"
-                                      prefColumns="4"
-                                      tileAlignment="TOP_LEFT"
-                                      styleClass="listings-card-container"/>
+                            <fx:include fx:id="profileListings"
+                                        source="./components/all_auctions.fxml"/>
                         </VBox>
                     </Tab>
 

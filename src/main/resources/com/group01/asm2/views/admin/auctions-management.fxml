@@ -1,14 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.group01.asm2.controllers.AdminDashboardController"
-            prefHeight="400.0" prefWidth="600.0">
+            fx:controller="com.group01.asm2.controllers.AdminAuctionController"
+            stylesheets="@../../styles/admin/admin-auction.css"
+            styleClass="admin-auction-root">
 
+    <VBox spacing="18" fillWidth="true" AnchorPane.topAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <VBox spacing="4">
+            <Label text="Auction Management" styleClass="auction-title"/>
+            <Label text="Auction Management subtitle"
+                   styleClass="auction-subtitle"/>
+        </VBox>
+
+        <!-- Tabs -->
+        <HBox spacing="6" styleClass="auction-tabs">
+            <Button fx:id="overviewTab"
+                    text="Overview"
+                    onAction="#showOverview"
+                    styleClass="auction-tab-button"/>
+
+            <Button fx:id="usersTab"
+                    text="Users"
+                    onAction="#showUsers"
+                    styleClass="auction-tab-button"/>
+
+            <Button fx:id="auctionsTab"
+                    text="Auctions"
+                    onAction="#showAuctions"
+                    styleClass="auction-tab-button"/>
+
+            <Button fx:id="itemsTab"
+                    text="Items"
+                    onAction="#showItems"
+                    styleClass="auction-tab-button"/>
+
+            <Button fx:id="paymentsTab"
+                    text="Payments"
+                    onAction="#showPayments"
+                    styleClass="auction-tab-button"/>
+        </HBox>
+
+        <!-- Content bên dưới tabs -->
+        <AnchorPane fx:id="contentArea"
+                    VBox.vgrow="ALWAYS"
+                    maxWidth="Infinity"
+                    styleClass="auction-content-area"/>
+    </VBox>
 </AnchorPane>

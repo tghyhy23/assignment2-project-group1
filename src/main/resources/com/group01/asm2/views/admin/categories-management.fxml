@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group01.asm2.controllers.AdminDashboardController"
+            stylesheets="@../../styles/admin/admin-categories.css"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <VBox spacing="18">
+
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <VBox spacing="4">
+            <Label text="Auction Management" styleClass="dashboard-title"/>
+            <Label text="Auction Management subtitle"
+                   styleClass="dashboard-subtitle"/>
+        </VBox>
+
+        <GridPane hgap="16" vgap="16">
+
+            <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="stat-card">
+                <Label text="Total Users" styleClass="stat-label"/>
+                <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value"/>
+                <Label text="Registered accounts" styleClass="stat-desc"/>
+            </VBox>
+
+            <VBox GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="stat-card">
+                <Label text="Active Auctions" styleClass="stat-label"/>
+                <Label fx:id="activeAuctionsLabel" text="0" styleClass="stat-value"/>
+                <Label text="Currently running" styleClass="stat-desc"/>
+            </VBox>
+
+            <VBox GridPane.rowIndex="0" GridPane.columnIndex="2" styleClass="stat-card">
+                <Label text="Total Items" styleClass="stat-label"/>
+                <Label fx:id="totalItemsLabel" text="0" styleClass="stat-value"/>
+                <Label text="Listed items" styleClass="stat-desc"/>
+            </VBox>
+
+            <VBox GridPane.rowIndex="0" GridPane.columnIndex="3" styleClass="stat-card">
+                <Label text="Pending Top-ups" styleClass="stat-label"/>
+                <Label fx:id="pendingTopupsLabel" text="0" styleClass="stat-value"/>
+                <Label text="Need review" styleClass="stat-desc"/>
+            </VBox>
+
+        </GridPane>
+    </VBox>
+
+</AnchorPane>
