@@ -29,21 +29,21 @@
 
 
 
-    <Button fx:id="adminDashboardButton"
-            text="Dashboard"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showAdminDashboard"/>
+<!--    <Button fx:id="adminDashboardButton"-->
+<!--            text="Dashboard"-->
+<!--            contentDisplay="TOP"-->
+<!--            maxWidth="Infinity"-->
+<!--            prefHeight="50"-->
+<!--            styleClass="nav-button"-->
+<!--            onAction="#showAdminDashboard"/>-->
 
-    <Button fx:id="usersButton"
-            text="Users"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showUsersManagement"/>
+<!--    <Button fx:id="usersButton"-->
+<!--            text="Users"-->
+<!--            contentDisplay="TOP"-->
+<!--            maxWidth="Infinity"-->
+<!--            prefHeight="50"-->
+<!--            styleClass="nav-button"-->
+<!--            onAction="#showUsersManagement"/>-->
 
     <Button fx:id="adminAuctionsButton"
             text="Auctions"
@@ -69,13 +69,13 @@
             styleClass="nav-button"
             onAction="#showItemsManagement"/>
 
-    <Button fx:id="paymentsButton"
-            text="Payments"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showPaymentsManagement"/>
+<!--    <Button fx:id="paymentsButton"-->
+<!--            text="Payments"-->
+<!--            contentDisplay="TOP"-->
+<!--            maxWidth="Infinity"-->
+<!--            prefHeight="50"-->
+<!--            styleClass="nav-button"-->
+<!--            onAction="#showPaymentsManagement"/>-->
 
     <Button fx:id="reportsButton"
             text="Reports"

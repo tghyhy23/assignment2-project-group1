@@ -1,0 +1,58 @@
+.admin-auction-root {
+    -fx-background-color: #0b1020;
+}
+
+.auction-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.auction-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+}
+
+.auction-tabs {
+    -fx-padding: 6 0 0 0;
+    -fx-border-color: transparent transparent #334155 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.auction-tab-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 16;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 2 0;
+}
+
+.auction-tab-button:hover {
+    -fx-background-color: transparent;
+        -fx-border-color: rgba(56, 189, 248, 0.35);
+        -fx-border-width: 0 0 3 0;
+        -fx-text-fill: #cbd5e1;
+}
+
+.auction-tab-button.active-tab {
+    -fx-text-fill: #38bdf8;
+    -fx-border-color: transparent transparent #38bdf8 transparent;
+}
+
+.auction-content-area {
+    -fx-background-color: #152033;
+    -fx-background-radius: 12;
+    -fx-border-color: #334155;
+    -fx-border-radius: 12;
+    -fx-padding: 18;
+    -fx-min-height: 420;
+}
+
+.section-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
