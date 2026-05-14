@@ -1,50 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
 
-<ScrollPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.group01.asm2.controllers.BidsHistoryController"
-            fx:id="BidHistoryScrollPane"
-            fitToWidth="true"
-            hbarPolicy="NEVER"
-            vbarPolicy="AS_NEEDED"
-            pannable="true"
-            stylesheets="@../styles/views/bids_history.css"
-            styleClass="bids-scroll-pane">
-    <content>
-        <VBox spacing="18"
-              styleClass="bids-root">
-            <padding>
-                <Insets top="30" right="40" bottom="30" left="40"/>
-            </padding>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.group01.asm2.controllers.BidsHistoryController"
+           stylesheets="@../styles/views/bids_history.css">
 
-            <!-- Page Header -->
-            <VBox spacing="4">
-                <Label text="Bid History" styleClass="page-title"/>
-                <Label text="View and track your current and past bids." styleClass="page-subtitle"/>
+    <ScrollPane fx:id="BidHistoryScrollPane"
+                fitToWidth="true"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED"
+                pannable="true"
+                styleClass="bids-scroll-pane">
+
+        <content>
+            <VBox spacing="18"
+                  styleClass="bids-root">
+
+                <padding>
+                    <Insets top="30" right="40" bottom="30" left="40"/>
+                </padding>
+
+                <VBox spacing="4">
+                    <Label text="Bid History"
+                           styleClass="page-title"/>
+
+                    <Label text="View and track your current and past bids."
+                           styleClass="page-subtitle"/>
+                </VBox>
+
+                <HBox spacing="12"
+                      alignment="CENTER_LEFT"
+                      styleClass="search-action-row">
+
+                    <TextField fx:id="searchField"
+                               promptText="Search by item name, auction ID, bid status, or payment status"
+                               styleClass="search-field"
+                               HBox.hgrow="ALWAYS"/>
+
+                    <Button fx:id="filterButton"
+                            text="Filter"
+                            onAction="#handleOpenFilterForm"
+                            styleClass="filter-button"/>
+
+                    <Button fx:id="exportButton"
+                            text="Export"
+                            onAction="#handleExportBidHistory"
+                            styleClass="export-button"/>
+                </HBox>
+
+                <VBox fx:id="bidCardsContainer"
+                      spacing="16"
+                      styleClass="bid-cards-container"/>
             </VBox>
+        </content>
+    </ScrollPane>
 
-            <!-- Category Tabs -->
-            <HBox fx:id="statusTabsBox"
-                  spacing="0"
-                  styleClass="status-tabs-box"/>
+    <StackPane fx:id="filterModalOverlay"
+               visible="false"
+               managed="false"
+               pickOnBounds="true"
+               styleClass="filter-modal-overlay">
 
-            <!-- Search Bar -->
-            <TextField fx:id="searchField"
-                       promptText="Search by item name, auction ID, bid status, or payment status"
-                       styleClass="search-field"/>
+        <VBox fx:id="filterModal"
+              spacing="16"
+              maxHeight="-Infinity"
+              styleClass="filter-modal-card">
 
-            <!-- Bid History List -->
-            <VBox fx:id="bidCardsContainer"
-                          spacing="16"
-                          styleClass="bid-cards-container"/>
+            <HBox alignment="CENTER_LEFT"
+                  spacing="10">
+
+                <VBox spacing="4">
+                    <Label text="Filter Bid History"
+                           styleClass="filter-modal-title"/>
+
+                    <Label text="Choose filters to narrow down your bid records."
+                           styleClass="filter-modal-subtitle"/>
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="✕"
+                        onAction="#handleCloseFilterForm"
+                        styleClass="modal-close-button"/>
+            </HBox>
+
+            <GridPane hgap="16"
+                      vgap="12">
+
+                <Label text="Bid Status"
+                       styleClass="form-label"
+                       GridPane.rowIndex="0"
+                       GridPane.columnIndex="0"/>
+
+                <ComboBox fx:id="statusFilterBox"
+                          promptText="Select status"
+                          styleClass="form-combo"
+                          GridPane.rowIndex="1"
+                          GridPane.columnIndex="0"/>
+
+                <Label text="Payment Status"
+                       styleClass="form-label"
+                       GridPane.rowIndex="0"
+                       GridPane.columnIndex="1"/>
+
+                <ComboBox fx:id="paymentFilterBox"
+                          promptText="Select payment status"
+                          styleClass="form-combo"
+                          GridPane.rowIndex="1"
+                          GridPane.columnIndex="1"/>
+
+                <Label text="From Date"
+                       styleClass="form-label"
+                       GridPane.rowIndex="2"
+                       GridPane.columnIndex="0"/>
+
+                <DatePicker fx:id="fromDatePicker"
+                            promptText="From date"
+                            styleClass="form-date"
+                            GridPane.rowIndex="3"
+                            GridPane.columnIndex="0"/>
+
+                <Label text="To Date"
+                       styleClass="form-label"
+                       GridPane.rowIndex="2"
+                       GridPane.columnIndex="1"/>
+
+                <DatePicker fx:id="toDatePicker"
+                            promptText="To date"
+                            styleClass="form-date"
+                            GridPane.rowIndex="3"
+                            GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <HBox spacing="12"
+                  alignment="CENTER_RIGHT"
+                  styleClass="modal-footer">
+
+                <Button text="Reset"
+                        onAction="#handleResetFilters"
+                        styleClass="modal-cancel-button"/>
+
+                <Button text="Cancel"
+                        onAction="#handleCloseFilterForm"
+                        styleClass="modal-cancel-button"/>
+
+                <Button text="Apply Filters"
+                        onAction="#handleApplyFilters"
+                        styleClass="modal-save-button"/>
+            </HBox>
         </VBox>
-    </content>
-
-</ScrollPane>
+    </StackPane>
+</StackPane>

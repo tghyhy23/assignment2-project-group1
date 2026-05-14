@@ -21,91 +21,13 @@
     -fx-text-fill: #94a3b8;
     -fx-font-size: 12px;
 }
-
-/* =========================
-   Status Tabs
-========================= */
-
-.status-tabs-box {
-    -fx-background-color: transparent;
-    -fx-background-radius: 16 16 0 0;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-    -fx-padding: 0;
-    -fx-spacing: 0;
-}
-
-.status-tab {
-    -fx-background-color: transparent;
-    -fx-background-radius: 12 12 0 0;
-    -fx-border-color: transparent;
-    -fx-border-radius: 12 12 0 0;
-    -fx-border-width: 1;
-    -fx-padding: 12 18;
-    -fx-text-fill: #94a3b8;
-    -fx-font-size: 13px;
-    -fx-font-weight: 700;
-    -fx-alignment: CENTER;
-    -fx-cursor: hand;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-.status-tab:hover {
--fx-background-color: rgba(56, 189, 248, 0.10);
-    -fx-background-radius: 12 12 0 0;
-    -fx-border-color: rgba(56, 189, 248, 0.55);
-    -fx-border-radius: 12 12 0 0;
-    -fx-border-width: 1;
-    -fx-text-fill: #e0f2fe;
-    -fx-cursor: hand;
-}
-
-.status-tab-active {
--fx-background-color: #1e3a5f;
-    -fx-background-radius: 12 12 0 0;
-    -fx-border-color: #38bdf8;
-    -fx-border-radius: 12 12 0 0;
-    -fx-border-width: 1;
-    -fx-text-fill: #f8fafc;
-}
-
-.status-tab-active:hover {
-    -fx-background-color: #1e4f7a;
-    -fx-border-color: #7dd3fc;
-    -fx-text-fill: #ffffff;
-    -fx-cursor: hand;
-}
-
 /* =========================
    Search Bar
 ========================= */
 
-.search-field {
-    -fx-background-color: #111827;
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-border-color: rgba(255, 255, 255, 0.08);
-    -fx-border-width: 1;
-    -fx-text-fill: #e5e7eb;
-    -fx-prompt-text-fill: #64748b;
-    -fx-font-size: 14px;
-    -fx-padding: 14 18;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
 .search-field:hover {
     -fx-background-color: rgba(56, 189, 248, 0.08);
     -fx-border-color: rgba(56, 189, 248, 0.55);
-    -fx-prompt-text-fill: #94a3b8;
-}
-
-.search-field:focused {
-    -fx-background-color: #0f172a;
-    -fx-border-color: #38bdf8;
-    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.18), 14, 0.2, 0, 0);
-    -fx-text-fill: #f8fafc;
     -fx-prompt-text-fill: #94a3b8;
 }
 
@@ -176,7 +98,7 @@
 
 .seller-name {
     -fx-text-fill: #f8fafc;
-    -fx-font-size: 15px;
+    -fx-font-size: 14px;
     -fx-font-weight: 800;
 }
 
@@ -187,18 +109,18 @@
 
 .item-title {
     -fx-text-fill: #f8fafc;
-    -fx-font-size: 17px;
+    -fx-font-size: 18px;
     -fx-font-weight: 800;
 }
 
 .item-meta {
     -fx-text-fill: #94a3b8;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
 }
 
 .price-label {
     -fx-text-fill: #94a3b8;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
 }
 
 .price-value {
@@ -240,8 +162,8 @@
     -fx-pref-height: 96;
     -fx-max-height: 96;
 
-    -fx-background-radius: 14;
-    -fx-border-radius: 14;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
     -fx-border-color: rgba(255, 255, 255, 0.10);
     -fx-border-width: 1;
 
@@ -263,9 +185,9 @@
 ========================= */
 
 .status-badge {
-    -fx-font-size: 11px;
+    -fx-font-size: 12px;
     -fx-font-weight: 900;
-    -fx-padding: 5 10;
+    -fx-padding: 6 10;
     -fx-background-radius: 999;
 }
 
@@ -295,9 +217,9 @@
 }
 
 .payment-badge {
-    -fx-font-size: 11px;
+    -fx-font-size: 12px;
     -fx-font-weight: 900;
-    -fx-padding: 5 10;
+    -fx-padding: 6 10;
     -fx-background-radius: 999;
 }
 
@@ -328,11 +250,11 @@
 .primary-action-button {
     -fx-background-color: #1e3a5f;
     -fx-text-fill: #f8fafc;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-font-weight: 800;
     -fx-padding: 10 22;
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
     -fx-border-color: #38bdf8;
     -fx-border-width: 1;
     -fx-cursor: hand;
@@ -347,7 +269,7 @@
 .secondary-action-button {
     -fx-background-color: transparent;
     -fx-text-fill: #e5e7eb;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-font-weight: 700;
     -fx-padding: 10 22;
     -fx-background-radius: 12;
@@ -390,7 +312,7 @@
 
 .empty-subtitle {
     -fx-text-fill: #94a3b8;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
 }
 /* =========================
    Receipt Dialog Modal
@@ -499,6 +421,195 @@
 
 .receipt-total-amount {
     -fx-text-fill: #38bdf8;
-    -fx-font-size: 22px;
+    -fx-font-size: 20px;
     -fx-font-weight: 900;
+}
+
+.search-action-row {
+    -fx-alignment: center-left;
+}
+
+/* Search */
+.search-field {
+    -fx-background-color: #111827;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-padding: 10 16;
+}
+
+.search-field:focused {
+    -fx-border-color: #38bdf8;
+}
+
+/* Buttons */
+.filter-button,
+.export-button {
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-padding: 10 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.filter-button {
+    -fx-background-color: #111827;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+}
+
+.filter-button:hover {
+    -fx-background-color: rgba(56, 189, 248, 0.10);
+    -fx-border-color: rgba(56, 189, 248, 0.55);
+}
+
+.export-button {
+    -fx-background-color: linear-gradient(to right, #2563eb, #7c3aed);
+}
+
+.export-button:hover {
+    -fx-background-color: linear-gradient(to right, #1d4ed8, #6d28d9);
+}
+
+/* Filter Modal */
+.filter-modal-overlay {
+    -fx-background-color: transparent;
+    -fx-alignment: TOP_CENTER;
+    -fx-padding: 12 0 0 0;
+}
+
+.filter-modal-card {
+    -fx-background-color: linear-gradient(to bottom right, #111827, #0f172a);
+    -fx-pref-width: 620;
+    -fx-max-width: 620;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-width: 1;
+    -fx-padding: 24;
+}
+
+.filter-modal-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+}
+
+.filter-modal-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+}
+
+.modal-close-button {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 999;
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-min-width: 34;
+    -fx-min-height: 34;
+    -fx-pref-width: 34;
+    -fx-pref-height: 34;
+    -fx-cursor: hand;
+}
+
+.modal-close-button:hover {
+    -fx-background-color: rgba(255,255,255,0.10);
+}
+
+/* Form */
+.form-label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.form-combo,
+.form-date {
+    -fx-background-color: #0b1120;
+     padding: 0 0 0 4;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-width: 1;
+    -fx-pref-width: 260;
+    -fx-pref-height: 42;
+}
+
+.form-combo:focused,
+.form-date:focused {
+    -fx-border-color: #38bdf8;
+}
+
+.form-combo .list-cell,
+.form-date .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #f8fafc;
+}
+
+.form-combo .arrow-button,
+.form-date .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.form-combo .arrow,
+.form-date .arrow {
+    -fx-background-color: #94a3b8;
+}
+
+/* Combo popup */
+.combo-box-popup .list-view {
+    -fx-background-color: #0f172a;
+    -fx-border-color: rgba(56,189,248,0.25);
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #0f172a;
+    -fx-text-fill: #f8fafc;
+    -fx-padding: 10 14;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #1e293b;
+}
+
+/* Footer */
+.modal-footer {
+    -fx-padding: 8 0 0 0;
+}
+
+.modal-cancel-button {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+
+.modal-cancel-button:hover {
+    -fx-background-color: rgba(255,255,255,0.10);
+}
+
+.modal-save-button {
+    -fx-background-color: linear-gradient(to right, #2563eb, #7c3aed);
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+
+.modal-save-button:hover {
+    -fx-background-color: linear-gradient(to right, #1d4ed8, #6d28d9);
 }
