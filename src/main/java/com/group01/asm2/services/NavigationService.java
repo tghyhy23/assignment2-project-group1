@@ -48,21 +48,39 @@ public class NavigationService {
     }
 
     public static void goToAuctionDetails(Pane contentArea, Auction auction) {
+        if (auction == null || auction.getId() == null) {
+            System.err.println("ERROR: auction or auction ID is null.");
+            return;
+        }
+
+        goToAuctionDetails(contentArea, auction.getId());
+    }
+
+    public static void goToAuctionDetails(Pane contentArea, Integer auctionId) {
         if (contentArea == null) {
             System.err.println("ERROR: contentArea is null.");
             return;
         }
 
+        if (auctionId == null) {
+            System.err.println("ERROR: auctionId is null.");
+            return;
+        }
+
         try {
-            FXMLLoader loader = new FXMLLoader(NavigationService.class.getResource("/com/group01/asm2/views/auction-details.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                NavigationService.class.getResource("/com/group01/asm2/views/auction-details.fxml")
+            );
+
             Node detailsView = loader.load();
 
-            // Lấy Controller và truyền dữ liệu
             AuctionDetailsController detailsController = loader.getController();
-            detailsController.loadAuctionDetails(auction);
 
-            // Gắn giao diện mới vào vùng hiển thị
+            // Controller will load full AuctionDetailDto by itself
+            detailsController.loadAuctionDetailsById(auctionId);
+
             contentArea.getChildren().setAll(detailsView);
+
             AnchorPane.setTopAnchor(detailsView, 0.0);
             AnchorPane.setBottomAnchor(detailsView, 0.0);
             AnchorPane.setLeftAnchor(detailsView, 0.0);

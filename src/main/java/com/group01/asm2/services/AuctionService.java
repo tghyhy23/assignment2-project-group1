@@ -2,6 +2,7 @@ package com.group01.asm2.services;
 
 import com.group01.asm2.configs.DatabaseConfig;
 import com.group01.asm2.core.SessionManager;
+import com.group01.asm2.dtos.AuctionDetailDto;
 import com.group01.asm2.dtos.AuctionFilter;
 import com.group01.asm2.dtos.WonAuctionDto;
 import com.group01.asm2.enums.ActivityActionType;
@@ -94,31 +95,53 @@ public class AuctionService extends BaseService {
         return createdAuction;
     }
 
-    public Auction readAuction(Integer auctionId) {
+    public AuctionDetailDto readAuction(Integer auctionId) {
         // 1. Validate auction ID
         Integer validAuctionId = validateId(auctionId, "Auction ID");
 
-        // 2. Read auction
-        Auction auction = auctionRepository.readAuctionById(validAuctionId);
-        if (auction == null) {
+        // 2. Read full detail DTO from repository
+        AuctionDetailDto detail = auctionRepository.readAuction(validAuctionId);
+
+        if (detail == null || detail.getAuction() == null) {
             throw AppException.notFound("Auction not found.");
         }
 
-        // 3. Read associated item
-        Item item = itemRepository.readItemById(auction.getItemId());
-        if (item == null) {
+        if (detail.getItem() == null) {
             throw AppException.notFound("Item for auction not found.");
         }
 
-        // 4. Check visibility
+        // 3. Check visibility using existing auction visibility rule
         Person currentUser = SessionManager.getCurrentUser();
 
-        if (!canViewAuction(currentUser, auction, item)) {
+        if (!canViewAuction(currentUser, detail.getAuction(), detail.getItem())) {
             throw AppException.notFound("Auction not available.");
         }
 
-        // 5. Return auction
-        return auction;
+        // 4. Resolve current user flags
+        boolean loggedIn = currentUser != null;
+        boolean owner = loggedIn && detail.getItem().isOwnedBy(currentUser.getId());
+        boolean admin = loggedIn && isAdmin(currentUser);
+
+        boolean activeAndNotDue = detail.getAuction().isActive()
+            && !detail.getAuction().isDue(LocalDateTime.now());
+
+        boolean canBid = loggedIn
+            && !owner
+            && !admin
+            && detail.getItem().isActive()
+            && activeAndNotDue;
+
+        detail.setOwner(owner);
+        detail.setCanBid(canBid);
+        detail.setCanEdit(loggedIn && (owner || admin));
+        detail.setCanDelete(loggedIn && (owner || admin));
+        detail.setCanModerate(admin);
+        detail.setCanProcessAuction(admin);
+
+        // Watchlist can be connected later through AuctionWatchlistRepository.
+        detail.setWatching(false);
+
+        return detail;
     }
 
     public List<Auction> readAuctions(AuctionFilter filter) {
@@ -166,170 +189,172 @@ public class AuctionService extends BaseService {
                                  BigDecimal reservePrice,
                                  Boolean recommended) {
         // 1. Check current user and authorization
-        getCurrentUserOrThrow();
-        requireCurrentUser(Permission.UPDATE_AUCTION);
-
-        // 2. Validate auction ID
-        Integer validAuctionId = validateId(auctionId, "Auction ID");
-
-        // 3. Read existing auction and item
-        Auction existingAuction = auctionRepository.readAuctionById(validAuctionId);
-        if (existingAuction == null) {
-            throw AppException.notFound("Auction not found.");
-        }
-
-        Item item = itemRepository.readItemById(existingAuction.getItemId());
-        if (item == null) {
-            throw AppException.notFound("Item for auction not found.");
-        }
-
-        // 4. Resolve update values
-        LocalDateTime resolvedStart = startDateTime == null
-            ? existingAuction.getStartDateTime()
-            : startDateTime;
-
-        LocalDateTime resolvedEnd = endDateTime == null
-            ? existingAuction.getEndDateTime()
-            : endDateTime;
-
-        AuctionStatus resolvedStatus = status == null
-            ? existingAuction.getStatus()
-            : status;
-
-        boolean resolvedRecommended = recommended == null
-            ? existingAuction.isRecommended()
-            : recommended;
-
-        // 5. Validate update request
-        validateAuctionTime(resolvedStart, resolvedEnd);
-        validateStatusTransition(existingAuction, resolvedStatus);
-        validateReservePrice(item, reservePrice);
-
-        boolean hasBids = auctionRepository.hasBids(validAuctionId);
-        boolean hasPayment = auctionRepository.hasPayment(validAuctionId);
-
-        if (hasBids) {
-            if (!Objects.equals(resolvedStart, existingAuction.getStartDateTime())) {
-                throw AppException.conflict("Cannot change auction start time after bids exist.");
-            }
-
-            if (resolvedEnd.isBefore(existingAuction.getEndDateTime())) {
-                throw AppException.conflict("Cannot shorten auction end time after bids exist.");
-            }
-        }
-
-        if (hasPayment && existingAuction.getStatus() == AuctionStatus.SOLD) {
-            throw AppException.conflict("Cannot update sold auction because payment already exists.");
-        }
-
-        // 6. Apply update values
-        existingAuction.setStartDateTime(resolvedStart);
-        existingAuction.setEndDateTime(resolvedEnd);
-        existingAuction.setStatus(resolvedStatus);
-        existingAuction.setRecommended(resolvedRecommended);
-
-        if (reservePrice != null) {
-            item.setReservePrice(reservePrice);
-        }
-
-        // 7. Save auction and item reserve price in one transaction
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            conn.setAutoCommit(false);
-
-            try {
-                Auction updatedAuction = auctionRepository.updateAuction(conn, existingAuction);
-
-                if (updatedAuction == null) {
-                    throw AppException.notFound("Auction not found.");
-                }
-
-                if (reservePrice != null) {
-                    itemRepository.updateItem(conn, item);
-                }
-
-                conn.commit();
-
-                // 8. Record activity log
-                activityLogService.createActivityLog(
-                    ActivityActionType.UPDATE_AUCTION,
-                    "Auction",
-                    updatedAuction.getId(),
-                    "Updated auction ID " + updatedAuction.getId()
-                );
-
-                // 9. Return updated auction
-                return updatedAuction;
-
-            } catch (Exception exception) {
-                conn.rollback();
-                throw exception;
-            }
-
-        } catch (AppException exception) {
-            throw exception;
-        } catch (Exception exception) {
-            throw AppException.database("Could not update auction.");
-        }
+//        getCurrentUserOrThrow();
+//        requireCurrentUser(Permission.UPDATE_AUCTION);
+//
+//        // 2. Validate auction ID
+//        Integer validAuctionId = validateId(auctionId, "Auction ID");
+//
+//        // 3. Read existing auction and item
+//        AuctionDetailDto existingAuction = auctionRepository.readAuction(validAuctionId);
+//        if (existingAuction == null) {
+//            throw AppException.notFound("Auction not found.");
+//        }
+//
+//        Item item = itemRepository.readItemById(existingAuction.getItemId());
+//        if (item == null) {
+//            throw AppException.notFound("Item for auction not found.");
+//        }
+//
+//        // 4. Resolve update values
+//        LocalDateTime resolvedStart = startDateTime == null
+//            ? existingAuction.getStartDateTime()
+//            : startDateTime;
+//
+//        LocalDateTime resolvedEnd = endDateTime == null
+//            ? existingAuction.getEndDateTime()
+//            : endDateTime;
+//
+//        AuctionStatus resolvedStatus = status == null
+//            ? existingAuction.getStatus()
+//            : status;
+//
+//        boolean resolvedRecommended = recommended == null
+//            ? existingAuction.isRecommended()
+//            : recommended;
+//
+//        // 5. Validate update request
+//        validateAuctionTime(resolvedStart, resolvedEnd);
+//        validateStatusTransition(existingAuction, resolvedStatus);
+//        validateReservePrice(item, reservePrice);
+//
+//        boolean hasBids = auctionRepository.hasBids(validAuctionId);
+//        boolean hasPayment = auctionRepository.hasPayment(validAuctionId);
+//
+//        if (hasBids) {
+//            if (!Objects.equals(resolvedStart, existingAuction.getStartDateTime())) {
+//                throw AppException.conflict("Cannot change auction start time after bids exist.");
+//            }
+//
+//            if (resolvedEnd.isBefore(existingAuction.getEndDateTime())) {
+//                throw AppException.conflict("Cannot shorten auction end time after bids exist.");
+//            }
+//        }
+//
+//        if (hasPayment && existingAuction.getStatus() == AuctionStatus.SOLD) {
+//            throw AppException.conflict("Cannot update sold auction because payment already exists.");
+//        }
+//
+//        // 6. Apply update values
+//        existingAuction.setStartDateTime(resolvedStart);
+//        existingAuction.setEndDateTime(resolvedEnd);
+//        existingAuction.setStatus(resolvedStatus);
+//        existingAuction.setRecommended(resolvedRecommended);
+//
+//        if (reservePrice != null) {
+//            item.setReservePrice(reservePrice);
+//        }
+//
+//        // 7. Save auction and item reserve price in one transaction
+//        try (Connection conn = DatabaseConfig.getConnection()) {
+//            conn.setAutoCommit(false);
+//
+//            try {
+//                Auction updatedAuction = auctionRepository.updateAuction(conn, existingAuction);
+//
+//                if (updatedAuction == null) {
+//                    throw AppException.notFound("Auction not found.");
+//                }
+//
+//                if (reservePrice != null) {
+//                    itemRepository.updateItem(conn, item);
+//                }
+//
+//                conn.commit();
+//
+//                // 8. Record activity log
+//                activityLogService.createActivityLog(
+//                    ActivityActionType.UPDATE_AUCTION,
+//                    "Auction",
+//                    updatedAuction.getId(),
+//                    "Updated auction ID " + updatedAuction.getId()
+//                );
+//
+//                // 9. Return updated auction
+//                return updatedAuction;
+//
+//            } catch (Exception exception) {
+//                conn.rollback();
+//                throw exception;
+//            }
+//
+//        } catch (AppException exception) {
+//            throw exception;
+//        } catch (Exception exception) {
+//            throw AppException.database("Could not update auction.");
+//        }
+        return null ;
     }
 
     public void deleteAuction(Integer auctionId) {
-        // 1. Check current user and authorization
-        getCurrentUserOrThrow();
-        requireCurrentUser(Permission.DELETE_AUCTION);
-
-        // 2. Validate auction ID
-        Integer validAuctionId = validateId(auctionId, "Auction ID");
-
-        // 3. Read existing auction and item
-        Auction auction = auctionRepository.readAuctionById(validAuctionId);
-        if (auction == null) {
-            throw AppException.notFound("Auction not found.");
-        }
-
-        Item item = itemRepository.readItemById(auction.getItemId());
-        if (item == null) {
-            throw AppException.notFound("Item for auction not found.");
-        }
-
-        // 4. Decide hard delete or cancellation
-        boolean hasBids = auctionRepository.hasBids(validAuctionId);
-        boolean hasPayment = auctionRepository.hasPayment(validAuctionId);
-
-        try (Connection conn = DatabaseConfig.getConnection()) {
-            conn.setAutoCommit(false);
-
-            try {
-                if (!hasBids && !hasPayment) {
-                    auctionRepository.deleteAuction(conn, auction.getId());
-                    itemRepository.deleteItem(conn, item.getId());
-                } else {
-                    auction.setStatus(AuctionStatus.CANCELLED);
-                    item.setStatus(ItemStatus.CANCELLED);
-
-                    auctionRepository.updateAuction(conn, auction);
-                    itemRepository.updateItem(conn, item);
-                }
-
-                conn.commit();
-
-            } catch (Exception exception) {
-                conn.rollback();
-                throw exception;
-            }
-
-        } catch (AppException exception) {
-            throw exception;
-        } catch (Exception exception) {
-            throw AppException.database("Could not delete auction.");
-        }
-
-        // 5. Record activity log
-        activityLogService.createActivityLog(
-            ActivityActionType.DELETE_AUCTION,
-            "Auction",
-            validAuctionId,
-            "Deleted or cancelled auction ID " + validAuctionId
-        );
+//        // 1. Check current user and authorization
+//        getCurrentUserOrThrow();
+//        requireCurrentUser(Permission.DELETE_AUCTION);
+//
+//        // 2. Validate auction ID
+//        Integer validAuctionId = validateId(auctionId, "Auction ID");
+//
+//        // 3. Read existing auction and item
+//        AuctionDetailDto auction = auctionRepository.readAuction(validAuctionId);
+//        if (auction == null) {
+//            throw AppException.notFound("Auction not found.");
+//        }
+//
+//        Item item = itemRepository.readItemById(auction.getItemId());
+//        if (item == null) {
+//            throw AppException.notFound("Item for auction not found.");
+//        }
+//
+//        // 4. Decide hard delete or cancellation
+//        boolean hasBids = auctionRepository.hasBids(validAuctionId);
+//        boolean hasPayment = auctionRepository.hasPayment(validAuctionId);
+//
+//        try (Connection conn = DatabaseConfig.getConnection()) {
+//            conn.setAutoCommit(false);
+//
+//            try {
+//                if (!hasBids && !hasPayment) {
+//                    auctionRepository.deleteAuction(conn, auction.getId());
+//                    itemRepository.deleteItem(conn, item.getId());
+//                } else {
+//                    auction.setStatus(AuctionStatus.CANCELLED);
+//                    item.setStatus(ItemStatus.CANCELLED);
+//
+//                    auctionRepository.updateAuction(conn, auction);
+//                    itemRepository.updateItem(conn, item);
+//                }
+//
+//                conn.commit();
+//
+//            } catch (Exception exception) {
+//                conn.rollback();
+//                throw exception;
+//            }
+//
+//        } catch (AppException exception) {
+//            throw exception;
+//        } catch (Exception exception) {
+//            throw AppException.database("Could not delete auction.");
+//        }
+//
+//        // 5. Record activity log
+//        activityLogService.createActivityLog(
+//            ActivityActionType.DELETE_AUCTION,
+//            "Auction",
+//            validAuctionId,
+//            "Deleted or cancelled auction ID " + validAuctionId
+//        );
+        return;
     }
 
     public List<WonAuctionDto> readWonAuctionsForCurrentUser() {
@@ -354,6 +379,10 @@ public class AuctionService extends BaseService {
         }
 
         if (currentUser != null && item.isOwnedBy(currentUser.getId())) {
+            return true;
+        }
+
+        if (currentUser != null && Objects.equals(auction.getWinnerId(), currentUser.getId())) {
             return true;
         }
 

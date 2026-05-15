@@ -9,6 +9,7 @@ import com.group01.asm2.dtos.WonAuctionDto;
 import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.enums.PaymentStatus;
 import com.group01.asm2.enums.ItemCondition;
+import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Auction;
 import com.group01.asm2.models.Item;
 import com.group01.asm2.services.AuctionService;
@@ -133,7 +134,7 @@ public class AuctionsController {
 
         if (wonAuctionsTable != null) {
             setupWonAuctionTable();
-            loadWonAuctionsForUiOnly();
+            loadWonAuctions();
             updateWonAuctionSummaryCards();
             makeTableResponsive(wonAuctionsTable);
         }
@@ -271,18 +272,48 @@ public class AuctionsController {
         wonAuctionsTable.setItems(wonAuctionsList);
     }
 
-    private void loadWonAuctionsForUiOnly() {
-        wonAuctionsList.clear();
+    private void loadWonAuctions() {
+        try {
+            wonAuctionsList.clear();
 
-        /*
-         * Frontend-only placeholder.
-         *
-         * Later, replace this with backend/service data:
-         *
-         * wonAuctionsList.addAll(
-         *     wonAuctionService.readWonAuctionsForCurrentUser()
-         * );
-         */
+            wonAuctionsList.addAll(
+                auctionService.readWonAuctionsForCurrentUser()
+            );
+
+            if (wonAuctionsTable != null) {
+                wonAuctionsTable.setPlaceholder(
+                    new Label("No won auctions found.")
+                );
+            }
+
+        } catch (AppException exception) {
+            wonAuctionsList.clear();
+
+            if (wonAuctionsTable != null) {
+                wonAuctionsTable.setPlaceholder(
+                    new Label(exception.getMessage())
+                );
+            }
+
+            if (exportPurchaseSummaryButton != null) {
+                exportPurchaseSummaryButton.setDisable(true);
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
+            wonAuctionsList.clear();
+
+            if (wonAuctionsTable != null) {
+                wonAuctionsTable.setPlaceholder(
+                    new Label("Could not load your won auctions.")
+                );
+            }
+
+            if (exportPurchaseSummaryButton != null) {
+                exportPurchaseSummaryButton.setDisable(true);
+            }
+        }
     }
 
     private void updateWonAuctionSummaryCards() {

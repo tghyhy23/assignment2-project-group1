@@ -1,5 +1,6 @@
 package com.group01.asm2.controllers;
 
+import com.group01.asm2.dtos.AuctionDetailDto;
 import com.group01.asm2.dtos.AuctionFilter;
 import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.models.Auction;

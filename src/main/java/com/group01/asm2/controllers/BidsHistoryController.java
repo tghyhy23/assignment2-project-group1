@@ -1,6 +1,8 @@
 package com.group01.asm2.controllers;
 
+import com.group01.asm2.dtos.AuctionDetailDto;
 import com.group01.asm2.dtos.BidHistoryDto;
+import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Auction;
 import com.group01.asm2.services.AuctionService;
 import com.group01.asm2.services.BidService;
@@ -89,27 +91,27 @@ public class BidsHistoryController extends BaseController {
     }
 
     private void loadBidHistory() {
-
         try {
-
             bidHistory.clear();
 
             bidHistory.addAll(
-                    bidService.readMyBidHistory()
+                bidService.readMyBidHistory()
             );
 
             refreshBidCards();
 
-        } catch (Exception exception) {
+        } catch (AppException exception) {
+            bidCardsContainer.getChildren().clear();
+            bidCardsContainer.getChildren().add(
+                createErrorState(exception.getMessage())
+            );
 
+        } catch (Exception exception) {
             exception.printStackTrace();
 
             bidCardsContainer.getChildren().clear();
-
             bidCardsContainer.getChildren().add(
-                    createErrorState(
-                            "Could not load your bid history."
-                    )
+                createErrorState("Could not load your bid history.")
             );
         }
     }
@@ -747,39 +749,25 @@ public class BidsHistoryController extends BaseController {
         return button;
     }
 
-    private void goToAuctionDetails(
-            BidHistoryDto bid
-    ) {
-
-        Auction auction =
-                auctionService.readAuction(
-                        bid.getBid().getAuctionId()
-                );
-
-        if (auction == null) {
-
+    private void goToAuctionDetails(BidHistoryDto bid) {
+        if (bid == null || bid.getBid() == null || bid.getBid().getAuctionId() == null) {
             showError("Auction not found.");
-
             return;
         }
 
         Pane contentArea =
-                (Pane) bidCardsContainer
-                        .getScene()
-                        .lookup("#contentArea");
+            (Pane) bidCardsContainer
+                .getScene()
+                .lookup("#contentArea");
 
         if (contentArea == null) {
-
-            showError(
-                    "Could not open auction details."
-            );
-
+            showError("Could not open auction details.");
             return;
         }
 
         NavigationService.goToAuctionDetails(
-                contentArea,
-                auction
+            contentArea,
+            bid.getBid().getAuctionId()
         );
     }
 
