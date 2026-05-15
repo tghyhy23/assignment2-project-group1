@@ -162,13 +162,13 @@ public class ProfileController {
         setupResponsiveEditProfileButton();
         setupActivityTable();
         makeTableResponsive(activityTable);
-        setupListingsCards();
+//        setupListingsCards();
         setupAddListingModal();
         setupResponsiveLayout();
         setupSellerStatistics();
         setupSellerOnlySections();
 
-        listingSearchField.textProperty().addListener((observable, oldValue, newValue) -> filterListings());
+//        listingSearchField.textProperty().addListener((observable, oldValue, newValue) -> filterListings());
     }
 
     private void loadDataFromServices() {
@@ -288,29 +288,29 @@ public class ProfileController {
         updateCategoryChipStyles();
         filterListings();
 
-        listingsCardContainer.widthProperty().addListener((observable, oldValue, newValue) -> filterListings());
+//        listingsCardContainer.widthProperty().addListener((observable, oldValue, newValue) -> filterListings());
     }
 
     private void filterListings() {
-        listingsCardContainer.getChildren().clear();
+//        listingsCardContainer.getChildren().clear();
 
-        String keyword = listingSearchField.getText() == null
-            ? ""
-            : listingSearchField.getText().trim().toLowerCase();
+//        String keyword = listingSearchField.getText() == null
+//            ? ""
+//            : listingSearchField.getText().trim().toLowerCase();
 
         for (Item item : listings) {
             if (item == null) continue;
 
             String title = item.getTitle() == null ? "" : item.getTitle().toLowerCase();
 
-            boolean matchesSearch = title.contains(keyword);
+//            boolean matchesSearch = title.contains(keyword);
 
             boolean matchesCategory = selectedListingCategory.equals("All")
                 || convertCategoryToName(item.getCategoryId()).equalsIgnoreCase(selectedListingCategory);
 
-            if (matchesSearch && matchesCategory) {
-                listingsCardContainer.getChildren().add(createListingCard(item));
-            }
+//            if (matchesSearch && matchesCategory) {
+//                listingsCardContainer.getChildren().add(createListingCard(item));
+//            }
         }
     }
 
@@ -318,10 +318,10 @@ public class ProfileController {
         VBox card = new VBox(12);
         card.getStyleClass().add("listing-card");
 
-        double cardWidth = calculateCardWidth();
-        card.setPrefWidth(cardWidth);
-        card.setMinWidth(cardWidth);
-        card.setMaxWidth(cardWidth);
+//        double cardWidth = calculateCardWidth();
+//        card.setPrefWidth(cardWidth);
+//        card.setMinWidth(cardWidth);
+//        card.setMaxWidth(cardWidth);
 
         StackPane imageSection = createListingImageSection(item, card);
         setupListingCardHoverAnimation(card, imageSection);
@@ -519,16 +519,16 @@ public class ProfileController {
     }
 
     private double calculateCardWidth() {
-        double containerWidth = listingsCardContainer.getWidth();
-
-        if (containerWidth <= 0) {
-            return 280;
-        }
-
-        double gap = listingsCardContainer.getHgap();
-        double totalGap = gap * 3; // 4 items = 3 gaps
-
-        return (containerWidth - totalGap) / 4;
+//        double containerWidth = listingsCardContainer.getWidth();
+//
+//        if (containerWidth <= 0) {
+//            return 280;
+//        }
+//
+//        double gap = listingsCardContainer.getHgap();
+//        double totalGap = gap * 3; // 4 items = 3 gaps
+//
+        return 4;
     }
 
     private void setupAddListingModal() {
@@ -947,9 +947,9 @@ public class ProfileController {
     @FXML private void handleCategoryOther() { changeCategory("Other"); }
 
     private void changeCategory(String category) {
-        selectedListingCategory = category;
-        updateCategoryChipStyles();
-        filterListings();
+//        selectedListingCategory = category;
+//        updateCategoryChipStyles();
+//        filterListings();
     }
 
     private void updateCategoryChipStyles() {

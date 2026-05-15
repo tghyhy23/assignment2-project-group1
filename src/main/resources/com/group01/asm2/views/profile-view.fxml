@@ -167,177 +167,178 @@
                                styleClass="section-subtitle"/>
                     </VBox>
                 </HBox>
+                <StackPane VBox.vgrow="NEVER">
+                    <TabPane fx:id="profileTabPane"
+                             tabClosingPolicy="UNAVAILABLE"
+                             styleClass="profile-tab-pane"
+                             VBox.vgrow="NEVER">
 
-                <TabPane fx:id="profileTabPane"
-                         tabClosingPolicy="UNAVAILABLE"
-                         styleClass="profile-tab-pane"
-                         VBox.vgrow="NEVER">
+                        <Tab text="Wallet">
+                            <VBox spacing="18" styleClass="tab-content">
 
-                    <Tab text="Wallet">
-                        <VBox spacing="18" styleClass="tab-content">
+                                <HBox fx:id="walletPanelRow" spacing="16">
+                                    <VBox spacing="8" styleClass="wallet-panel">
+                                        <Label text="Account Balance" styleClass="panel-title"/>
+                                        <Label fx:id="walletBalanceLabel"
+                                               text="0.00"
+                                               styleClass="big-money-label"/>
+                                        <Label text="Your balance is used to place bids. Top-up requests require admin approval."
+                                               wrapText="true"
+                                               styleClass="panel-description"/>
+                                    </VBox>
 
-                            <HBox fx:id="walletPanelRow" spacing="16">
-                                <VBox spacing="8" styleClass="wallet-panel">
-                                    <Label text="Account Balance" styleClass="panel-title"/>
-                                    <Label fx:id="walletBalanceLabel"
-                                           text="0.00"
-                                           styleClass="big-money-label"/>
-                                    <Label text="Your balance is used to place bids. Top-up requests require admin approval."
-                                           wrapText="true"
-                                           styleClass="panel-description"/>
-                                </VBox>
+                                    <VBox spacing="8" styleClass="wallet-panel">
+                                        <Label text="Top-up Request" styleClass="panel-title"/>
+                                        <Label fx:id="topUpStatusLabel"
+                                               text="No pending request"
+                                               styleClass="status-neutral"/>
+                                        <Label text="Balance will only update after an administrator approves the request."
+                                               wrapText="true"
+                                               styleClass="panel-description"/>
+                                    </VBox>
 
-                                <VBox spacing="8" styleClass="wallet-panel">
-                                    <Label text="Top-up Request" styleClass="panel-title"/>
-                                    <Label fx:id="topUpStatusLabel"
-                                           text="No pending request"
-                                           styleClass="status-neutral"/>
-                                    <Label text="Balance will only update after an administrator approves the request."
-                                           wrapText="true"
-                                           styleClass="panel-description"/>
-                                </VBox>
-
-                                <VBox spacing="8" styleClass="wallet-panel">
-                                    <Label text="Recent Auction Status" styleClass="panel-title"/>
-                                    <Label fx:id="recentAuctionStatusLabel"
-                                           text="No recent auction update."
-                                           styleClass="status-success"/>
-                                    <Label text="Auction activity is tracked separately in My Bids and Watchlist pages."
-                                           wrapText="true"
-                                           styleClass="panel-description"/>
-                                </VBox>
-                            </HBox>
-
-                            <VBox spacing="12" styleClass="quick-actions-card">
-                                <Label text="Quick Actions" styleClass="panel-title"/>
-
-                                <HBox spacing="12">
-                                    <Button text="Request Top-up"
-                                            onAction="#handleOpenTopUp"
-                                            styleClass="primary-button"/>
+                                    <VBox spacing="8" styleClass="wallet-panel">
+                                        <Label text="Recent Auction Status" styleClass="panel-title"/>
+                                        <Label fx:id="recentAuctionStatusLabel"
+                                               text="No recent auction update."
+                                               styleClass="status-success"/>
+                                        <Label text="Auction activity is tracked separately in My Bids and Watchlist pages."
+                                               wrapText="true"
+                                               styleClass="panel-description"/>
+                                    </VBox>
                                 </HBox>
+
+                                <VBox spacing="12" styleClass="quick-actions-card">
+                                    <Label text="Quick Actions" styleClass="panel-title"/>
+
+                                    <HBox spacing="12">
+                                        <Button text="Request Top-up"
+                                                onAction="#handleOpenTopUp"
+                                                styleClass="primary-button"/>
+                                    </HBox>
+
+                                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="listing-category-bar">
+                                        <Button fx:id="categoryAllButton" text="All" onAction="#handleCategoryAll" styleClass="category-chip"/>
+                                        <Button fx:id="categoryElectronicsButton" text="Electronics" onAction="#handleCategoryElectronics" styleClass="category-chip"/>
+                                        <Button fx:id="categoryFashionButton" text="Fashion" onAction="#handleCategoryFashion" styleClass="category-chip"/>
+                                        <Button fx:id="categoryCollectiblesButton" text="Collectibles" onAction="#handleCategoryCollectibles" styleClass="category-chip"/>
+                                        <Button fx:id="categoryHomeButton" text="Home" onAction="#handleCategoryHome" styleClass="category-chip"/>
+                                        <Button fx:id="categoryBooksButton" text="Books" onAction="#handleCategoryBooks" styleClass="category-chip"/>
+                                        <Button fx:id="categoryOtherButton" text="Other" onAction="#handleCategoryOther" styleClass="category-chip"/>
+                                    </HBox>
+                                </VBox>
                             </VBox>
-                        </VBox>
-                    </Tab>
+                        </Tab>
 
-                    <Tab text="My Listings">
-                        <VBox spacing="18" styleClass="tab-content listings-section">
+                        <Tab text="My Listings">
+                            <VBox spacing="18" styleClass="tab-content listings-section">
 
-                            <HBox spacing="14" alignment="CENTER_LEFT" styleClass="listings-top-row">
-                                <TextField fx:id="listingSearchField"
-                                           promptText="Search your listings..."
-                                           styleClass="listing-search-field"
-                                           HBox.hgrow="ALWAYS"/>
+                                <fx:include fx:id="profileListings"
+                                            source="./components/all_auctions.fxml"/>
 
-                                <Region HBox.hgrow="ALWAYS"/>
+    <!--                            <TilePane fx:id="listingsCardContainer"-->
+    <!--                                      hgap="28"-->
+    <!--                                      vgap="28"-->
+    <!--                                      prefColumns="4"-->
+    <!--                                      tileAlignment="TOP_LEFT"-->
+    <!--                                      styleClass="listings-card-container"/>-->
+                            </VBox>
+                        </Tab>
 
-                                <Button text="Add Item"
-                                        onAction="#handleAddListing"
-                                        styleClass="add-listing-button"/>
-                            </HBox>
+                        <Tab text="Activity Log">
+                            <VBox spacing="12" styleClass="tab-content">
+                                <Label text="Your personal activity history inside BidBlitz."
+                                       styleClass="table-hint"/>
 
-                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="listing-category-bar">
-                                <Button fx:id="categoryAllButton" text="All" onAction="#handleCategoryAll" styleClass="category-chip"/>
-                                <Button fx:id="categoryElectronicsButton" text="Electronics" onAction="#handleCategoryElectronics" styleClass="category-chip"/>
-                                <Button fx:id="categoryFashionButton" text="Fashion" onAction="#handleCategoryFashion" styleClass="category-chip"/>
-                                <Button fx:id="categoryCollectiblesButton" text="Collectibles" onAction="#handleCategoryCollectibles" styleClass="category-chip"/>
-                                <Button fx:id="categoryHomeButton" text="Home" onAction="#handleCategoryHome" styleClass="category-chip"/>
-                                <Button fx:id="categoryBooksButton" text="Books" onAction="#handleCategoryBooks" styleClass="category-chip"/>
-                                <Button fx:id="categoryOtherButton" text="Other" onAction="#handleCategoryOther" styleClass="category-chip"/>
-                            </HBox>
+                                <TableView fx:id="activityTable" styleClass="modern-table">
+                                    <columns>
+                                        <TableColumn fx:id="activityDateTimeColumn" text="Date / Time"/>
+                                        <TableColumn fx:id="activityActionColumn" text="Action"/>
+                                        <TableColumn fx:id="activityDescriptionColumn" text="Description"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </Tab>
 
-                            <TilePane fx:id="listingsCardContainer"
-                                      hgap="28"
-                                      vgap="28"
-                                      prefColumns="4"
-                                      tileAlignment="TOP_LEFT"
-                                      styleClass="listings-card-container"/>
-                        </VBox>
-                    </Tab>
+                        <Tab fx:id="sellerStatisticsTab" text="Seller Statistics">
+                            <VBox spacing="18" styleClass="tab-content seller-stats-section">
 
-                    <Tab text="Activity Log">
-                        <VBox spacing="12" styleClass="tab-content">
-                            <Label text="Your personal activity history inside BidBlitz."
-                                   styleClass="table-hint"/>
+                                <HBox spacing="16" styleClass="seller-stats-summary-row">
+                                    <VBox spacing="8" styleClass="summary-card">
+                                        <Label text="Items Sold" styleClass="summary-title"/>
+                                        <Label fx:id="itemsSoldLabel" text="0" styleClass="summary-value"/>
+                                        <Label text="Completed successful sales" styleClass="summary-note"/>
+                                    </VBox>
 
-                            <TableView fx:id="activityTable" styleClass="modern-table">
-                                <columns>
-                                    <TableColumn fx:id="activityDateTimeColumn" text="Date / Time"/>
-                                    <TableColumn fx:id="activityActionColumn" text="Action"/>
-                                    <TableColumn fx:id="activityDescriptionColumn" text="Description"/>
-                                </columns>
-                            </TableView>
-                        </VBox>
-                    </Tab>
+                                    <VBox spacing="8" styleClass="summary-card">
+                                        <Label text="Total Revenue" styleClass="summary-title"/>
+                                        <Label fx:id="totalRevenueLabel" text="0.00" styleClass="summary-value"/>
+                                        <Label text="Total amount earned from sold items" styleClass="summary-note"/>
+                                    </VBox>
 
-                    <Tab fx:id="sellerStatisticsTab" text="Seller Statistics">
-                        <VBox spacing="18" styleClass="tab-content seller-stats-section">
+                                    <VBox spacing="8" styleClass="summary-card">
+                                        <Label text="Commission Fees" styleClass="summary-title"/>
+                                        <Label fx:id="commissionFeesLabel" text="0.00" styleClass="summary-value"/>
+                                        <Label text="Platform fees paid on completed sales" styleClass="summary-note"/>
+                                    </VBox>
 
-                            <HBox spacing="16" styleClass="seller-stats-summary-row">
-                                <VBox spacing="8" styleClass="summary-card">
-                                    <Label text="Items Sold" styleClass="summary-title"/>
-                                    <Label fx:id="itemsSoldLabel" text="0" styleClass="summary-value"/>
-                                    <Label text="Completed successful sales" styleClass="summary-note"/>
-                                </VBox>
+                                    <VBox spacing="8" styleClass="summary-card">
+                                        <Label text="Sold Ratio" styleClass="summary-title"/>
+                                        <Label fx:id="soldRatioLabel" text="0%" styleClass="summary-value"/>
+                                        <Label text="Sold vs unsold listing performance" styleClass="summary-note"/>
+                                    </VBox>
+                                </HBox>
 
-                                <VBox spacing="8" styleClass="summary-card">
-                                    <Label text="Total Revenue" styleClass="summary-title"/>
-                                    <Label fx:id="totalRevenueLabel" text="0.00" styleClass="summary-value"/>
-                                    <Label text="Total amount earned from sold items" styleClass="summary-note"/>
-                                </VBox>
+                                <HBox spacing="18" styleClass="seller-stats-chart-row">
+                                    <VBox spacing="12" styleClass="content-card" HBox.hgrow="ALWAYS">
+                                        <Label text="Average Sale Price by Category" styleClass="section-title"/>
+                                        <BarChart fx:id="averageSalePriceChart"
+                                                  categoryGap="18"
+                                                  barGap="4"
+                                                  legendVisible="false"
+                                                  animated="false"
+                                                  prefHeight="320">
+                                            <xAxis>
+                                                <CategoryAxis label="Category"/>
+                                            </xAxis>
+                                            <yAxis>
+                                                <NumberAxis label="Average Price"/>
+                                            </yAxis>
+                                        </BarChart>
+                                    </VBox>
 
-                                <VBox spacing="8" styleClass="summary-card">
-                                    <Label text="Commission Fees" styleClass="summary-title"/>
-                                    <Label fx:id="commissionFeesLabel" text="0.00" styleClass="summary-value"/>
-                                    <Label text="Platform fees paid on completed sales" styleClass="summary-note"/>
-                                </VBox>
+                                </HBox>
 
-                                <VBox spacing="8" styleClass="summary-card">
-                                    <Label text="Sold Ratio" styleClass="summary-title"/>
-                                    <Label fx:id="soldRatioLabel" text="0%" styleClass="summary-value"/>
-                                    <Label text="Sold vs unsold listing performance" styleClass="summary-note"/>
-                                </VBox>
-                            </HBox>
-
-                            <HBox spacing="18" styleClass="seller-stats-chart-row">
-                                <VBox spacing="12" styleClass="content-card" HBox.hgrow="ALWAYS">
-                                    <Label text="Average Sale Price by Category" styleClass="section-title"/>
-                                    <BarChart fx:id="averageSalePriceChart"
-                                              categoryGap="18"
-                                              barGap="4"
-                                              legendVisible="false"
-                                              animated="false"
-                                              prefHeight="320">
+                                <VBox spacing="12" styleClass="content-card">
+                                    <Label text="Performance Trend Overview" styleClass="section-title"/>
+                                    <LineChart fx:id="listingTrendChart"
+                                               createSymbols="false"
+                                               animated="false"
+                                               prefHeight="320">
                                         <xAxis>
-                                            <CategoryAxis label="Category"/>
+                                            <CategoryAxis label="Month"/>
                                         </xAxis>
                                         <yAxis>
-                                            <NumberAxis label="Average Price"/>
+                                            <NumberAxis label="Listings"/>
                                         </yAxis>
-                                    </BarChart>
+                                    </LineChart>
                                 </VBox>
 
-                            </HBox>
-
-                            <VBox spacing="12" styleClass="content-card">
-                                <Label text="Performance Trend Overview" styleClass="section-title"/>
-                                <LineChart fx:id="listingTrendChart"
-                                           createSymbols="false"
-                                           animated="false"
-                                           prefHeight="320">
-                                    <xAxis>
-                                        <CategoryAxis label="Month"/>
-                                    </xAxis>
-                                    <yAxis>
-                                        <NumberAxis label="Listings"/>
-                                    </yAxis>
-                                </LineChart>
                             </VBox>
+                        </Tab>
+                    </TabPane>
+                    <Button fx:id="addItemButton"
+                            text="Add Item"
+                            onAction="#handleAddListing"
+                            styleClass="add-listing-button"
+                            StackPane.alignment="TOP_RIGHT">
 
-                        </VBox>
-                    </Tab>
+                        <StackPane.margin>
+                            <Insets top="8" right="18"/>
+                        </StackPane.margin>
+                    </Button>
 
-                </TabPane>
+                </StackPane>
             </VBox>
         </VBox>
     </ScrollPane>
