@@ -250,6 +250,13 @@ public class ProfileController {
         profileTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
             if (newTab != null) {
                 selectedTabTitleLabel.setText(newTab.getText());
+
+                Node tabContent = newTab.getContent();
+                if (tabContent instanceof Region region) {
+                    profileTabPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+                    profileTabPane.setPrefHeight(region.prefHeight(-1) + 50);
+                    profileTabPane.setMaxHeight(Region.USE_PREF_SIZE);
+                }
             }
         });
     }
