@@ -12,7 +12,11 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.List;
 
+/**
+ * @author Group 01
+ */
 public class ItemRepository {
+
     public Item createItem(Item item) {
         String sql = getCreateItemSql();
 
@@ -36,12 +40,20 @@ public class ItemRepository {
 
     public Item readItemById(Integer id) {
         String sql = """
-            SELECT id, title, description, category_id, seller_id,
-                   starting_price, reserve_price, condition,
-                   status, created_at, updated_at
+            SELECT id,
+                   title,
+                   description,
+                   category_id,
+                   seller_id,
+                   starting_price,
+                   reserve_price,
+                   condition,
+                   status,
+                   created_at,
+                   updated_at
             FROM items
             WHERE id = ?
-            """;
+        """;
 
         return SqlExecutor.queryOne(
             sql,
@@ -52,12 +64,20 @@ public class ItemRepository {
 
     public List<Item> readItems() {
         String sql = """
-            SELECT id, title, description, category_id, seller_id,
-                   starting_price, reserve_price, condition,
-                   status, created_at, updated_at
+            SELECT id,
+                   title,
+                   description,
+                   category_id,
+                   seller_id,
+                   starting_price,
+                   reserve_price,
+                   condition,
+                   status,
+                   created_at,
+                   updated_at
             FROM items
             ORDER BY created_at DESC, id DESC
-            """;
+        """;
 
         return SqlExecutor.queryMany(
             sql,
@@ -69,13 +89,21 @@ public class ItemRepository {
 
     public List<Item> readActiveItems() {
         String sql = """
-            SELECT id, title, description, category_id, seller_id,
-                   starting_price, reserve_price, condition,
-                   status, created_at, updated_at
+            SELECT id,
+                   title,
+                   description,
+                   category_id,
+                   seller_id,
+                   starting_price,
+                   reserve_price,
+                   condition,
+                   status,
+                   created_at,
+                   updated_at
             FROM items
             WHERE status = 'ACTIVE'
             ORDER BY created_at DESC, id DESC
-            """;
+        """;
 
         return SqlExecutor.queryMany(
             sql,
@@ -87,17 +115,54 @@ public class ItemRepository {
 
     public List<Item> readItemsBySellerId(Integer sellerId) {
         String sql = """
-            SELECT id, title, description, category_id, seller_id,
-                   starting_price, reserve_price, condition,
-                   status, created_at, updated_at
+            SELECT id,
+                   title,
+                   description,
+                   category_id,
+                   seller_id,
+                   starting_price,
+                   reserve_price,
+                   condition,
+                   status,
+                   created_at,
+                   updated_at
             FROM items
             WHERE seller_id = ?
             ORDER BY created_at DESC, id DESC
-            """;
+        """;
 
         return SqlExecutor.queryMany(
             sql,
             ps -> ps.setInt(1, sellerId),
+            this::mapItem
+        );
+    }
+
+    public List<Item> readItemsBySellerIdAndCategoryId(Integer sellerId, Integer categoryId) {
+        String sql = """
+            SELECT id,
+                   title,
+                   description,
+                   category_id,
+                   seller_id,
+                   starting_price,
+                   reserve_price,
+                   condition,
+                   status,
+                   created_at,
+                   updated_at
+            FROM items
+            WHERE seller_id = ?
+              AND category_id = ?
+            ORDER BY created_at DESC, id DESC
+        """;
+
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> {
+                ps.setInt(1, sellerId);
+                ps.setInt(2, categoryId);
+            },
             this::mapItem
         );
     }
@@ -127,7 +192,7 @@ public class ItemRepository {
         String sql = """
             DELETE FROM items
             WHERE id = ?
-            """;
+        """;
 
         SqlExecutor.update(
             sql,
@@ -139,7 +204,7 @@ public class ItemRepository {
         String sql = """
             DELETE FROM items
             WHERE id = ?
-            """;
+        """;
 
         SqlExecutor.update(
             conn,
@@ -154,7 +219,7 @@ public class ItemRepository {
             FROM items
             WHERE id = ?
             LIMIT 1
-            """;
+        """;
 
         return SqlExecutor.queryOne(
             sql,
@@ -176,10 +241,18 @@ public class ItemRepository {
                 status
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            RETURNING id, title, description, category_id, seller_id,
-                      starting_price, reserve_price, condition,
-                      status, created_at, updated_at
-            """;
+            RETURNING id,
+                      title,
+                      description,
+                      category_id,
+                      seller_id,
+                      starting_price,
+                      reserve_price,
+                      condition,
+                      status,
+                      created_at,
+                      updated_at
+        """;
     }
 
     private String getUpdateItemSql() {
@@ -194,10 +267,18 @@ public class ItemRepository {
                 status = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
-            RETURNING id, title, description, category_id, seller_id,
-                      starting_price, reserve_price, condition,
-                      status, created_at, updated_at
-            """;
+            RETURNING id,
+                      title,
+                      description,
+                      category_id,
+                      seller_id,
+                      starting_price,
+                      reserve_price,
+                      condition,
+                      status,
+                      created_at,
+                      updated_at
+        """;
     }
 
     private void bindCreateItem(java.sql.PreparedStatement ps, Item item) throws Exception {

@@ -7,13 +7,15 @@ package com.group01.asm2.controllers;
 import com.group01.asm2.dtos.AuctionFilter;
 import com.group01.asm2.dtos.WonAuctionDto;
 import com.group01.asm2.enums.AuctionStatus;
-import com.group01.asm2.enums.PaymentStatus;
 import com.group01.asm2.enums.ItemCondition;
+import com.group01.asm2.enums.PaymentStatus;
+import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Auction;
 import com.group01.asm2.models.Item;
 import com.group01.asm2.services.AuctionService;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.services.NavigationService;
+
 import javafx.animation.TranslateTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -41,6 +43,10 @@ public class AuctionsController {
     private List<Auction> allAuctions;
     private AuctionFilter currentFilter = new AuctionFilter();
 
+    private boolean profileMode = false;
+    private Integer profileSellerId = null;
+    private boolean canManageProfileListings = false;
+
     @FXML private TableView<Auction> auctionsTable;
     @FXML private HBox paginationBox;
     @FXML private Button prevPageButton;
@@ -55,8 +61,8 @@ public class AuctionsController {
     @FXML private FlowPane allAuctionsContainer;
     @FXML private StackPane allAuctionsRoot;
     @FXML private Label browseTitleLabel;
+    @FXML private Button filterButton;
 
-    // Filter modal fields
     @FXML private StackPane filterModalOverlay;
     @FXML private ComboBox<Integer> categoryFilterBox;
     @FXML private ComboBox<ItemCondition> conditionFilterBox;
@@ -66,12 +72,7 @@ public class AuctionsController {
 
     private final ObservableList<Auction> auctionsList = FXCollections.observableArrayList();
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
-    private boolean profileMode = false;
-    private Integer profileSellerId = null;
-    // =========================
-    // Won Auctions UI
-    // Used by won-auctions-view.fxml
-    // =========================
+
     @FXML private TableView<WonAuctionDto> wonAuctionsTable;
 
     @FXML private TableColumn<WonAuctionDto, String> wonDateColumn;
@@ -100,7 +101,6 @@ public class AuctionsController {
         setupFilterForm();
 
         if (auctionsTable != null) {
-
             loadLegacyAuctionTable();
             setupLegacyAuctionTable();
             setupLegacyAuctionTableNavigation();
@@ -111,17 +111,17 @@ public class AuctionsController {
 
             auctionsTable.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 1
-                        && auctionsTable.getSelectionModel().getSelectedItem() != null) {
+                    && auctionsTable.getSelectionModel().getSelectedItem() != null) {
 
                     Auction selectedAuction =
-                            auctionsTable.getSelectionModel().getSelectedItem();
+                        auctionsTable.getSelectionModel().getSelectedItem();
 
                     Pane contentArea =
-                            (Pane) auctionsTable.getScene().lookup("#contentArea");
+                        (Pane) auctionsTable.getScene().lookup("#contentArea");
 
                     NavigationService.goToAuctionDetails(
-                            contentArea,
-                            selectedAuction
+                        contentArea,
+                        selectedAuction
                     );
                 }
             });
@@ -133,15 +133,501 @@ public class AuctionsController {
 
         if (wonAuctionsTable != null) {
             setupWonAuctionTable();
-            loadWonAuctionsForUiOnly();
+            loadWonAuctions();
             updateWonAuctionSummaryCards();
             makeTableResponsive(wonAuctionsTable);
         }
     }
 
-    // =========================================================
-    // Won Auctions Table
-    // =========================================================
+    public void enableExploreMode() {
+        this.profileMode = false;
+        this.profileSellerId = null;
+        this.canManageProfileListings = false;
+
+        if (browseTitleLabel != null) {
+            browseTitleLabel.setVisible(true);
+            browseTitleLabel.setManaged(true);
+        }
+
+        if (paginationBox != null) {
+            paginationBox.setVisible(true);
+            paginationBox.setManaged(true);
+        }
+
+        setupDefaultFilter();
+        loadAllAuctionsToExplore();
+    }
+
+    public void enableProfileMode(Integer sellerId, boolean canManageProfileListings) {
+        this.profileMode = true;
+        this.profileSellerId = sellerId;
+        this.canManageProfileListings = canManageProfileListings;
+
+        if (browseTitleLabel != null) {
+            browseTitleLabel.setVisible(false);
+            browseTitleLabel.setManaged(false);
+        }
+
+        if (paginationBox != null) {
+            paginationBox.setVisible(false);
+            paginationBox.setManaged(false);
+        }
+
+        if (filterButton != null) {
+            filterButton.setVisible(true);
+            filterButton.setManaged(true);
+        }
+
+        if (allAuctionsRoot != null) {
+            allAuctionsRoot.setMinHeight(360);
+            allAuctionsRoot.setPrefHeight(360);
+        }
+
+        setupDefaultFilter();
+        loadAllAuctionsToExplore();
+    }
+
+    public void applyProfileCategoryFilter(Integer categoryId) {
+        if (!profileMode) {
+            return;
+        }
+
+        setupDefaultFilter();
+
+        if (categoryId != null) {
+            currentFilter.setCategoryId(categoryId);
+        }
+
+        loadAllAuctionsToExplore();
+    }
+
+    private void setupDefaultFilter() {
+        currentFilter = new AuctionFilter();
+        currentFilter.setStatus(AuctionStatus.ACTIVE);
+
+        if (profileMode) {
+            currentFilter.setSellerId(profileSellerId);
+            currentFilter.setRecommendedOnly(false);
+        } else {
+            currentFilter.setRecommendedOnly(true);
+        }
+    }
+
+    private void setupFilterForm() {
+        if (categoryFilterBox != null) {
+            categoryFilterBox.getItems().setAll(101, 102, 103, 104, 105, 106);
+        }
+
+        if (conditionFilterBox != null) {
+            conditionFilterBox.getItems().setAll(ItemCondition.values());
+        }
+    }
+
+    @FXML
+    private void handleOpenFilterForm() {
+        if (filterModalOverlay == null) {
+            return;
+        }
+
+        filterModalOverlay.setVisible(true);
+        filterModalOverlay.setManaged(true);
+    }
+
+    @FXML
+    private void handleCloseFilterForm() {
+        if (filterModalOverlay == null) {
+            return;
+        }
+
+        filterModalOverlay.setVisible(false);
+        filterModalOverlay.setManaged(false);
+    }
+
+    @FXML
+    private void handleApplyFilters() {
+        AuctionFilter filter = new AuctionFilter();
+        filter.setStatus(AuctionStatus.ACTIVE);
+
+        if (profileMode) {
+            filter.setSellerId(profileSellerId);
+            filter.setRecommendedOnly(false);
+        } else {
+            filter.setRecommendedOnly(true);
+        }
+
+        if (categoryFilterBox != null && categoryFilterBox.getValue() != null) {
+            filter.setCategoryId(categoryFilterBox.getValue());
+        }
+
+        if (conditionFilterBox != null && conditionFilterBox.getValue() != null) {
+            filter.setCondition(conditionFilterBox.getValue());
+        }
+
+        BigDecimal minPrice = parsePrice(minPriceField);
+        BigDecimal maxPrice = parsePrice(maxPriceField);
+
+        if (minPrice != null) {
+            filter.setMinPrice(minPrice);
+        }
+
+        if (maxPrice != null) {
+            filter.setMaxPrice(maxPrice);
+        }
+
+        if (endingSoonCheck != null && endingSoonCheck.isSelected()) {
+            filter.setEndingAfter(LocalDateTime.now());
+            filter.setEndingBefore(LocalDateTime.now().plusHours(24));
+        }
+
+        currentFilter = filter;
+
+        loadAllAuctionsToExplore();
+        handleCloseFilterForm();
+    }
+
+    @FXML
+    private void handleResetFilters() {
+        if (categoryFilterBox != null) {
+            categoryFilterBox.setValue(null);
+        }
+
+        if (conditionFilterBox != null) {
+            conditionFilterBox.setValue(null);
+        }
+
+        if (minPriceField != null) {
+            minPriceField.clear();
+        }
+
+        if (maxPriceField != null) {
+            maxPriceField.clear();
+        }
+
+        if (endingSoonCheck != null) {
+            endingSoonCheck.setSelected(false);
+        }
+
+        setupDefaultFilter();
+        loadAllAuctionsToExplore();
+    }
+
+    private BigDecimal parsePrice(TextField textField) {
+        if (textField == null) {
+            return null;
+        }
+
+        String value = textField.getText();
+
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        try {
+            return new BigDecimal(value.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private void loadAllAuctionsToExplore() {
+        try {
+            allAuctions = auctionService.readAuctions(currentFilter);
+            currentPage = 0;
+            renderCurrentPage();
+
+        } catch (AppException exception) {
+            allAuctions = List.of();
+            renderCurrentPage();
+            showError(exception.getMessage());
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            allAuctions = List.of();
+            renderCurrentPage();
+            showError("Could not load auctions.");
+        }
+    }
+
+    private void renderCurrentPage() {
+        if (allAuctionsContainer == null) {
+            return;
+        }
+
+        allAuctionsContainer.getChildren().clear();
+
+        if (allAuctions == null || allAuctions.isEmpty()) {
+            if (pageInfoLabel != null) {
+                pageInfoLabel.setText("Page 0 / 0");
+            }
+
+            if (prevPageButton != null) {
+                prevPageButton.setDisable(true);
+            }
+
+            if (nextPageButton != null) {
+                nextPageButton.setDisable(true);
+            }
+
+            allAuctionsContainer.getChildren().add(new Label("No auctions found."));
+            return;
+        }
+
+        int totalPages = (int) Math.ceil((double) allAuctions.size() / ITEMS_PER_PAGE);
+
+        int startIndex;
+        int endIndex;
+
+        if (profileMode) {
+            startIndex = 0;
+            endIndex = allAuctions.size();
+        } else {
+            startIndex = currentPage * ITEMS_PER_PAGE;
+            endIndex = Math.min(startIndex + ITEMS_PER_PAGE, allAuctions.size());
+        }
+
+        for (int i = startIndex; i < endIndex; i++) {
+            VBox card = createAuctionCard(allAuctions.get(i));
+            allAuctionsContainer.getChildren().add(card);
+        }
+
+        if (pageInfoLabel != null) {
+            pageInfoLabel.setText("Page " + (currentPage + 1) + " / " + totalPages);
+        }
+
+        if (prevPageButton != null) {
+            prevPageButton.setDisable(currentPage == 0);
+        }
+
+        if (nextPageButton != null) {
+            nextPageButton.setDisable(currentPage >= totalPages - 1);
+        }
+    }
+
+    @FXML
+    private void handlePrevPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            renderCurrentPage();
+        }
+    }
+
+    @FXML
+    private void handleNextPage() {
+        if (allAuctions == null || allAuctions.isEmpty()) {
+            return;
+        }
+
+        int totalPages = (int) Math.ceil((double) allAuctions.size() / ITEMS_PER_PAGE);
+
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            renderCurrentPage();
+        }
+    }
+
+    private VBox createAuctionActionMenu(Auction auction) {
+        VBox menu = new VBox(2);
+        menu.setFillWidth(true);
+        menu.setMaxWidth(Region.USE_PREF_SIZE);
+        menu.setMaxHeight(Region.USE_PREF_SIZE);
+        menu.getStyleClass().add("item-action-menu");
+
+        Button editButton = new Button("Edit");
+        editButton.getStyleClass().add("item-action-menu-button");
+
+        Button deleteButton = new Button("Delete");
+        deleteButton.getStyleClass().addAll(
+            "item-action-menu-button",
+            "item-action-menu-delete"
+        );
+
+        editButton.setOnAction(event -> {
+            event.consume();
+
+            // TODO: connect edit listing modal later
+            System.out.println("Edit auction: " + auction.getId());
+
+            menu.setVisible(false);
+            menu.setManaged(false);
+        });
+
+        deleteButton.setOnAction(event -> {
+            event.consume();
+
+            handleDeleteAuction(auction);
+
+            menu.setVisible(false);
+            menu.setManaged(false);
+        });
+
+        menu.getChildren().addAll(editButton, deleteButton);
+
+        return menu;
+    }
+
+    private void handleDeleteAuction(Auction auction) {
+        if (auction == null || auction.getItemId() == null) {
+            return;
+        }
+
+        try {
+            itemService.deleteItem(auction.getItemId());
+            loadAllAuctionsToExplore();
+
+        } catch (AppException exception) {
+            showError(exception.getMessage());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            showError("Could not delete listing.");
+        }
+    }
+
+    private VBox createAuctionCard(Auction auction) {
+        Item item = null;
+
+        try {
+            item = itemService.readItem(auction.getItemId());
+        } catch (Exception ignored) {
+        }
+
+        String itemName = item != null
+            ? item.getTitle()
+            : "Unknown Item";
+
+        String price = auction.getFinalSalePrice() != null
+            ? "$" + auction.getFinalSalePrice().toPlainString()
+            : "N/A";
+
+        String endDate = auction.getEndDateTime() != null
+            ? auction.getEndDateTime().format(formatter)
+            : "N/A";
+
+        StackPane imageBox = new StackPane();
+        imageBox.getStyleClass().add("auction-image-placeholder");
+        imageBox.setMaxWidth(Double.MAX_VALUE);
+
+        StackPane imageWrapper = new StackPane();
+        imageWrapper.getChildren().add(imageBox);
+
+        if (profileMode && canManageProfileListings) {
+            Button moreButton = new Button("...");
+            moreButton.getStyleClass().add("item-more-button");
+
+            VBox actionMenu = createAuctionActionMenu(auction);
+            actionMenu.setVisible(false);
+            actionMenu.setManaged(false);
+
+            moreButton.setOnAction(event -> {
+                event.consume();
+
+                boolean showing = actionMenu.isVisible();
+                actionMenu.setVisible(!showing);
+                actionMenu.setManaged(!showing);
+            });
+
+            imageWrapper.setOnMouseExited(event -> {
+                actionMenu.setVisible(false);
+                actionMenu.setManaged(false);
+            });
+
+            StackPane.setAlignment(moreButton, javafx.geometry.Pos.TOP_RIGHT);
+            StackPane.setMargin(moreButton, new Insets(12, 12, 0, 0));
+
+            StackPane.setAlignment(actionMenu, javafx.geometry.Pos.TOP_RIGHT);
+            StackPane.setMargin(actionMenu, new Insets(54, 12, 0, 0));
+
+            imageWrapper.getChildren().addAll(moreButton, actionMenu);
+        }
+
+        Label nameLabel = new Label(itemName);
+        nameLabel.getStyleClass().add("auction-name");
+        nameLabel.setWrapText(true);
+        nameLabel.setMinHeight(38);
+        nameLabel.setPrefHeight(38);
+        nameLabel.setMaxHeight(38);
+
+        Label startingPriceTitle = new Label("Starting price");
+        startingPriceTitle.getStyleClass().add("auction-price-title");
+
+        Label startingPriceValue = new Label(
+            item != null && item.getStartingPrice() != null
+                ? "$" + item.getStartingPrice().toPlainString()
+                : "N/A"
+        );
+        startingPriceValue.getStyleClass().add("auction-starting-price");
+
+        Label currentBidTitle = new Label("Current bid");
+        currentBidTitle.getStyleClass().add("auction-price-title");
+
+        Label currentBidValue = new Label(price);
+        currentBidValue.getStyleClass().add("auction-price");
+
+        VBox leftPriceBox = new VBox(startingPriceTitle, startingPriceValue);
+        leftPriceBox.setSpacing(2);
+
+        VBox rightPriceBox = new VBox(currentBidTitle, currentBidValue);
+        rightPriceBox.setSpacing(2);
+
+        HBox bidSection = new HBox(leftPriceBox, rightPriceBox);
+        bidSection.setSpacing(28);
+
+        Label statusLabel = new Label(
+            auction.getStatus() == null ? "N/A" : auction.getStatus().name()
+        );
+        statusLabel.getStyleClass().add("auction-status");
+
+        if (auction.getStatus() == AuctionStatus.ACTIVE) {
+            statusLabel.getStyleClass().add("status-active");
+        } else if (auction.getStatus() == AuctionStatus.SOLD) {
+            statusLabel.getStyleClass().add("status-sold");
+        } else {
+            statusLabel.getStyleClass().add("status-ended");
+        }
+
+        Label dateLabel = new Label("End: " + endDate);
+        dateLabel.getStyleClass().add("auction-date");
+
+        VBox contentBox = new VBox(
+            nameLabel,
+            bidSection,
+            statusLabel,
+            dateLabel
+        );
+
+        contentBox.setSpacing(8);
+        contentBox.setStyle("-fx-padding: 12;");
+
+        VBox card = new VBox(imageWrapper, contentBox);
+
+        card.setSpacing(8);
+        card.setFillWidth(true);
+        card.getStyleClass().add("auction-card");
+
+        TranslateTransition cardMove =
+            new TranslateTransition(Duration.seconds(0.18), card);
+
+        card.setOnMouseEntered(event -> {
+            cardMove.setToY(-5);
+            cardMove.playFromStart();
+        });
+
+        card.setOnMouseExited(event -> {
+            cardMove.setToY(0);
+            cardMove.playFromStart();
+        });
+
+        card.setOnMouseClicked(event -> {
+            if (event.isConsumed()) {
+                return;
+            }
+
+            Pane contentArea = (Pane) card.getScene().lookup("#contentArea");
+            NavigationService.goToAuctionDetails(contentArea, auction);
+        });
+
+        return card;
+    }
+
     private void setupWonAuctionTable() {
         if (wonDateColumn != null) {
             wonDateColumn.setCellValueFactory(cellData -> {
@@ -271,18 +757,48 @@ public class AuctionsController {
         wonAuctionsTable.setItems(wonAuctionsList);
     }
 
-    private void loadWonAuctionsForUiOnly() {
-        wonAuctionsList.clear();
+    private void loadWonAuctions() {
+        try {
+            wonAuctionsList.clear();
 
-        /*
-         * Frontend-only placeholder.
-         *
-         * Later, replace this with backend/service data:
-         *
-         * wonAuctionsList.addAll(
-         *     wonAuctionService.readWonAuctionsForCurrentUser()
-         * );
-         */
+            wonAuctionsList.addAll(
+                auctionService.readWonAuctionsForCurrentUser()
+            );
+
+            if (wonAuctionsTable != null) {
+                wonAuctionsTable.setPlaceholder(
+                    new Label("No won auctions found.")
+                );
+            }
+
+        } catch (AppException exception) {
+            wonAuctionsList.clear();
+
+            if (wonAuctionsTable != null) {
+                wonAuctionsTable.setPlaceholder(
+                    new Label(exception.getMessage())
+                );
+            }
+
+            if (exportPurchaseSummaryButton != null) {
+                exportPurchaseSummaryButton.setDisable(true);
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
+            wonAuctionsList.clear();
+
+            if (wonAuctionsTable != null) {
+                wonAuctionsTable.setPlaceholder(
+                    new Label("Could not load your won auctions.")
+                );
+            }
+
+            if (exportPurchaseSummaryButton != null) {
+                exportPurchaseSummaryButton.setDisable(true);
+            }
+        }
     }
 
     private void updateWonAuctionSummaryCards() {
@@ -327,405 +843,6 @@ public class AuctionsController {
         System.out.println("View won auction ID: " + selectedRecord.getAuctionId());
     }
 
-    public void enableProfileMode(Integer sellerId) {
-        this.profileMode = true;
-        this.profileSellerId = sellerId;
-
-        if (browseTitleLabel != null) {
-            browseTitleLabel.setVisible(false);
-            browseTitleLabel.setManaged(false);
-        }
-
-        if (paginationBox != null) {
-            paginationBox.setVisible(false);
-            paginationBox.setManaged(false);
-        }
-
-        if (allAuctionsRoot != null) {
-            allAuctionsRoot.setMinHeight(360);
-            allAuctionsRoot.setPrefHeight(360);
-        }
-
-        setupDefaultFilter();
-
-        currentFilter.setSellerId(sellerId);
-        currentFilter.setRecommendedOnly(false);
-
-        loadAllAuctionsToExplore();
-    }
-
-    private void setupDefaultFilter() {
-        currentFilter = new AuctionFilter();
-        currentFilter.setRecommendedOnly(true);
-        currentFilter.setStatus(AuctionStatus.ACTIVE);
-
-        if (profileMode) {
-            currentFilter.setSellerId(profileSellerId);
-            currentFilter.setRecommendedOnly(false);
-        } else {
-            currentFilter.setRecommendedOnly(true);
-        }
-    }
-
-    private void setupFilterForm() {
-        if (categoryFilterBox != null) {
-            // Tạm thời hard-code category ID
-            categoryFilterBox.getItems().setAll(1, 2, 3, 4);
-        }
-
-        if (conditionFilterBox != null) {
-            conditionFilterBox.getItems().setAll(ItemCondition.values());
-        }
-    }
-
-    @FXML
-    private void handleOpenFilterForm() {
-        if (filterModalOverlay == null) return;
-
-        filterModalOverlay.setVisible(true);
-        filterModalOverlay.setManaged(true);
-
-    }
-
-    @FXML
-    private void handleCloseFilterForm() {
-        if (filterModalOverlay == null) return;
-
-        filterModalOverlay.setVisible(false);
-        filterModalOverlay.setManaged(false);
-    }
-
-    @FXML
-    private void handleApplyFilters() {
-        AuctionFilter filter = new AuctionFilter();
-
-        filter.setRecommendedOnly(true);
-        filter.setStatus(AuctionStatus.ACTIVE);
-
-        if (categoryFilterBox != null && categoryFilterBox.getValue() != null) {
-            filter.setCategoryId(categoryFilterBox.getValue());
-        }
-
-        if (conditionFilterBox != null && conditionFilterBox.getValue() != null) {
-            filter.setCondition(conditionFilterBox.getValue());
-        }
-
-        BigDecimal minPrice = parsePrice(minPriceField);
-        BigDecimal maxPrice = parsePrice(maxPriceField);
-
-        if (minPrice != null) {
-            filter.setMinPrice(minPrice);
-        }
-
-        if (maxPrice != null) {
-            filter.setMaxPrice(maxPrice);
-        }
-
-        if (endingSoonCheck != null && endingSoonCheck.isSelected()) {
-            filter.setEndingAfter(LocalDateTime.now());
-            filter.setEndingBefore(LocalDateTime.now().plusHours(24));
-        }
-
-        currentFilter = filter;
-
-        loadAllAuctionsToExplore();
-        handleCloseFilterForm();
-    }
-
-    @FXML
-    private void handleResetFilters() {
-        if (categoryFilterBox != null) {
-            categoryFilterBox.setValue(null);
-        }
-
-        if (conditionFilterBox != null) {
-            conditionFilterBox.setValue(null);
-        }
-
-        if (minPriceField != null) {
-            minPriceField.clear();
-        }
-
-        if (maxPriceField != null) {
-            maxPriceField.clear();
-        }
-
-        if (endingSoonCheck != null) {
-            endingSoonCheck.setSelected(false);
-        }
-
-        setupDefaultFilter();
-        loadAllAuctionsToExplore();
-    }
-
-    private BigDecimal parsePrice(TextField textField) {
-        if (textField == null) {
-            return null;
-        }
-
-        String value = textField.getText();
-
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-
-        try {
-            return new BigDecimal(value.trim());
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private void loadAllAuctionsToExplore() {
-        allAuctions = auctionService.readAuctions(currentFilter);
-        currentPage = 0;
-
-        renderCurrentPage();
-    }
-
-    private void renderCurrentPage() {
-        allAuctionsContainer.getChildren().clear();
-
-        if (allAuctions == null || allAuctions.isEmpty()) {
-            pageInfoLabel.setText("Page 0 / 0");
-            prevPageButton.setDisable(true);
-            nextPageButton.setDisable(true);
-            return;
-        }
-
-        int totalPages = (int) Math.ceil((double) allAuctions.size() / ITEMS_PER_PAGE);
-
-        int startIndex = currentPage * ITEMS_PER_PAGE;
-        int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, allAuctions.size());
-
-        for (int i = startIndex; i < endIndex; i++) {
-            VBox card = createAuctionCard(allAuctions.get(i));
-            allAuctionsContainer.getChildren().add(card);
-        }
-
-        pageInfoLabel.setText("Page " + (currentPage + 1) + " / " + totalPages);
-
-        prevPageButton.setDisable(currentPage == 0);
-        nextPageButton.setDisable(currentPage >= totalPages - 1);
-    }
-
-    @FXML
-    private void handlePrevPage() {
-        if (currentPage > 0) {
-            currentPage--;
-            renderCurrentPage();
-        }
-    }
-
-    @FXML
-    private void handleNextPage() {
-        if (allAuctions == null || allAuctions.isEmpty()) {
-            return;
-        }
-
-        int totalPages = (int) Math.ceil((double) allAuctions.size() / ITEMS_PER_PAGE);
-
-        if (currentPage < totalPages - 1) {
-            currentPage++;
-            renderCurrentPage();
-        }
-    }
-
-    private VBox createAuctionActionMenu(Auction auction) {
-        VBox menu = new VBox(2);
-        menu.setFillWidth(true);
-        menu.setMaxWidth(Region.USE_PREF_SIZE);
-        menu.setMaxHeight(Region.USE_PREF_SIZE);
-        menu.getStyleClass().add("item-action-menu");
-
-        Button editButton = new Button("Edit");
-        editButton.getStyleClass().add("item-action-menu-button");
-
-        Button deleteButton = new Button("Delete");
-        deleteButton.getStyleClass().addAll(
-                "item-action-menu-button",
-                "item-action-menu-delete"
-        );
-
-        editButton.setOnAction(event -> {
-            event.consume();
-
-            // TODO: mở modal edit auction/item
-            System.out.println("Edit auction: " + auction.getId());
-
-            menu.setVisible(false);
-            menu.setManaged(false);
-        });
-
-        deleteButton.setOnAction(event -> {
-            event.consume();
-
-            handleDeleteAuction(auction);
-
-            menu.setVisible(false);
-            menu.setManaged(false);
-        });
-
-        menu.getChildren().addAll(editButton, deleteButton);
-
-        return menu;
-    }
-
-    private void handleDeleteAuction(Auction auction) {
-        if (auction == null || auction.getId() == null) return;
-
-        auctionService.deleteAuction(auction.getId());
-
-        allAuctions.remove(auction);
-        renderCurrentPage();
-    }
-
-    private VBox createAuctionCard(Auction auction) {
-
-        Item item = itemService.readItem(auction.getItemId());
-
-        String itemName = item != null
-                ? item.getTitle()
-                : "Unknown Item";
-
-        String price = auction.getFinalSalePrice() != null
-                ? "$" + auction.getFinalSalePrice().toPlainString()
-                : "N/A";
-
-        String endDate = auction.getEndDateTime() != null
-                ? auction.getEndDateTime().format(formatter)
-                : "N/A";
-
-        StackPane imageBox = new StackPane();
-
-        StackPane imageWrapper = new StackPane();
-        imageWrapper.getChildren().add(imageBox);
-
-        if (profileMode) {
-            Button moreButton = new Button("...");
-            moreButton.getStyleClass().add("item-more-button");
-
-            VBox actionMenu = createAuctionActionMenu(auction);
-            actionMenu.setVisible(false);
-            actionMenu.setManaged(false);
-
-            moreButton.setOnAction(event -> {
-                event.consume();
-
-                boolean showing = actionMenu.isVisible();
-                actionMenu.setVisible(!showing);
-                actionMenu.setManaged(!showing);
-            });
-
-            imageWrapper.setOnMouseExited(event -> {
-                actionMenu.setVisible(false);
-                actionMenu.setManaged(false);
-            });
-
-            StackPane.setAlignment(moreButton, javafx.geometry.Pos.TOP_RIGHT);
-            StackPane.setMargin(moreButton, new Insets(12, 12, 0, 0));
-
-            StackPane.setAlignment(actionMenu, javafx.geometry.Pos.TOP_RIGHT);
-            StackPane.setMargin(actionMenu, new Insets(54, 12, 0, 0));
-
-            imageWrapper.getChildren().addAll(moreButton, actionMenu);
-        }
-        imageBox.getStyleClass().add("auction-image-placeholder");
-        imageBox.setMaxWidth(Double.MAX_VALUE);
-
-        Label nameLabel = new Label(itemName);
-        nameLabel.getStyleClass().add("auction-name");
-        nameLabel.setWrapText(true);
-        nameLabel.setMinHeight(38);
-        nameLabel.setPrefHeight(38);
-        nameLabel.setMaxHeight(38);
-
-        Label startingPriceTitle = new Label("Starting price");
-        startingPriceTitle.getStyleClass().add("auction-price-title");
-
-        Label startingPriceValue = new Label(
-                item != null && item.getStartingPrice() != null
-                        ? "$" + item.getStartingPrice().toPlainString()
-                        : "N/A"
-        );
-        startingPriceValue.getStyleClass().add("auction-starting-price");
-
-        Label currentBidTitle = new Label("Current bid");
-        currentBidTitle.getStyleClass().add("auction-price-title");
-
-        Label currentBidValue = new Label(price);
-        currentBidValue.getStyleClass().add("auction-price");
-
-        VBox leftPriceBox = new VBox(startingPriceTitle, startingPriceValue);
-        leftPriceBox.setSpacing(2);
-
-        VBox rightPriceBox = new VBox(currentBidTitle, currentBidValue);
-        rightPriceBox.setSpacing(2);
-
-        HBox bidSection = new HBox(leftPriceBox, rightPriceBox);
-        bidSection.setSpacing(28);
-
-        Label statusLabel = new Label(auction.getStatus().name());
-        statusLabel.getStyleClass().add("auction-status");
-
-        switch (auction.getStatus()) {
-            case ACTIVE:
-                statusLabel.getStyleClass().add("status-active");
-                break;
-            case SOLD:
-                statusLabel.getStyleClass().add("status-sold");
-                break;
-            case ENDED:
-                statusLabel.getStyleClass().add("status-ended");
-                break;
-            default:
-                statusLabel.getStyleClass().add("status-ended");
-                break;
-        }
-
-        Label dateLabel = new Label("End: " + endDate);
-        dateLabel.getStyleClass().add("auction-date");
-
-        VBox contentBox = new VBox(
-                nameLabel,
-                bidSection,
-                statusLabel,
-                dateLabel
-        );
-
-        contentBox.setSpacing(8);
-        contentBox.setStyle("-fx-padding: 12;");
-
-        VBox card = new VBox(imageBox, contentBox);
-
-        card.setSpacing(8);
-        card.setFillWidth(true);
-        card.getStyleClass().add("auction-card");
-
-        TranslateTransition cardMove =
-                new TranslateTransition(Duration.seconds(0.18), card);
-
-        card.setOnMouseEntered(event -> {
-            cardMove.setToY(-5);
-            cardMove.playFromStart();
-        });
-
-        card.setOnMouseExited(event -> {
-            cardMove.setToY(0);
-            cardMove.playFromStart();
-        });
-
-        card.setOnMouseClicked(event -> {
-            Pane contentArea = (Pane) card.getScene().lookup("#contentArea");
-            NavigationService.goToAuctionDetails(contentArea, auction);
-        });
-
-        return card;
-    }
-
-    // =========================================================
-    // Legacy Auction Table
-    // =========================================================
     private void loadLegacyAuctionTable() {
         auctionsList.clear();
 
@@ -800,7 +917,7 @@ public class AuctionsController {
         });
 
         auctionStatusColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getStatus().name())
+            new SimpleStringProperty(cellData.getValue().getStatus().name())
         );
 
         auctionsTable.setItems(auctionsList);
@@ -822,9 +939,6 @@ public class AuctionsController {
         });
     }
 
-    // =========================================================
-    // Shared Helpers
-    // =========================================================
     private Label createStatusBadge(String text) {
         Label badge = new Label(text);
         badge.getStyleClass().add("status-badge");
@@ -838,18 +952,10 @@ public class AuctionsController {
         }
 
         switch (statusText) {
-            case "COMPLETED":
-                badge.getStyleClass().add("payment-completed");
-                break;
-            case "PENDING":
-                badge.getStyleClass().add("payment-pending");
-                break;
-            case "FAILED":
-                badge.getStyleClass().add("payment-failed");
-                break;
-            default:
-                badge.getStyleClass().add("payment-unknown");
-                break;
+            case "COMPLETED" -> badge.getStyleClass().add("payment-completed");
+            case "PENDING" -> badge.getStyleClass().add("payment-pending");
+            case "FAILED" -> badge.getStyleClass().add("payment-failed");
+            default -> badge.getStyleClass().add("payment-unknown");
         }
     }
 
@@ -860,15 +966,9 @@ public class AuctionsController {
         }
 
         switch (statusText) {
-            case "SOLD":
-                badge.getStyleClass().add("auction-sold");
-                break;
-            case "CANCELLED":
-                badge.getStyleClass().add("auction-cancelled");
-                break;
-            default:
-                badge.getStyleClass().add("auction-ended");
-                break;
+            case "SOLD" -> badge.getStyleClass().add("auction-sold");
+            case "CANCELLED" -> badge.getStyleClass().add("auction-cancelled");
+            default -> badge.getStyleClass().add("auction-ended");
         }
     }
 
@@ -876,11 +976,13 @@ public class AuctionsController {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setPlaceholder(new Label("No history found."));
         table.setFixedCellSize(48);
+
         table.prefHeightProperty().bind(
-                Bindings.size(table.getItems())
-                        .multiply(table.getFixedCellSize())
-                        .add(52)
+            Bindings.size(table.getItems())
+                .multiply(table.getFixedCellSize())
+                .add(52)
         );
+
         table.setMinHeight(Region.USE_PREF_SIZE);
         table.setMaxHeight(Region.USE_PREF_SIZE);
     }
@@ -895,5 +997,17 @@ public class AuctionsController {
 
     private String formatText(String value) {
         return value == null || value.isBlank() ? "N/A" : value;
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Auction Error");
+        alert.setHeaderText(null);
+        alert.setContentText(
+            message == null || message.trim().isEmpty()
+                ? "Something went wrong."
+                : message
+        );
+        alert.showAndWait();
     }
 }

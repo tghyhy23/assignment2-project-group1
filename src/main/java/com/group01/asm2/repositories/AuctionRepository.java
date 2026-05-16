@@ -1,12 +1,16 @@
 package com.group01.asm2.repositories;
 
 import com.group01.asm2.db.SqlExecutor;
+import com.group01.asm2.dtos.AuctionDetailDto;
 import com.group01.asm2.dtos.WonAuctionDto;
 import com.group01.asm2.enums.AuctionStatus;
+import com.group01.asm2.enums.ItemCondition;
+import com.group01.asm2.enums.ItemStatus;
 import com.group01.asm2.enums.PaymentStatus;
 import com.group01.asm2.exceptions.AppException;
-import com.group01.asm2.models.Auction;
+import com.group01.asm2.models.*;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -36,20 +40,20 @@ public class AuctionRepository {
         ).orElseThrow(() -> AppException.database("Failed to create auction."));
     }
 
-    public Auction readAuctionById(Integer id) {
-        String sql = """
-            SELECT id, item_id, status, current_highest_bid_id, winner_id,
-                   final_sale_price, start_date_time, end_date_time,
-                   created_at, updated_at, recommended
-            FROM auctions
-            WHERE id = ?
-        """;
+    public AuctionDetailDto readAuction(Integer auctionId) {
+        AuctionDetailDto detail = readAuctionDetailBaseById(auctionId);
 
-        return SqlExecutor.queryOne(
-            sql,
-            ps -> ps.setInt(1, id),
-            this::mapAuction
-        ).orElse(null);
+        if (detail == null || detail.getAuction() == null || detail.getItem() == null) {
+            return null;
+        }
+
+        Integer itemId = detail.getItem().getId();
+
+        detail.setImages(readItemImagesByItemId(itemId));
+        detail.setRecentBids(readRecentBidsByAuctionId(auctionId, 10));
+        detail.setPayment(readPaymentByAuctionId(auctionId));
+
+        return detail;
     }
 
     public Auction readAuctionByItemId(Integer itemId) {
@@ -416,6 +420,253 @@ public class AuctionRepository {
             ps -> ps.setInt(1, buyerId),
             this::mapWonAuctionDto
         );
+    }
+
+    private AuctionDetailDto readAuctionDetailBaseById(Integer auctionId) {
+        String sql = """
+        SELECT
+            a.id AS auction_id,
+            a.item_id AS auction_item_id,
+            a.status AS auction_status,
+            a.current_highest_bid_id AS auction_current_highest_bid_id,
+            a.winner_id AS auction_winner_id,
+            a.final_sale_price AS auction_final_sale_price,
+            a.start_date_time AS auction_start_date_time,
+            a.end_date_time AS auction_end_date_time,
+            a.created_at AS auction_created_at,
+            a.updated_at AS auction_updated_at,
+            a.recommended AS auction_recommended,
+
+            i.id AS item_id,
+            i.seller_id AS item_seller_id,
+            i.category_id AS item_category_id,
+            i.title AS item_title,
+            i.description AS item_description,
+            i.condition AS item_condition,
+            i.starting_price AS item_starting_price,
+            i.reserve_price AS item_reserve_price,
+            i.status AS item_status,
+            i.created_at AS item_created_at,
+            i.updated_at AS item_updated_at,
+
+            c.id AS category_id,
+            c.name AS category_name,
+
+            seller.id AS seller_id,
+            seller.username AS seller_username,
+            seller.email AS seller_email,
+
+            current_bid.id AS current_bid_id,
+            current_bid.amount AS current_bid_amount,
+            current_bid.bidder_id AS current_bidder_id,
+            current_bidder.username AS current_bidder_username,
+
+            COALESCE(bid_summary.bid_count, 0) AS bid_count
+
+        FROM auctions a
+        JOIN items i ON i.id = a.item_id
+        LEFT JOIN categories c ON c.id = i.category_id
+        LEFT JOIN persons seller ON seller.id = i.seller_id
+        LEFT JOIN bids current_bid ON current_bid.id = a.current_highest_bid_id
+        LEFT JOIN persons current_bidder ON current_bidder.id = current_bid.bidder_id
+        LEFT JOIN (
+            SELECT auction_id, COUNT(*) AS bid_count
+            FROM bids
+            GROUP BY auction_id
+        ) bid_summary ON bid_summary.auction_id = a.id
+
+        WHERE a.id = ?
+    """;
+
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> ps.setInt(1, auctionId),
+            this::mapAuctionDetailDto
+        ).orElse(null);
+    }
+
+    private List<ItemImage> readItemImagesByItemId(Integer itemId) {
+        String sql = """
+        SELECT id, item_id, image_url, display_order
+        FROM item_images
+        WHERE item_id = ?
+        ORDER BY display_order ASC, id ASC
+    """;
+
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> ps.setInt(1, itemId),
+            this::mapItemImage
+        );
+    }
+
+    private List<Bid> readRecentBidsByAuctionId(Integer auctionId, int limit) {
+        String sql = """
+        SELECT id, auction_id, item_id, bidder_id, amount, bid_date_time
+        FROM bids
+        WHERE auction_id = ?
+        ORDER BY amount DESC, bid_date_time DESC, id DESC
+        LIMIT ?
+    """;
+
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> {
+                ps.setInt(1, auctionId);
+                ps.setInt(2, limit);
+            },
+            this::mapBid
+        );
+    }
+
+    private Payment readPaymentByAuctionId(Integer auctionId) {
+        String sql = """
+        SELECT id, auction_id, buyer_id, seller_id, status,
+               total_amount, commission_amount, seller_payout,
+               payment_date_time, created_at, updated_at
+        FROM payments
+        WHERE auction_id = ?
+        ORDER BY payment_date_time DESC NULLS LAST, id DESC
+        LIMIT 1
+    """;
+
+        return SqlExecutor.queryOne(
+            sql,
+            ps -> ps.setInt(1, auctionId),
+            this::mapPayment
+        ).orElse(null);
+    }
+
+    private AuctionDetailDto mapAuctionDetailDto(ResultSet rs) throws Exception {
+        Auction auction = new Auction();
+
+        auction.setId(rs.getInt("auction_id"));
+        auction.setItemId(rs.getInt("auction_item_id"));
+
+        String auctionStatus = rs.getString("auction_status");
+        if (auctionStatus != null) {
+            auction.setStatus(AuctionStatus.valueOf(auctionStatus));
+        }
+
+        auction.setCurrentHighestBidId(getNullableInt(rs, "auction_current_highest_bid_id"));
+        auction.setWinnerId(getNullableInt(rs, "auction_winner_id"));
+        auction.setFinalSalePrice(rs.getBigDecimal("auction_final_sale_price"));
+        auction.setStartDateTime(getNullableLocalDateTime(rs, "auction_start_date_time"));
+        auction.setEndDateTime(getNullableLocalDateTime(rs, "auction_end_date_time"));
+        auction.setCreatedAt(getNullableLocalDateTime(rs, "auction_created_at"));
+        auction.setUpdatedAt(getNullableLocalDateTime(rs, "auction_updated_at"));
+        auction.setRecommended(rs.getBoolean("auction_recommended"));
+
+        Item item = new Item();
+
+        item.setId(rs.getInt("item_id"));
+        item.setSellerId(getNullableInt(rs, "item_seller_id"));
+        item.setCategoryId(getNullableInt(rs, "item_category_id"));
+        item.setTitle(rs.getString("item_title"));
+        item.setDescription(rs.getString("item_description"));
+
+        String itemCondition = rs.getString("item_condition");
+        if (itemCondition != null) {
+            item.setCondition(ItemCondition.valueOf(itemCondition));
+        }
+
+        item.setStartingPrice(rs.getBigDecimal("item_starting_price"));
+        item.setReservePrice(rs.getBigDecimal("item_reserve_price"));
+
+        String itemStatus = rs.getString("item_status");
+        if (itemStatus != null) {
+            item.setStatus(ItemStatus.valueOf(itemStatus));
+        }
+
+        item.setCreatedAt(getNullableLocalDateTime(rs, "item_created_at"));
+        item.setUpdatedAt(getNullableLocalDateTime(rs, "item_updated_at"));
+
+        Category category = null;
+
+        Integer categoryId = getNullableInt(rs, "category_id");
+        if (categoryId != null) {
+            category = new Category();
+            category.setId(categoryId);
+            category.setName(rs.getString("category_name"));
+        }
+
+        User seller = null;
+
+        Integer sellerId = getNullableInt(rs, "seller_id");
+        if (sellerId != null) {
+            seller = new User();
+            seller.setId(sellerId);
+            seller.setUsername(rs.getString("seller_username"));
+            seller.setEmail(rs.getString("seller_email"));
+        }
+
+        BigDecimal currentBidAmount = rs.getBigDecimal("current_bid_amount");
+        Integer currentHighestBidId = getNullableInt(rs, "current_bid_id");
+        Integer currentHighestBidderId = getNullableInt(rs, "current_bidder_id");
+        String currentHighestBidderUsername = rs.getString("current_bidder_username");
+
+        int bidCount = rs.getInt("bid_count");
+
+        AuctionDetailDto detail = new AuctionDetailDto();
+
+        detail.setAuction(auction);
+        detail.setItem(item);
+        detail.setCategory(category);
+        detail.setSeller(seller);
+        detail.setCurrentBidAmount(currentBidAmount);
+        detail.setCurrentHighestBidId(currentHighestBidId);
+        detail.setCurrentHighestBidderId(currentHighestBidderId);
+        detail.setCurrentHighestBidderUsername(currentHighestBidderUsername);
+        detail.setBidCount(bidCount);
+
+        return detail;
+    }
+
+    private ItemImage mapItemImage(ResultSet rs) throws Exception {
+        ItemImage image = new ItemImage();
+
+        image.setId(rs.getInt("id"));
+        image.setItemId(rs.getInt("item_id"));
+        image.setImageUrl(rs.getString("image_url"));
+        image.setDisplayOrder(getNullableInt(rs, "display_order"));
+
+        return image;
+    }
+
+    private Bid mapBid(ResultSet rs) throws Exception {
+        Bid bid = new Bid();
+
+        bid.setId(rs.getInt("id"));
+        bid.setAuctionId(rs.getInt("auction_id"));
+        bid.setItemId(getNullableInt(rs, "item_id"));
+        bid.setBidderId(rs.getInt("bidder_id"));
+        bid.setAmount(rs.getBigDecimal("amount"));
+        bid.setBidDateTime(getNullableLocalDateTime(rs, "bid_date_time"));
+
+        return bid;
+    }
+
+    private Payment mapPayment(ResultSet rs) throws Exception {
+        Payment payment = new Payment();
+
+        payment.setId(rs.getInt("id"));
+        payment.setAuctionId(rs.getInt("auction_id"));
+        payment.setBuyerId(getNullableInt(rs, "buyer_id"));
+        payment.setSellerId(getNullableInt(rs, "seller_id"));
+
+        String paymentStatus = rs.getString("status");
+        if (paymentStatus != null) {
+            payment.setStatus(PaymentStatus.valueOf(paymentStatus));
+        }
+
+        payment.setTotalAmount(rs.getBigDecimal("total_amount"));
+        payment.setCommissionAmount(rs.getBigDecimal("commission_amount"));
+        payment.setSellerPayout(rs.getBigDecimal("seller_payout"));
+        payment.setPaymentDateTime(getNullableLocalDateTime(rs, "payment_date_time"));
+        payment.setCreatedAt(getNullableLocalDateTime(rs, "created_at"));
+        payment.setUpdatedAt(getNullableLocalDateTime(rs, "updated_at"));
+
+        return payment;
     }
 
     private WonAuctionDto mapWonAuctionDto(ResultSet rs) throws Exception {

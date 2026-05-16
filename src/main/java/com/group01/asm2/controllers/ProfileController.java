@@ -1,63 +1,65 @@
 package com.group01.asm2.controllers;
 
-import com.group01.asm2.dtos.AuctionFilter;
-import com.group01.asm2.dtos.ItemFilter;
-import com.group01.asm2.enums.AuctionStatus;
-import com.group01.asm2.models.Item;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.shape.SVGPath;
-import javafx.animation.TranslateTransition;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.FileChooser;
-import javafx.util.Duration;
+import com.group01.asm2.dtos.UserProfileStatisticsDto;
+import com.group01.asm2.dtos.UserProfileViewDto;
+import com.group01.asm2.enums.ItemCondition;
+import com.group01.asm2.exceptions.AppException;
+import com.group01.asm2.models.TopUpRequest;
+import com.group01.asm2.models.User;
 import com.group01.asm2.services.ItemService;
+import com.group01.asm2.services.UserService;
 import com.group01.asm2.utils.ScrollUtils;
 import com.group01.asm2.utils.TopUpValidator;
+import com.group01.asm2.models.Category;
+import com.group01.asm2.services.CategoryService;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import com.group01.asm2.models.TopUpRequest;
+import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
-import javafx.scene.control.DatePicker;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
+/**
+ * @author Group 01
+ */
 public class ProfileController {
 
-    private ItemService itemService = new ItemService();
+    private final UserService userService = new UserService();
+    private final ItemService itemService = new ItemService();
+    private final CategoryService categoryService = new CategoryService();
+
+    private final Map<String, Integer> categoryNameToId = new HashMap<>();
+    private final Map<Integer, String> categoryIdToName = new HashMap<>();
+
+    private UserProfileViewDto currentProfile;
+    private UserProfileStatisticsDto currentStatistics;
+    private User profileUser;
+    private Integer profileUserId;
+
+    private final List<Tab> originalProfileTabs = new ArrayList<>();
 
     @FXML private ScrollPane profileScrollPane;
 
-    //==========================
-    // Top up Balance
-    //==========================
-    @FXML private StackPane topUpOverlay;
-    @FXML private VBox topUpModal;
-    @FXML private TextField topUpAmountField;
-    @FXML private Label topUpErrorLabel;
-
-    private final List<TopUpRequest> topUpRequests = new ArrayList<>();
-
-    private final int currentUserId = 1; // temporary mock user id
-
     @FXML private Label avatarLabel;
-    @FXML private Label statusLabel;
     @FXML private Label fullNameLabel;
     @FXML private Label roleLabel;
     @FXML private Label emailLabel;
@@ -74,17 +76,23 @@ public class ProfileController {
     @FXML private Label summaryRatingLabel;
 
     @FXML private TabPane profileTabPane;
+    @FXML private Tab walletTab;
+    @FXML private Tab myListingsTab;
+    @FXML private Tab activityLogTab;
+    @FXML private Tab sellerStatisticsTab;
     @FXML private Label selectedTabTitleLabel;
+
+    @FXML private HBox privateDetailsRow;
+    @FXML private HBox summaryRow;
+    @FXML private HBox walletPanelRow;
 
     @FXML private Label walletBalanceLabel;
     @FXML private Label topUpStatusLabel;
     @FXML private Label recentAuctionStatusLabel;
 
-    @FXML private HBox summaryRow;
-    @FXML private HBox walletPanelRow;
-
-    @FXML private TextField listingSearchField;
-    @FXML private TilePane listingsCardContainer;
+    @FXML private Button editProfileButton;
+    @FXML private Button addItemButton;
+    @FXML private Button requestTopUpButton;
 
     @FXML private Button categoryAllButton;
     @FXML private Button categoryElectronicsButton;
@@ -101,16 +109,20 @@ public class ProfileController {
 
     @FXML private StackPane editProfileOverlay;
     @FXML private VBox editProfileModal;
-    @FXML private Button editProfileButton;
     @FXML private TextField editFullNameField;
     @FXML private TextField editEmailField;
     @FXML private TextField editPhoneField;
     @FXML private DatePicker editDateOfBirthPicker;
     @FXML private TextField editAddressField;
 
+    @FXML private StackPane topUpOverlay;
+    @FXML private VBox topUpModal;
+    @FXML private TextField topUpAmountField;
+    @FXML private Label topUpErrorLabel;
+
     @FXML private StackPane addListingOverlay;
     @FXML private VBox addListingModal;
-    @FXML private ComboBox<String> addListingCategoryComboBox;
+    @FXML private ComboBox<CategoryOption> addListingCategoryComboBox;
     @FXML private TextField addListingStartingPriceField;
     @FXML private TextField addListingTitleField;
     @FXML private TextArea addListingDescriptionArea;
@@ -120,130 +132,406 @@ public class ProfileController {
     @FXML private ImageView addListingImagePreview;
     @FXML private StackPane addListingImagePreviewBox;
     @FXML private Label addListingErrorLabel;
-    private File selectedListingImageFile;
 
     @FXML private Label itemsSoldLabel;
     @FXML private Label totalRevenueLabel;
     @FXML private Label commissionFeesLabel;
     @FXML private Label soldRatioLabel;
-    @FXML private Tab sellerStatisticsTab;
 
     @FXML private BarChart<String, Number> averageSalePriceChart;
     @FXML private LineChart<String, Number> listingTrendChart;
 
-    private String fullName = "Sophia Bennett";
-    private String email = "sophia.bennett@bidblitz.com";
-    private String role = "Seller";
-    private String phone = "+84 912 345 678";
-    private LocalDate dateOfBirth = LocalDate.of(2003, 3, 15);    private String address = "District 7, Ho Chi Minh City";
-    private String joinedDate = "12 January 2025";
-    private String rating = "4.8 / 5.0";
-    private double balance = 1250.75;
+    /*
+     * Controller injected from:
+     * <fx:include fx:id="profileListings" source="./components/all_auctions.fxml"/>
+     */
+    @FXML private AuctionsController profileListingsController;
 
+    private File selectedListingImageFile;
     private String selectedListingCategory = "All";
 
-    private final ObservableList<Item> listings = FXCollections.observableArrayList();
     private final ObservableList<ActivityLog> activities = FXCollections.observableArrayList();
+    private final List<TopUpRequest> topUpRequests = new ArrayList<>();
 
-    private final DateTimeFormatter dateTimeFormatter =
-        DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
-
-    private final DateTimeFormatter dateFormatter =
-            DateTimeFormatter.ofPattern("dd MMMM yyyy");
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
     @FXML
     public void initialize() {
         ScrollUtils.makeSmooth(profileScrollPane);
 
-        loadDataFromServices();
-        setupProfileHeader();
-        updateSummaryLabels();
+        captureOriginalProfileTabs();
         setupTabSwitching();
         setupResponsiveEditProfileButton();
         setupActivityTable();
         makeTableResponsive(activityTable);
-//        setupListingsCards();
         setupAddListingModal();
         setupResponsiveLayout();
-        setupSellerStatistics();
-        setupSellerOnlySections();
+        updateCategoryChipStyles();
 
-//        listingSearchField.textProperty().addListener((observable, oldValue, newValue) -> filterListings());
+        loadProfile(null);
+    }
+
+    public void loadProfile(Integer userId) {
+        this.profileUserId = userId;
+        refreshProfilePage();
+    }
+
+    private void refreshProfilePage() {
+        try {
+            currentProfile = userService.readProfilePage(profileUserId);
+            currentStatistics = userService.readProfileStatistics(profileUserId);
+            profileUser = currentProfile.getUser();
+
+            renderProfilePage();
+
+        } catch (AppException exception) {
+            showError(exception.getMessage());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            showError("Could not load profile page.");
+        }
+    }
+
+    private void renderProfilePage() {
+        renderProfileHeader();
+        applyProfilePermissions();
+        loadDataFromServices();
+        renderSummaryLabels();
+        renderWalletPanel();
+        renderSellerStatistics();
+        renderActivityTable();
     }
 
     private void loadDataFromServices() {
-        ItemFilter filter = new ItemFilter();
-        listings.setAll(itemService.readItems(filter));
+        activities.clear();
 
-        activities.addAll(
-            new ActivityLog("07 May 2026, 09:20", "Logged in", "User logged into BidBlitz successfully."),
-            new ActivityLog("05 May 2026, 14:30", "Requested top-up", "Requested a balance top-up of $500.00."),
-            new ActivityLog("02 May 2026, 20:15", "Updated profile", "Updated phone number and address.")
-        );
+        if (currentProfile == null || profileUser == null) {
+            return;
+        }
+
+        if (currentProfile.canViewListings()) {
+            loadListingsForProfile();
+        }
+
+        if (currentProfile.canViewActivityLog()) {
+            loadActivityLogsForProfile();
+        }
     }
 
-    private void reloadListingsFromService() {
-        ItemFilter filter = new ItemFilter();
-        listings.setAll(itemService.readItems(filter));
+    private void loadCategoryOptions() {
+        try {
+            List<Category> categories = categoryService.readCategories();
+
+            categoryNameToId.clear();
+            categoryIdToName.clear();
+
+            ObservableList<CategoryOption> categoryOptions = FXCollections.observableArrayList();
+
+            for (Category category : categories) {
+                if (category == null || category.getId() == null) {
+                    continue;
+                }
+
+                String categoryName = defaultText(
+                    category.getName(),
+                    "Category " + category.getId()
+                );
+
+                CategoryOption option = new CategoryOption(category.getId(), categoryName);
+
+                categoryOptions.add(option);
+                categoryNameToId.put(categoryName, category.getId());
+                categoryIdToName.put(category.getId(), categoryName);
+            }
+
+            addListingCategoryComboBox.setItems(categoryOptions);
+            selectDefaultCategoryOption("Electronics");
+
+        } catch (AppException exception) {
+            addListingErrorLabel.setText(exception.getMessage());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            addListingErrorLabel.setText("Could not load categories.");
+        }
+    }
+
+    private void selectDefaultCategoryOption(String preferredCategoryName) {
+        if (addListingCategoryComboBox.getItems() == null
+            || addListingCategoryComboBox.getItems().isEmpty()) {
+            addListingCategoryComboBox.setValue(null);
+            return;
+        }
+
+        for (CategoryOption option : addListingCategoryComboBox.getItems()) {
+            if (option.getName().equalsIgnoreCase(preferredCategoryName)) {
+                addListingCategoryComboBox.setValue(option);
+                return;
+            }
+        }
+
+        addListingCategoryComboBox.getSelectionModel().selectFirst();
+    }
+
+    private void loadListingsForProfile() {
+        if (profileUser == null || profileUser.getId() == null) {
+            return;
+        }
+
+        if (profileListingsController == null) {
+            return;
+        }
+
+        boolean canManageSellerListings =
+            currentProfile != null
+                && currentProfile.isOwner()
+                && currentProfile.isSellerProfile();
+
+        profileListingsController.enableProfileMode(
+            profileUser.getId(),
+            canManageSellerListings
+        );
+
         filterListings();
-        updateSummaryLabels();
     }
 
-    private void setupProfileHeader() {
-        fullNameLabel.setText(fullName);
-        emailLabel.setText(email);
-        roleLabel.setText(role);
-        phoneLabel.setText(phone);
-        dateOfBirthLabel.setText(
-                dateOfBirth != null ? dateOfBirth.format(dateFormatter) : "N/A"
+    private void loadActivityLogsForProfile() {
+        /*
+         * Later replace with ActivityLogService.readProfileLogs(profileUser.getId()).
+         * For now, keep the table empty instead of fake mock logs.
+         */
+        activities.clear();
+    }
+
+    private void renderProfileHeader() {
+        if (currentProfile == null || profileUser == null) {
+            return;
+        }
+
+        String displayName = defaultText(profileUser.getFullName(), profileUser.getUsername());
+        String displayRole = formatRole(profileUser.getRole() == null ? null : profileUser.getRole().name());
+
+        fullNameLabel.setText(displayName);
+        roleLabel.setText(displayRole);
+        ratingLabel.setText("★ " + formatRating(profileUser.getRating()));
+
+        if (currentProfile.canViewPrivateDetails()) {
+            emailLabel.setText(defaultText(profileUser.getEmail(), "N/A"));
+            phoneLabel.setText(defaultText(profileUser.getPhone(), "N/A"));
+            addressLabel.setText(defaultText(profileUser.getAddress(), "N/A"));
+            dateOfBirthLabel.setText(
+                profileUser.getDateOfBirth() == null
+                    ? "N/A"
+                    : profileUser.getDateOfBirth().format(dateFormatter)
+            );
+        } else {
+            emailLabel.setText("Private");
+            phoneLabel.setText("Private");
+            addressLabel.setText("Private");
+            dateOfBirthLabel.setText("Private");
+        }
+
+        joinedDateLabel.setText(
+            profileUser.getCreatedAt() == null
+                ? "N/A"
+                : profileUser.getCreatedAt().toLocalDate().format(dateFormatter)
         );
-        addressLabel.setText(address);
-        joinedDateLabel.setText(joinedDate);
-        ratingLabel.setText("★ " + rating);
-        updateAvatar();
+
+        avatarLabel.setText(createInitials(displayName));
     }
 
-    private void updateAvatar() {
-        avatarLabel.setText(createInitials(fullName));
-    }
-
-    private String createInitials(String name) {
-        if (name == null || name.trim().isEmpty()) return "U";
-
-        String[] parts = name.trim().split("\\s+");
-        StringBuilder initials = new StringBuilder();
-
-        for (String part : parts) {
-            if (!part.isEmpty()) {
-                initials.append(Character.toUpperCase(part.charAt(0)));
-            }
-
-            if (initials.length() == 2) break;
+    private void renderSummaryLabels() {
+        if (currentStatistics == null || currentProfile == null) {
+            return;
         }
 
-        return initials.toString();
+        if (currentProfile.canViewWallet()) {
+            balanceLabel.setText(formatPrice(currentStatistics.getBalance()));
+        } else {
+            balanceLabel.setText("Private");
+        }
+
+        totalListingsLabel.setText(String.valueOf(currentStatistics.getTotalListings()));
+        activeListingsLabel.setText(String.valueOf(currentStatistics.getActiveListings()));
+        soldListingsLabel.setText(String.valueOf(currentStatistics.getSoldListings()));
+        summaryRatingLabel.setText(formatRating(currentStatistics.getRating()));
     }
 
-    private void updateSummaryLabels() {
-        balanceLabel.setText(formatPrice(balance));
-        walletBalanceLabel.setText(formatPrice(balance));
+    private void renderWalletPanel() {
+        if (currentStatistics == null || currentProfile == null) {
+            return;
+        }
 
-        totalListingsLabel.setText(String.valueOf(listings.size()));
-        activeListingsLabel.setText(String.valueOf(countActiveItems()));
-        soldListingsLabel.setText("0");
-        summaryRatingLabel.setText("4.8");
+        if (currentProfile.canViewWallet()) {
+            walletBalanceLabel.setText(formatPrice(currentStatistics.getBalance()));
+        } else {
+            walletBalanceLabel.setText("Private");
+        }
+
+        if (currentProfile.canRequestTopUp()) {
+            topUpStatusLabel.setText("No pending request");
+            replaceStyle(topUpStatusLabel, "status-neutral");
+        } else {
+            topUpStatusLabel.setText("Not available");
+            replaceStyle(topUpStatusLabel, "status-neutral");
+        }
+
+        recentAuctionStatusLabel.setText("No recent auction update.");
+        replaceStyle(recentAuctionStatusLabel, "status-success");
     }
 
-    private int countActiveItems() {
-        int count = 0;
+    private void renderSellerStatistics() {
+        if (currentStatistics == null) {
+            clearSellerStatistics();
+            return;
+        }
 
-        for (Item item : listings) {
-            if (item != null) {
-                count++;
+        itemsSoldLabel.setText(String.valueOf(currentStatistics.getItemsSold()));
+        totalRevenueLabel.setText(formatPrice(currentStatistics.getTotalRevenue()));
+        commissionFeesLabel.setText(formatPrice(currentStatistics.getCommissionFees()));
+        soldRatioLabel.setText(String.format("%.1f%%", currentStatistics.getSoldRatio()));
+
+        renderAverageSalePriceChart();
+        renderListingTrendChart();
+    }
+
+    private void renderAverageSalePriceChart() {
+        averageSalePriceChart.getData().clear();
+
+        if (currentStatistics == null || currentStatistics.getAverageSalePriceByCategory().isEmpty()) {
+            return;
+        }
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
+        for (Map.Entry<Integer, BigDecimal> entry : currentStatistics.getAverageSalePriceByCategory().entrySet()) {
+            series.getData().add(
+                new XYChart.Data<>(
+                    convertCategoryToName(entry.getKey()),
+                    entry.getValue()
+                )
+            );
+        }
+
+        averageSalePriceChart.getData().add(series);
+    }
+
+    private void renderListingTrendChart() {
+        listingTrendChart.getData().clear();
+
+        if (currentStatistics == null) {
+            return;
+        }
+
+        XYChart.Series<String, Number> soldSeries = new XYChart.Series<>();
+        soldSeries.setName("Sold");
+
+        XYChart.Series<String, Number> unsoldSeries = new XYChart.Series<>();
+        unsoldSeries.setName("Unsold");
+
+        for (Map.Entry<String, Integer> entry : currentStatistics.getSoldListingsByMonth().entrySet()) {
+            String month = entry.getKey();
+
+            soldSeries.getData().add(
+                new XYChart.Data<>(month, entry.getValue())
+            );
+
+            Integer unsoldValue = currentStatistics.getUnsoldListingsByMonth().getOrDefault(month, 0);
+
+            unsoldSeries.getData().add(
+                new XYChart.Data<>(month, unsoldValue)
+            );
+        }
+
+        listingTrendChart.getData().addAll(soldSeries, unsoldSeries);
+    }
+
+    private void clearSellerStatistics() {
+        itemsSoldLabel.setText("0");
+        totalRevenueLabel.setText(formatPrice(BigDecimal.ZERO));
+        commissionFeesLabel.setText(formatPrice(BigDecimal.ZERO));
+        soldRatioLabel.setText("0%");
+
+        averageSalePriceChart.getData().clear();
+        listingTrendChart.getData().clear();
+    }
+
+    private void renderActivityTable() {
+        activityTable.setItems(activities);
+    }
+
+    private void applyProfilePermissions() {
+        if (currentProfile == null) {
+            return;
+        }
+
+        setNodeVisible(privateDetailsRow, currentProfile.canViewPrivateDetails());
+        setNodeVisible(editProfileButton, currentProfile.canEditProfile());
+        setNodeVisible(addItemButton, currentProfile.isOwner() && currentProfile.isSellerProfile());
+        setNodeVisible(requestTopUpButton, currentProfile.canRequestTopUp());
+
+        setTabAvailable(walletTab, currentProfile.canViewWallet());
+        setTabAvailable(myListingsTab, currentProfile.canViewListings());
+        setTabAvailable(activityLogTab, currentProfile.canViewActivityLog());
+        setTabAvailable(sellerStatisticsTab, currentProfile.canViewSellerStatistics());
+
+        if (!profileTabPane.getTabs().isEmpty()) {
+            Tab selectedTab = profileTabPane.getSelectionModel().getSelectedItem();
+
+            if (selectedTab == null || !profileTabPane.getTabs().contains(selectedTab)) {
+                profileTabPane.getSelectionModel().selectFirst();
+            }
+
+            selectedTabTitleLabel.setText(profileTabPane.getSelectionModel().getSelectedItem().getText());
+        }
+    }
+
+    private void captureOriginalProfileTabs() {
+        originalProfileTabs.clear();
+        originalProfileTabs.addAll(profileTabPane.getTabs());
+    }
+
+    private void setTabAvailable(Tab tab, boolean available) {
+        if (tab == null) {
+            return;
+        }
+
+        boolean currentlyAdded = profileTabPane.getTabs().contains(tab);
+
+        if (available && !currentlyAdded) {
+            int targetIndex = calculateOriginalTabIndex(tab);
+            profileTabPane.getTabs().add(targetIndex, tab);
+            return;
+        }
+
+        if (!available && currentlyAdded) {
+            profileTabPane.getTabs().remove(tab);
+        }
+    }
+
+    private int calculateOriginalTabIndex(Tab tab) {
+        int index = 0;
+
+        for (Tab originalTab : originalProfileTabs) {
+            if (originalTab == tab) {
+                break;
+            }
+
+            if (profileTabPane.getTabs().contains(originalTab)) {
+                index++;
             }
         }
 
-        return count;
+        return Math.min(index, profileTabPane.getTabs().size());
+    }
+
+    private void setNodeVisible(Node node, boolean visible) {
+        if (node == null) {
+            return;
+        }
+
+        node.setVisible(visible);
+        node.setManaged(visible);
     }
 
     private void setupTabSwitching() {
@@ -252,6 +540,7 @@ public class ProfileController {
                 selectedTabTitleLabel.setText(newTab.getText());
 
                 Node tabContent = newTab.getContent();
+
                 if (tabContent instanceof Region region) {
                     profileTabPane.setMinHeight(Region.USE_COMPUTED_SIZE);
                     profileTabPane.setPrefHeight(region.prefHeight(-1) + 50);
@@ -267,12 +556,10 @@ public class ProfileController {
         editProfileButton.setMaxWidth(Double.MAX_VALUE);
     }
 
-
     private void setupActivityTable() {
         activityDateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("dateTime"));
         activityActionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
         activityDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-
         activityTable.setItems(activities);
     }
 
@@ -291,263 +578,13 @@ public class ProfileController {
         table.setMaxHeight(Region.USE_PREF_SIZE);
     }
 
-    private void setupListingsCards() {
-        updateCategoryChipStyles();
-        filterListings();
-
-//        listingsCardContainer.widthProperty().addListener((observable, oldValue, newValue) -> filterListings());
-    }
-
-    private void filterListings() {
-//        listingsCardContainer.getChildren().clear();
-
-//        String keyword = listingSearchField.getText() == null
-//            ? ""
-//            : listingSearchField.getText().trim().toLowerCase();
-
-        for (Item item : listings) {
-            if (item == null) continue;
-
-            String title = item.getTitle() == null ? "" : item.getTitle().toLowerCase();
-
-//            boolean matchesSearch = title.contains(keyword);
-
-            boolean matchesCategory = selectedListingCategory.equals("All")
-                || convertCategoryToName(item.getCategoryId()).equalsIgnoreCase(selectedListingCategory);
-
-//            if (matchesSearch && matchesCategory) {
-//                listingsCardContainer.getChildren().add(createListingCard(item));
-//            }
-        }
-    }
-
-    private VBox createListingCard(Item item) {
-        VBox card = new VBox(12);
-        card.getStyleClass().add("listing-card");
-
-//        double cardWidth = calculateCardWidth();
-//        card.setPrefWidth(cardWidth);
-//        card.setMinWidth(cardWidth);
-//        card.setMaxWidth(cardWidth);
-
-        StackPane imageSection = createListingImageSection(item, card);
-        setupListingCardHoverAnimation(card, imageSection);
-
-        Rectangle clip = new Rectangle();
-
-        clip.widthProperty().bind(imageSection.widthProperty());
-        clip.heightProperty().bind(imageSection.heightProperty());
-
-        clip.setArcWidth(0);
-        clip.setArcHeight(0);
-
-        imageSection.setClip(clip);
-
-        VBox contentBox = new VBox(10);
-        contentBox.getStyleClass().add("listing-card-content");
-
-        Label titleLabel = new Label(item.getTitle() != null ? item.getTitle() : "Unknown Item");
-        titleLabel.getStyleClass().add("item-title");
-        titleLabel.setWrapText(true);
-
-        titleLabel.setMinHeight(38);
-        titleLabel.setPrefHeight(38);
-        titleLabel.setMaxHeight(38);
-
-        Label categoryLabel = new Label(convertCategoryToName(item.getCategoryId()));
-        categoryLabel.getStyleClass().add("item-category-text");
-
-        Label startingPriceLabel = new Label("Starting price");
-        startingPriceLabel.getStyleClass().add("price-label");
-
-        Label startingPriceValue = new Label(formatPrice(item.getStartingPrice()));
-        startingPriceValue.getStyleClass().add("starting-price-value");
-
-        Label currentBidLabel = new Label("Current bid");
-        currentBidLabel.getStyleClass().add("price-label");
-
-//        Label currentBidValue = new Label(formatPrice(item.getCurrentBid()));
-//        currentBidValue.getStyleClass().add("current-bid-value");
-
-        HBox priceRow = new HBox(22);
-        priceRow.getChildren().addAll(
-//                new VBox(3, startingPriceLabel, startingPriceValue),
-//                new VBox(3, currentBidLabel, currentBidValue)
-        );
-
-        Label dateLabel = new Label(
-            item.getCreatedAt() != null
-                ? "Created: " + item.getCreatedAt().toLocalDate()
-                : "Created: N/A"
-        );
-        dateLabel.getStyleClass().add("listing-date");
-
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
-
-        contentBox.getChildren().addAll(
-            titleLabel,
-            categoryLabel,
-            priceRow,
-            spacer,
-            dateLabel
-        );
-
-        card.getChildren().addAll(imageSection, contentBox);
-
-        return card;
-    }
-
-    @FXML
-    private void handleUploadListingImage() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose Item Image");
-
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.webp")
-        );
-
-        File selectedFile = fileChooser.showOpenDialog(addListingOverlay.getScene().getWindow());
-
-        if (selectedFile == null) {
-            return;
-        }
-
-        selectedListingImageFile = selectedFile;
-
-        addListingImageNameLabel.setText(selectedFile.getName());
-
-        Image image = new Image(selectedFile.toURI().toString());
-        addListingImagePreview.setImage(image);
-
-        addListingImagePreviewBox.setVisible(true);
-        addListingImagePreviewBox.setManaged(true);
-    }
-
-    private void setupListingCardHoverAnimation(VBox card, Node imageContent) {
-        TranslateTransition cardMove = new TranslateTransition(Duration.seconds(0.18), card);
-
-        card.setOnMouseEntered(event -> {
-            cardMove.setToY(-4);
-            cardMove.playFromStart();
-        });
-
-        card.setOnMouseExited(event -> {
-            cardMove.setToY(0);
-            cardMove.playFromStart();
-        });
-    }
-
-    private StackPane createListingImageSection(Item item, VBox card) {
-        StackPane imageSection = new StackPane();
-        imageSection.getStyleClass().add("item-image-section");
-
-        Rectangle clip = new Rectangle();
-        clip.widthProperty().bind(imageSection.widthProperty());
-        clip.heightProperty().bind(imageSection.heightProperty());
-        clip.setArcWidth(44);
-        clip.setArcHeight(44);
-        imageSection.setClip(clip);
-
-        StackPane imagePlaceholder = new StackPane();
-        imagePlaceholder.getStyleClass().add("item-image-placeholder");
-
-        Label iconLabel = new Label(getItemIcon(item));
-        iconLabel.getStyleClass().add("item-placeholder-icon");
-        imagePlaceholder.getChildren().add(iconLabel);
-
-        Button moreButton = new Button("...");
-        moreButton.getStyleClass().add("item-more-button");
-
-        VBox actionMenu = createItemActionMenu(item);
-        actionMenu.setVisible(false);
-        actionMenu.setManaged(false);
-
-        moreButton.setOnAction(event -> {
-            event.consume();
-
-            boolean showing = actionMenu.isVisible();
-            actionMenu.setVisible(!showing);
-            actionMenu.setManaged(!showing);
-        });
-
-        imageSection.setOnMouseExited(event -> {
-            actionMenu.setVisible(false);
-            actionMenu.setManaged(false);
-        });
-
-        StackPane.setAlignment(moreButton, javafx.geometry.Pos.TOP_RIGHT);
-        StackPane.setMargin(moreButton, new Insets(12, 12, 0, 0));
-
-        StackPane.setAlignment(actionMenu, javafx.geometry.Pos.TOP_RIGHT);
-        StackPane.setMargin(actionMenu, new Insets(54, 12, 0, 0));
-
-        imageSection.getChildren().addAll(imagePlaceholder, moreButton, actionMenu);
-
-        setupListingCardHoverAnimation(card, iconLabel);
-
-        return imageSection;
-    }
-
-    private VBox createItemActionMenu(Item item) {
-        VBox menu = new VBox(2);
-        menu.setFillWidth(true);
-        menu.setMaxWidth(Region.USE_PREF_SIZE);
-        menu.setMaxHeight(Region.USE_PREF_SIZE);
-        menu.getStyleClass().add("item-action-menu");
-
-        Button editButton = new Button("Edit");
-        editButton.getStyleClass().add("item-action-menu-button");
-        editButton.setGraphic(createEditIcon());
-        editButton.setGraphicTextGap(2);
-
-        Button deleteButton = new Button("Delete");
-        deleteButton.getStyleClass().addAll("item-action-menu-button", "item-action-menu-delete");
-        deleteButton.setGraphic(createDeleteIcon());
-        deleteButton.setGraphicTextGap(2);
-
-        editButton.setOnAction(event -> {
-            event.consume();
-            addActivity("Edit item", "Edit action selected for " + item.getTitle() + ".");
-            menu.setVisible(false);
-            menu.setManaged(false);
-        });
-
-        deleteButton.setOnAction(event -> {
-            event.consume();
-            handleDeleteItem(item);
-            menu.setVisible(false);
-            menu.setManaged(false);
-        });
-
-        menu.getChildren().addAll(editButton, deleteButton);
-
-        return menu;
-    }
-
-    private double calculateCardWidth() {
-//        double containerWidth = listingsCardContainer.getWidth();
-//
-//        if (containerWidth <= 0) {
-//            return 280;
-//        }
-//
-//        double gap = listingsCardContainer.getHgap();
-//        double totalGap = gap * 3; // 4 items = 3 gaps
-//
-        return 4;
-    }
-
     private void setupAddListingModal() {
-        addListingCategoryComboBox.setItems(FXCollections.observableArrayList(
-                "Electronics", "Fashion", "Collectibles", "Home", "Books", "Other"
-        ));
+        loadCategoryOptions();
 
         addListingConditionComboBox.setItems(FXCollections.observableArrayList(
-                "New", "Used", "Refurbished"
+            "New", "Used", "Refurbished"
         ));
 
-        addListingCategoryComboBox.setValue("Electronics");
         addListingConditionComboBox.setValue("Used");
     }
 
@@ -557,11 +594,16 @@ public class ProfileController {
     }
 
     private void bindEqualWidth(HBox row) {
-        if (row == null) return;
+        if (row == null) {
+            return;
+        }
 
         row.widthProperty().addListener((observable, oldValue, newValue) -> {
             int count = row.getChildren().size();
-            if (count == 0) return;
+
+            if (count == 0) {
+                return;
+            }
 
             double spacing = row.getSpacing() * (count - 1);
             double width = (newValue.doubleValue() - spacing) / count;
@@ -575,88 +617,18 @@ public class ProfileController {
         });
     }
 
-    private void setupSellerStatistics() {
-        // Mock summary data
-        int itemsSold = 18;
-        double totalRevenue = 12450.00;
-        double commissionFees = 622.50;
-        int soldListings = 18;
-        int unsoldListings = 7;
-
-        double soldRatio = (soldListings + unsoldListings) == 0
-                ? 0
-                : (soldListings * 100.0) / (soldListings + unsoldListings);
-
-        itemsSoldLabel.setText(String.valueOf(itemsSold));
-        totalRevenueLabel.setText(formatPrice(totalRevenue));
-        commissionFeesLabel.setText(formatPrice(commissionFees));
-        soldRatioLabel.setText(String.format("%.1f%%", soldRatio));
-
-        setupAverageSalePriceChart();
-        setupListingTrendChart();
-    }
-
-    private void setupSellerOnlySections() {
-        boolean isSeller = role != null && role.equalsIgnoreCase("Seller");
-
-        if (!isSeller) {
-            profileTabPane.getTabs().remove(sellerStatisticsTab);
+    @FXML
+    private void handleOpenEditProfile() {
+        if (currentProfile == null || profileUser == null || !currentProfile.canEditProfile()) {
+            showError("You are not allowed to edit this profile.");
             return;
         }
 
-        if (!profileTabPane.getTabs().contains(sellerStatisticsTab)) {
-            profileTabPane.getTabs().add(sellerStatisticsTab);
-        }
-
-        setupSellerStatistics();
-    }
-
-    private void setupAverageSalePriceChart() {
-        averageSalePriceChart.getData().clear();
-
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.getData().add(new XYChart.Data<>("Electronics", 780));
-        series.getData().add(new XYChart.Data<>("Fashion", 220));
-        series.getData().add(new XYChart.Data<>("Collectibles", 950));
-        series.getData().add(new XYChart.Data<>("Home", 340));
-        series.getData().add(new XYChart.Data<>("Books", 90));
-
-        averageSalePriceChart.getData().add(series);
-    }
-
-    private void setupListingTrendChart() {
-        listingTrendChart.getData().clear();
-
-        XYChart.Series<String, Number> soldSeries = new XYChart.Series<>();
-        soldSeries.setName("Sold");
-
-        soldSeries.getData().add(new XYChart.Data<>("Jan", 2));
-        soldSeries.getData().add(new XYChart.Data<>("Feb", 3));
-        soldSeries.getData().add(new XYChart.Data<>("Mar", 4));
-        soldSeries.getData().add(new XYChart.Data<>("Apr", 5));
-        soldSeries.getData().add(new XYChart.Data<>("May", 2));
-        soldSeries.getData().add(new XYChart.Data<>("Jun", 6));
-
-        XYChart.Series<String, Number> unsoldSeries = new XYChart.Series<>();
-        unsoldSeries.setName("Unsold");
-
-        unsoldSeries.getData().add(new XYChart.Data<>("Jan", 1));
-        unsoldSeries.getData().add(new XYChart.Data<>("Feb", 2));
-        unsoldSeries.getData().add(new XYChart.Data<>("Mar", 1));
-        unsoldSeries.getData().add(new XYChart.Data<>("Apr", 2));
-        unsoldSeries.getData().add(new XYChart.Data<>("May", 3));
-        unsoldSeries.getData().add(new XYChart.Data<>("Jun", 1));
-
-        listingTrendChart.getData().addAll(soldSeries, unsoldSeries);
-    }
-
-    @FXML
-    private void handleOpenEditProfile() {
-        editFullNameField.setText(fullName);
-        editEmailField.setText(email);
-        editPhoneField.setText(phone);
-        editDateOfBirthPicker.setValue(dateOfBirth);
-        editAddressField.setText(address);
+        editFullNameField.setText(defaultText(profileUser.getFullName(), ""));
+        editEmailField.setText(defaultText(profileUser.getEmail(), ""));
+        editPhoneField.setText(defaultText(profileUser.getPhone(), ""));
+        editDateOfBirthPicker.setValue(profileUser.getDateOfBirth());
+        editAddressField.setText(defaultText(profileUser.getAddress(), ""));
 
         editProfileOverlay.setVisible(true);
         editProfileOverlay.setManaged(true);
@@ -670,82 +642,40 @@ public class ProfileController {
 
     @FXML
     private void handleSaveEditProfile() {
-        fullName = editFullNameField.getText().trim();
-        email = editEmailField.getText().trim();
-        phone = editPhoneField.getText().trim();
-        dateOfBirth = editDateOfBirthPicker.getValue();
-        address = editAddressField.getText().trim();
+        if (currentProfile == null || profileUser == null || !currentProfile.canEditProfile()) {
+            showError("You are not allowed to update this profile.");
+            return;
+        }
 
-        setupProfileHeader();
-        handleCloseEditProfile();
-        addActivity("Updated profile", "Updated profile information.");
+        try {
+            userService.updateUserProfile(
+                profileUser.getId(),
+                editFullNameField.getText(),
+                editDateOfBirthPicker.getValue(),
+                editEmailField.getText(),
+                editPhoneField.getText(),
+                editAddressField.getText(),
+                profileUser.getUsername()
+            );
+
+            handleCloseEditProfile();
+            refreshProfilePage();
+
+        } catch (AppException exception) {
+            showError(exception.getMessage());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            showError("Could not update profile.");
+        }
     }
-
-//    @FXML
-//    private void handleOpenTopUp() {
-//        Dialog<ButtonType> dialog = new Dialog<>();
-//        dialog.setTitle("Request Top-up");
-//
-//        DialogPane dialogPane = dialog.getDialogPane();
-//        dialogPane.getStyleClass().add("profile-dialog");
-//        dialogPane.getStylesheets().add(
-//            getClass().getResource("/com/group01/asm2/styles/views/profile.css").toExternalForm()
-//        );
-//
-//        ButtonType submitButtonType = new ButtonType("Submit Request", ButtonBar.ButtonData.OK_DONE);
-//        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-//        dialogPane.getButtonTypes().addAll(submitButtonType, cancelButtonType);
-//
-//        TextField amountField = new TextField();
-//        amountField.setPromptText("Enter amount between 10 and 5000");
-//        amountField.getStyleClass().add("profile-text-field");
-//
-//        Label errorLabel = new Label();
-//        errorLabel.getStyleClass().add("error-label");
-//
-//        VBox content = new VBox(12);
-//        content.getStyleClass().add("dialog-card");
-//        content.setPadding(new Insets(20));
-//
-//        Label title = new Label("Request Account Top-up");
-//        title.getStyleClass().add("dialog-title");
-//
-//        Label subtitle = new Label("Enter the amount you want to add. The request will be sent to an administrator for approval.");
-//        subtitle.getStyleClass().add("dialog-subtitle");
-//
-//        content.getChildren().addAll(title, subtitle, createFieldGroup("Top-up Amount", amountField), errorLabel);
-//        dialogPane.setContent(content);
-//
-//        Node submitButton = dialogPane.lookupButton(submitButtonType);
-//        submitButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
-//            try {
-//                double amount = Double.parseDouble(amountField.getText().trim());
-//
-//                if (amount < 10 || amount > 5000) {
-//                    errorLabel.setText("Amount must be between $10 and $5000.");
-//                    event.consume();
-//                    return;
-//                }
-//
-//                topUpStatusLabel.setText(String.format("Pending approval: $%,.2f", amount));
-//                topUpStatusLabel.getStyleClass().removeAll("status-neutral", "status-success", "status-warning");
-//                topUpStatusLabel.getStyleClass().add("status-warning");
-//
-//                addActivity("Requested top-up", String.format("Requested a top-up of $%,.2f.", amount));
-//
-//                dialog.close();
-//
-//            } catch (NumberFormatException exception) {
-//                errorLabel.setText("Please enter a valid number.");
-//                event.consume();
-//            }
-//        });
-//
-//        dialog.showAndWait();
-//    }
 
     @FXML
     private void handleOpenTopUp() {
+        if (currentProfile == null || !currentProfile.canRequestTopUp()) {
+            showError("You are not allowed to request top-up for this profile.");
+            return;
+        }
+
         topUpAmountField.clear();
         topUpErrorLabel.setText("");
 
@@ -761,25 +691,21 @@ public class ProfileController {
         topUpOverlay.setManaged(false);
     }
 
-    private void showPendingTopUpStatus(double amount) {
-        topUpStatusLabel.setText(String.format("Pending approval: $%,.2f", amount));
-
-        topUpStatusLabel.getStyleClass().removeAll(
-            "status-neutral",
-            "status-success",
-            "status-warning",
-            "status-error"
-        );
-
-        topUpStatusLabel.getStyleClass().add("status-warning");
-    }
-
     @FXML
     private void handleSubmitTopUp() {
         try {
+            if (currentProfile == null || profileUser == null || !currentProfile.canRequestTopUp()) {
+                topUpErrorLabel.setText("You are not allowed to request top-up for this profile.");
+                return;
+            }
+
             double amount = TopUpValidator.validateAmount(topUpAmountField.getText());
 
-            TopUpRequest request = createTopUpRequest(currentUserId, amount);
+            /*
+             * Temporary local object.
+             * Later replace with TopUpRequestService.createTopUpRequest(amount).
+             */
+            TopUpRequest request = createTopUpRequest(profileUser.getId(), amount);
 
             showPendingTopUpStatus(request.getAmount());
 
@@ -798,18 +724,24 @@ public class ProfileController {
         }
     }
 
-    private VBox createFieldGroup(String labelText, TextField textField) {
-        Label label = new Label(labelText);
-        label.getStyleClass().add("field-label");
+    private void showPendingTopUpStatus(double amount) {
+        topUpStatusLabel.setText(String.format("Pending approval: $%,.2f", amount));
+        replaceStyle(topUpStatusLabel, "status-warning");
+    }
 
-        VBox group = new VBox(6);
-        group.getChildren().addAll(label, textField);
-
-        return group;
+    private TopUpRequest createTopUpRequest(int userId, double amount) {
+        TopUpRequest request = new TopUpRequest(userId, amount);
+        topUpRequests.add(request);
+        return request;
     }
 
     @FXML
     private void handleAddListing() {
+        if (currentProfile == null || !currentProfile.isOwner() || !currentProfile.isSellerProfile()) {
+            showError("Only the seller owner can add listings from this profile.");
+            return;
+        }
+
         clearAddListingForm();
         addListingOverlay.setVisible(true);
         addListingOverlay.setManaged(true);
@@ -823,26 +755,18 @@ public class ProfileController {
 
     @FXML
     private void handleSaveListing() {
-        String title = addListingTitleField.getText() == null
-                ? ""
-                : addListingTitleField.getText().trim();
+        if (currentProfile == null || !currentProfile.isOwner() || !currentProfile.isSellerProfile()) {
+            addListingErrorLabel.setText("You are not allowed to add listings for this profile.");
+            return;
+        }
 
-        String description = addListingDescriptionArea.getText() == null
-                ? ""
-                : addListingDescriptionArea.getText().trim();
-
-        String category = addListingCategoryComboBox.getValue();
+        String title = safeTrim(addListingTitleField.getText());
+        String description = safeTrim(addListingDescriptionArea.getText());
+        CategoryOption selectedCategory = addListingCategoryComboBox.getValue();
         String condition = addListingConditionComboBox.getValue();
+        String startingPriceText = safeTrim(addListingStartingPriceField.getText());
+        String reservePriceText = safeTrim(addListingReservePriceField.getText());
 
-        String startingPriceText = addListingStartingPriceField.getText() == null
-                ? ""
-                : addListingStartingPriceField.getText().trim();
-
-        String reservePriceText = addListingReservePriceField.getText() == null
-                ? ""
-                : addListingReservePriceField.getText().trim();
-
-        // Required fields validation
         if (title.isEmpty()) {
             addListingErrorLabel.setText("Title is required.");
             return;
@@ -853,7 +777,7 @@ public class ProfileController {
             return;
         }
 
-        if (category == null || category.trim().isEmpty()) {
+        if (selectedCategory == null || selectedCategory.getId() == null) {
             addListingErrorLabel.setText("Category is required.");
             return;
         }
@@ -883,7 +807,6 @@ public class ProfileController {
 
             BigDecimal reservePrice = null;
 
-            // Reserve price is optional
             if (!reservePriceText.isEmpty()) {
                 reservePrice = new BigDecimal(reservePriceText);
 
@@ -898,34 +821,54 @@ public class ProfileController {
                 }
             }
 
-            String imagePath = selectedListingImageFile.toURI().toString();
+            itemService.createItem(
+                title,
+                description,
+                selectedCategory.getId(),
+                startingPrice,
+                reservePrice,
+                convertCondition(condition),
+                List.of(selectedListingImageFile)
+            );
 
-            // Later: save these values into Item model / database
-            // title
-            // description
-            // category
-            // condition
-            // startingPrice
-            // reservePrice
-            // imagePath
+            selectedListingCategory = "All";
+            updateCategoryChipStyles();
 
-            reloadListingsFromService();
-
-            addActivity("Created item", "Created new item: " + title + ".");
             handleCloseAddListing();
-
+            refreshProfilePage();
         } catch (NumberFormatException exception) {
             addListingErrorLabel.setText("Please enter valid price numbers.");
+        } catch (AppException exception) {
+            addListingErrorLabel.setText(exception.getMessage());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            addListingErrorLabel.setText("Could not create item listing.");
         }
     }
 
-    private void handleDeleteItem(Item item) {
-        if (item == null || item.getId() == null) return;
-        Item deletedItem = itemService.readItem(item.getId());
-        itemService.deleteItem(item.getId());
+    @FXML
+    private void handleUploadListingImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose Item Image");
 
-        reloadListingsFromService();
-        addActivity("Deleted item", "Deleted item: " + deletedItem.getTitle() + ".");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.webp")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(addListingOverlay.getScene().getWindow());
+
+        if (selectedFile == null) {
+            return;
+        }
+
+        selectedListingImageFile = selectedFile;
+        addListingImageNameLabel.setText(selectedFile.getName());
+
+        Image image = new Image(selectedFile.toURI().toString());
+        addListingImagePreview.setImage(image);
+
+        addListingImagePreviewBox.setVisible(true);
+        addListingImagePreviewBox.setManaged(true);
     }
 
     private void clearAddListingForm() {
@@ -935,7 +878,7 @@ public class ProfileController {
         addListingReservePriceField.clear();
         addListingErrorLabel.setText("");
 
-        addListingCategoryComboBox.setValue("Electronics");
+        selectDefaultCategoryOption("Electronics");
         addListingConditionComboBox.setValue("Used");
 
         selectedListingImageFile = null;
@@ -943,6 +886,18 @@ public class ProfileController {
         addListingImagePreview.setImage(null);
         addListingImagePreviewBox.setVisible(false);
         addListingImagePreviewBox.setManaged(false);
+    }
+
+    private void filterListings() {
+        if (profileListingsController == null || profileUser == null) {
+            return;
+        }
+
+        Integer categoryId = "All".equalsIgnoreCase(selectedListingCategory)
+            ? null
+            : convertCategoryToId(selectedListingCategory);
+
+        profileListingsController.applyProfileCategoryFilter(categoryId);
     }
 
     @FXML private void handleCategoryAll() { changeCategory("All"); }
@@ -954,9 +909,9 @@ public class ProfileController {
     @FXML private void handleCategoryOther() { changeCategory("Other"); }
 
     private void changeCategory(String category) {
-//        selectedListingCategory = category;
-//        updateCategoryChipStyles();
-//        filterListings();
+        selectedListingCategory = category == null ? "All" : category;
+        updateCategoryChipStyles();
+        filterListings();
     }
 
     private void updateCategoryChipStyles() {
@@ -971,92 +926,150 @@ public class ProfileController {
         };
 
         for (Button button : buttons) {
-            button.getStyleClass().remove("category-chip-active");
+            if (button != null) {
+                button.getStyleClass().remove("category-chip-active");
+            }
         }
 
         switch (selectedListingCategory) {
-            case "All" -> categoryAllButton.getStyleClass().add("category-chip-active");
-            case "Electronics" -> categoryElectronicsButton.getStyleClass().add("category-chip-active");
-            case "Fashion" -> categoryFashionButton.getStyleClass().add("category-chip-active");
-            case "Collectibles" -> categoryCollectiblesButton.getStyleClass().add("category-chip-active");
-            case "Home" -> categoryHomeButton.getStyleClass().add("category-chip-active");
-            case "Books" -> categoryBooksButton.getStyleClass().add("category-chip-active");
-            case "Other" -> categoryOtherButton.getStyleClass().add("category-chip-active");
+            case "All" -> addStyle(categoryAllButton, "category-chip-active");
+            case "Electronics" -> addStyle(categoryElectronicsButton, "category-chip-active");
+            case "Fashion" -> addStyle(categoryFashionButton, "category-chip-active");
+            case "Collectibles" -> addStyle(categoryCollectiblesButton, "category-chip-active");
+            case "Home" -> addStyle(categoryHomeButton, "category-chip-active");
+            case "Books" -> addStyle(categoryBooksButton, "category-chip-active");
+            case "Other" -> addStyle(categoryOtherButton, "category-chip-active");
         }
     }
 
     private Integer convertCategoryToId(String category) {
-        if (category == null) return 106;
+        if (category == null || "All".equalsIgnoreCase(category)) {
+            return null;
+        }
 
-        return switch (category) {
-            case "Electronics" -> 101;
-            case "Fashion" -> 102;
-            case "Collectibles" -> 103;
-            case "Home" -> 104;
-            case "Books" -> 105;
-            case "Other" -> 106;
-            default -> 106;
-        };
+        return categoryNameToId.get(category);
     }
 
     private String convertCategoryToName(Integer categoryId) {
-        if (categoryId == null) return "Other";
+        if (categoryId == null) {
+            return "Other";
+        }
 
-        return switch (categoryId) {
-            case 101 -> "Electronics";
-            case 102 -> "Fashion";
-            case 103 -> "Collectibles";
-            case 104 -> "Home";
-            case 105 -> "Books";
-            case 106 -> "Other";
-            default -> "Other";
-        };
+        return categoryIdToName.getOrDefault(categoryId, "Category " + categoryId);
     }
 
-    private String getItemIcon(Item item) {
-        if (item == null) return "📦";
+    private ItemCondition convertCondition(String condition) {
+        if (condition == null) {
+            return ItemCondition.USED;
+        }
 
-//        String mainBgClass = item.getMainBgClass();
-
-//        if (mainBgClass != null && !mainBgClass.trim().isEmpty()) {
-//            return mainBgClass;
-//        }
-
-        String category = convertCategoryToName(item.getCategoryId());
-
-        return switch (category) {
-            case "Electronics" -> "📱";
-            case "Fashion" -> "👕";
-            case "Collectibles" -> "🎴";
-            case "Home" -> "💡";
-            case "Books" -> "📚";
-            default -> "📦";
+        return switch (condition) {
+            case "New" -> ItemCondition.NEW;
+            case "Used" -> ItemCondition.USED;
+            case "Refurbished" -> ItemCondition.REFURBISHED;
+            default -> ItemCondition.USED;
         };
     }
 
     private void addActivity(String action, String description) {
-        String now = LocalDateTime.now().format(dateFormatter);
+        String now = LocalDateTime.now().format(dateTimeFormatter);
         activities.add(0, new ActivityLog(now, action, description));
     }
 
-    private TopUpRequest createTopUpRequest(int userId, double amount) {
-        TopUpRequest request = new TopUpRequest(userId, amount);
-        topUpRequests.add(request);
+    private String createInitials(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return "U";
+        }
 
-        return request;
+        String[] parts = name.trim().split("\\s+");
+        StringBuilder initials = new StringBuilder();
+
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                initials.append(Character.toUpperCase(part.charAt(0)));
+            }
+
+            if (initials.length() == 2) {
+                break;
+            }
+        }
+
+        return initials.toString();
     }
 
-    private List<TopUpRequest> getTopUpRequests() {
-        return topUpRequests;
+    private String defaultText(String value, String fallback) {
+        if (value == null || value.trim().isEmpty()) {
+            return fallback;
+        }
+
+        return value.trim();
     }
 
-    private String formatPrice(double value) {
-        return String.format("$%,.2f", value);
+    private String safeTrim(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String formatRole(String role) {
+        if (role == null || role.trim().isEmpty()) {
+            return "User";
+        }
+
+        return switch (role) {
+            case "BUYER" -> "Buyer";
+            case "SELLER" -> "Seller";
+            case "AUCTION_ADMINISTRATOR" -> "Auction Admin";
+            case "SYSTEM_ADMINISTRATOR" -> "System Admin";
+            default -> role;
+        };
+    }
+
+    private String formatRating(double rating) {
+        return String.format("%.1f / 5.0", rating);
     }
 
     private String formatPrice(BigDecimal value) {
-        if (value == null) return "N/A";
+        if (value == null) {
+            return "$0.00";
+        }
+
         return String.format("$%,.2f", value);
+    }
+
+    private void replaceStyle(Label label, String newStyleClass) {
+        if (label == null) {
+            return;
+        }
+
+        label.getStyleClass().removeAll(
+            "status-neutral",
+            "status-success",
+            "status-warning",
+            "status-error"
+        );
+
+        label.getStyleClass().add(newStyleClass);
+    }
+
+    private void addStyle(Node node, String styleClass) {
+        if (node == null || styleClass == null) {
+            return;
+        }
+
+        if (!node.getStyleClass().contains(styleClass)) {
+            node.getStyleClass().add(styleClass);
+        }
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Profile Error");
+        alert.setHeaderText(null);
+        alert.setContentText(
+            message == null || message.trim().isEmpty()
+                ? "Something went wrong."
+                : message
+        );
+        alert.showAndWait();
     }
 
     public static class ActivityLog {
@@ -1070,32 +1083,39 @@ public class ProfileController {
             this.description = new SimpleStringProperty(description);
         }
 
-        public String getDateTime() { return dateTime.get(); }
-        public String getAction() { return action.get(); }
-        public String getDescription() { return description.get(); }
+        public String getDateTime() {
+            return dateTime.get();
+        }
+
+        public String getAction() {
+            return action.get();
+        }
+
+        public String getDescription() {
+            return description.get();
+        }
     }
 
-    private SVGPath createEditIcon() {
-        SVGPath icon = new SVGPath();
-        icon.setContent(
-            "M21.174 6.812a1 1 0 0 0-3.986-3.987 " +
-                "L3.842 16.174a2 2 0 0 0-.5.83 " +
-                "l-1.321 4.352a.5.5 0 0 0 .623.622 " +
-                "l4.353-1.32a2 2 0 0 0 .83-.497z " +
-                "M15 5l4 4"
-        );
-        icon.getStyleClass().add("item-menu-icon");
-        return icon;
-    }
+    private static class CategoryOption {
+        private final Integer id;
+        private final String name;
 
-    private SVGPath createDeleteIcon() {
-        SVGPath icon = new SVGPath();
-        icon.setContent(
-            "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6 " +
-                "M3 6h18 " +
-                "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-        );
-        icon.getStyleClass().add("item-menu-icon");
-        return icon;
+        public CategoryOption(Integer id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }

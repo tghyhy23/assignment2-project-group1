@@ -13,6 +13,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+/**
+ * @author Group 01
+ */
 public class PersonRepository {
 
     public Optional<Person> findByUsername(String username) {
@@ -23,6 +26,7 @@ public class PersonRepository {
                 date_of_birth,
                 email,
                 phone,
+                address,
                 username,
                 password,
                 role,
@@ -49,6 +53,7 @@ public class PersonRepository {
         LocalDate dateOfBirth = getLocalDate(rs, "date_of_birth");
         String email = rs.getString("email");
         String phone = rs.getString("phone");
+        String address = rs.getString("address");
         String username = rs.getString("username");
         String passwordHash = rs.getString("password");
         UserRole role = UserRole.valueOf(rs.getString("role"));
@@ -66,6 +71,7 @@ public class PersonRepository {
                 dateOfBirth,
                 email,
                 phone,
+                address,
                 username,
                 passwordHash,
                 role,
@@ -83,6 +89,7 @@ public class PersonRepository {
             dateOfBirth,
             email,
             phone,
+            address,
             username,
             passwordHash,
             role,

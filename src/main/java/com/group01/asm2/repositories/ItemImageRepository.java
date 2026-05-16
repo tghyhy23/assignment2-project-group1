@@ -1,5 +1,6 @@
 package com.group01.asm2.repositories;
 
+import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.ItemImage;
 import com.group01.asm2.db.SqlExecutor;
 
@@ -28,7 +29,7 @@ public class ItemImageRepository {
                 ps.setInt(3, itemImage.getDisplayOrder() != null ? itemImage.getDisplayOrder() : 0);
             },
             this::mapRow
-        ).orElse(null);
+        ).orElseThrow(() -> AppException.database("Failed to create item image."));
     }
 
     public List<ItemImage> createItemImages(Connection conn, List<ItemImage> itemImages) {

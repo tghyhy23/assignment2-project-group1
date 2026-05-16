@@ -83,7 +83,8 @@
                 <Region HBox.hgrow="ALWAYS"/>
 
                 <!-- MIDDLE GROUP: Private Details -->
-                <HBox spacing="14"
+                <HBox fx:id="privateDetailsRow"
+                      spacing="14"
                       alignment="CENTER_LEFT"
                       styleClass="private-details-flex">
 
@@ -173,7 +174,7 @@
                              styleClass="profile-tab-pane"
                              VBox.vgrow="NEVER">
 
-                        <Tab text="Wallet">
+                        <Tab fx:id="walletTab" text="Wallet">
                             <VBox spacing="18" styleClass="tab-content">
 
                                 <HBox fx:id="walletPanelRow" spacing="16">
@@ -212,25 +213,26 @@
                                     <Label text="Quick Actions" styleClass="panel-title"/>
 
                                     <HBox spacing="12">
-                                        <Button text="Request Top-up"
+                                        <Button fx:id="requestTopUpButton"
+                                                text="Request Top-up"
                                                 onAction="#handleOpenTopUp"
                                                 styleClass="primary-button"/>
                                     </HBox>
 
-                                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="listing-category-bar">
-                                        <Button fx:id="categoryAllButton" text="All" onAction="#handleCategoryAll" styleClass="category-chip"/>
-                                        <Button fx:id="categoryElectronicsButton" text="Electronics" onAction="#handleCategoryElectronics" styleClass="category-chip"/>
-                                        <Button fx:id="categoryFashionButton" text="Fashion" onAction="#handleCategoryFashion" styleClass="category-chip"/>
-                                        <Button fx:id="categoryCollectiblesButton" text="Collectibles" onAction="#handleCategoryCollectibles" styleClass="category-chip"/>
-                                        <Button fx:id="categoryHomeButton" text="Home" onAction="#handleCategoryHome" styleClass="category-chip"/>
-                                        <Button fx:id="categoryBooksButton" text="Books" onAction="#handleCategoryBooks" styleClass="category-chip"/>
-                                        <Button fx:id="categoryOtherButton" text="Other" onAction="#handleCategoryOther" styleClass="category-chip"/>
-                                    </HBox>
+<!--                                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="listing-category-bar">-->
+<!--                                        <Button fx:id="categoryAllButton" text="All" onAction="#handleCategoryAll" styleClass="category-chip"/>-->
+<!--                                        <Button fx:id="categoryElectronicsButton" text="Electronics" onAction="#handleCategoryElectronics" styleClass="category-chip"/>-->
+<!--                                        <Button fx:id="categoryFashionButton" text="Fashion" onAction="#handleCategoryFashion" styleClass="category-chip"/>-->
+<!--                                        <Button fx:id="categoryCollectiblesButton" text="Collectibles" onAction="#handleCategoryCollectibles" styleClass="category-chip"/>-->
+<!--                                        <Button fx:id="categoryHomeButton" text="Home" onAction="#handleCategoryHome" styleClass="category-chip"/>-->
+<!--                                        <Button fx:id="categoryBooksButton" text="Books" onAction="#handleCategoryBooks" styleClass="category-chip"/>-->
+<!--                                        <Button fx:id="categoryOtherButton" text="Other" onAction="#handleCategoryOther" styleClass="category-chip"/>-->
+<!--                                    </HBox>-->
                                 </VBox>
                             </VBox>
                         </Tab>
 
-                        <Tab text="My Listings">
+                        <Tab fx:id="myListingsTab" text="My Listings">
                             <VBox spacing="18" styleClass="tab-content listings-section">
 
                                 <fx:include fx:id="profileListings"
@@ -245,7 +247,7 @@
                             </VBox>
                         </Tab>
 
-                        <Tab text="Activity Log">
+                        <Tab fx:id="activityLogTab" text="Activity Log">
                             <VBox spacing="12" styleClass="tab-content">
                                 <Label text="Your personal activity history inside BidBlitz."
                                        styleClass="table-hint"/>
@@ -437,7 +439,7 @@
 
                 <HBox spacing="10" alignment="CENTER_LEFT">
 
-                    <Label text="Add New Auction Item"
+                    <Label text="Add New Item"
                            styleClass="modal-title"/>
 
                     <Region HBox.hgrow="ALWAYS"/>
@@ -615,7 +617,6 @@
                         onAction="#handleSubmitTopUp"
                         styleClass="modal-save-button"/>
             </HBox>
-
         </VBox>
     </StackPane>
 </StackPane>

@@ -54,6 +54,7 @@ public final class PostgreSQLInitializer {
                 email VARCHAR(255) NOT NULL,
                 phone VARCHAR(30),
                 username VARCHAR(80) NOT NULL,
+                address VARCHAR(500) NOT NULL,
 
                 password TEXT NOT NULL,
 

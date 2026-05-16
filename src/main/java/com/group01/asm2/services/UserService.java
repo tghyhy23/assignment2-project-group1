@@ -5,7 +5,8 @@ package com.group01.asm2.services;
  */
 
 import com.group01.asm2.core.SessionManager;
-import com.group01.asm2.enums.UserRole;
+import com.group01.asm2.dtos.UserProfileStatisticsDto;
+import com.group01.asm2.dtos.UserProfileViewDto;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.models.User;
@@ -13,6 +14,7 @@ import com.group01.asm2.repositories.UserRepository;
 import com.group01.asm2.security.Permission;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -31,6 +33,8 @@ public class UserService extends BaseService {
         "^[0-9+()\\-\\s]{8,30}$"
     );
 
+    private static final BigDecimal DEFAULT_COMMISSION_RATE = new BigDecimal("0.05");
+
     private final UserRepository userRepository;
 
     public UserService() {
@@ -42,12 +46,10 @@ public class UserService extends BaseService {
     }
 
     public User readUserProfile() {
-        // 1. Read current logged-in user profile
         return readUserProfile(null);
     }
 
     public User readUserProfile(Integer userId) {
-        // 1. Prepare current user and target user id
         Person currentUser = SessionManager.getCurrentUser();
         Integer targetUserId = userId;
 
@@ -56,43 +58,111 @@ public class UserService extends BaseService {
             targetUserId = currentUser.getId();
         }
 
-        if (targetUserId == null || targetUserId <= 0) {
-            throw AppException.validation("User ID is invalid.");
-        }
+        validateUserId(targetUserId);
 
-        // 2. Read target user profile
-        User user = userRepository.readUserById(targetUserId);
+        User user = userRepository.readUserProfile(targetUserId);
 
         if (user == null) {
             throw AppException.notFound("User profile not found.");
         }
 
-        // 3. Return full profile if current user owns this profile
-        if (currentUser != null && targetUserId.equals(currentUser.getId())) {
-            return user;
+        if (isProfileOwner(currentUser, targetUserId) || isSystemAdministrator(currentUser)) {
+            return toPrivateUserProfile(user, true);
         }
 
-        // 4. Return full profile if current user has user-management permission
-        if (
-            currentUser != null &&
-                (
-                    currentUser.isSystemAdministrator() ||
-                        AuthorizationService.hasPermission(Permission.MANAGE_USERS)
-                )
-        ) {
-            return user;
-        }
-
-        // 5. Return public-safe profile for anonymous users or non-owners
         return toPublicUserProfile(user);
     }
 
+    public UserProfileViewDto readProfilePage(Integer userId) {
+        Person currentUser = SessionManager.getCurrentUser();
+        Integer targetUserId = userId;
+
+        if (targetUserId == null) {
+            currentUser = getCurrentUserOrThrow();
+            targetUserId = currentUser.getId();
+        }
+
+        validateUserId(targetUserId);
+
+        User targetUser = userRepository.readUserProfile(targetUserId);
+
+        if (targetUser == null) {
+            throw AppException.notFound("User profile not found.");
+        }
+
+        boolean isOwner = isProfileOwner(currentUser, targetUserId);
+        boolean isSystemAdmin = isSystemAdministrator(currentUser);
+        boolean isSellerProfile = targetUser.isSeller();
+
+        boolean canViewPrivateDetails = isOwner || isSystemAdmin;
+        boolean canEditProfile = isOwner || isSystemAdmin;
+
+        boolean canViewWallet = isOwner;
+        boolean canRequestTopUp = isOwner && targetUser.isRegisteredUser();
+
+        boolean canViewActivityLog = isOwner || isSystemAdmin;
+
+        boolean canViewListings = isSellerProfile;
+
+        boolean canViewSellerStatistics = isSellerProfile && (isOwner || isSystemAdmin);
+
+        User safeUser = canViewPrivateDetails
+            ? toPrivateUserProfile(targetUser, canViewWallet)
+            : toPublicUserProfile(targetUser);
+
+        return new UserProfileViewDto(
+            safeUser,
+            isOwner,
+            isSellerProfile,
+            canEditProfile,
+            canViewPrivateDetails,
+            canViewWallet,
+            canRequestTopUp,
+            canViewActivityLog,
+            canViewSellerStatistics,
+            canViewListings
+        );
+    }
+
+    public UserProfileStatisticsDto readProfileStatistics(Integer userId) {
+        UserProfileViewDto profileView = readProfilePage(userId);
+        User profileUser = profileView.getUser();
+
+        UserProfileStatisticsDto statistics =
+            userRepository.readProfileStatistics(profileUser.getId());
+
+        if (!profileView.canViewWallet()) {
+            statistics.hideBalance();
+        }
+
+        if (!profileView.canViewListings()) {
+            statistics.hideListingStats();
+        }
+
+        if (profileView.canViewSellerStatistics()) {
+            UserProfileStatisticsDto sellerStatistics =
+                userRepository.readSellerStatistics(profileUser.getId());
+
+            sellerStatistics.setCommissionFees(
+                calculateCommissionFees(sellerStatistics.getTotalRevenue())
+            );
+
+            statistics.mergeSellerStatisticsFrom(sellerStatistics);
+        } else {
+            statistics.clearSellerStatistics();
+        }
+
+        return statistics;
+    }
+
     public List<User> readUsers() {
-        // 1. Check authorization
         requireCurrentUser(Permission.MANAGE_USERS);
 
-        // 2. Read all registered users
-        return userRepository.readUsers();
+        List<User> users = userRepository.readUsers();
+
+        return users.stream()
+            .map(user -> toPrivateUserProfile(user, true))
+            .toList();
     }
 
     public User updateUserProfile(
@@ -101,38 +171,38 @@ public class UserService extends BaseService {
         LocalDate dateOfBirth,
         String email,
         String phone,
+        String address,
         String username
     ) {
-        // 1. Check current user and target profile
         Person currentUser = getCurrentUserOrThrow();
         Integer targetUserId = userId != null ? userId : currentUser.getId();
 
-        if (targetUserId == null || targetUserId <= 0) {
-            throw AppException.validation("User ID is invalid.");
-        }
+        validateUserId(targetUserId);
 
-        // 2. Check ownership or admin permission
         requireOwnershipOrPermission(
             targetUserId,
             Permission.MANAGE_USERS,
             "You can only update your own profile."
         );
 
-        // 3. Check existing user profile
-        User existingUser = userRepository.readUserById(targetUserId);
+        User existingUser = userRepository.readUserProfile(targetUserId);
 
         if (existingUser == null) {
             throw AppException.notFound("User profile not found.");
         }
 
-        // 4. Validate request data
         String cleanFullName = validateFullName(fullName);
         validateDateOfBirth(dateOfBirth);
         String cleanEmail = validateEmail(email);
         String cleanPhone = validatePhone(phone);
-        String cleanUsername = validateUsername(username);
+        String cleanAddress = validateAddress(address);
 
-        // 5. Check duplicated email and username
+        String requestedUsername = isBlank(username)
+            ? existingUser.getUsername()
+            : username;
+
+        String cleanUsername = validateUsername(requestedUsername);
+
         if (userRepository.existsByEmailExceptId(cleanEmail, targetUserId)) {
             throw AppException.conflict("Email is already used by another account.");
         }
@@ -141,15 +211,16 @@ public class UserService extends BaseService {
             throw AppException.conflict("Username is already used by another account.");
         }
 
-        // 6. Apply allowed profile updates only
         existingUser.setFullName(cleanFullName);
         existingUser.setDateOfBirth(dateOfBirth);
         existingUser.setEmail(cleanEmail);
         existingUser.setPhone(cleanPhone);
+        existingUser.setAddress(cleanAddress);
         existingUser.setUsername(cleanUsername);
 
-        // 7. Save profile
-        return userRepository.updateUserProfile(existingUser);
+        User updatedUser = userRepository.updateUserProfile(existingUser);
+
+        return toPrivateUserProfile(updatedUser, true);
     }
 
     public User updateUserProfile(
@@ -157,35 +228,57 @@ public class UserService extends BaseService {
         LocalDate dateOfBirth,
         String email,
         String phone,
+        String address,
         String username
     ) {
-        // 1. Update current logged-in user profile
-        return updateUserProfile(null, fullName, dateOfBirth, email, phone, username);
+        return updateUserProfile(null, fullName, dateOfBirth, email, phone, address, username);
     }
 
     public int deleteUser(Integer userId) {
-        // 1. Check authorization
         requireCurrentUser(Permission.MANAGE_USERS);
 
-        // 2. Validate user id
-        if (userId == null || userId <= 0) {
-            throw AppException.validation("User ID is invalid.");
-        }
+        validateUserId(userId);
 
-        // 3. Check existing user
-        User existingUser = userRepository.readUserById(userId);
+        User existingUser = userRepository.readUserProfile(userId);
 
         if (existingUser == null) {
             throw AppException.notFound("User profile not found.");
         }
 
-        // 4. Delete user
         return userRepository.deleteUser(userId);
+    }
+
+    private BigDecimal calculateCommissionFees(BigDecimal totalRevenue) {
+        if (totalRevenue == null || totalRevenue.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return totalRevenue
+            .multiply(DEFAULT_COMMISSION_RATE)
+            .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void validateUserId(Integer userId) {
+        if (userId == null || userId <= 0) {
+            throw AppException.validation("User ID is invalid.");
+        }
+    }
+
+    private boolean isProfileOwner(Person currentUser, Integer targetUserId) {
+        return currentUser != null
+            && currentUser.getId() != null
+            && targetUserId != null
+            && targetUserId.equals(currentUser.getId());
+    }
+
+    private boolean isSystemAdministrator(Person currentUser) {
+        return currentUser != null && currentUser.isSystemAdministrator();
     }
 
     private User toPublicUserProfile(User user) {
         return new User(
             user.getId(),
+            user.getFullName(),
             null,
             null,
             null,
@@ -193,7 +286,7 @@ public class UserService extends BaseService {
             user.getUsername(),
             null,
             user.getRole(),
-            null,
+            user.getCreatedAt(),
             null,
             BigDecimal.ZERO,
             user.getRating(),
@@ -201,16 +294,23 @@ public class UserService extends BaseService {
         );
     }
 
-    private UserRole validateRegisteredUserRole(UserRole role) {
-        if (role == null) {
-            return UserRole.BUYER;
-        }
-
-        if (role != UserRole.BUYER && role != UserRole.SELLER) {
-            throw AppException.validation("User role must be BUYER or SELLER.");
-        }
-
-        return role;
+    private User toPrivateUserProfile(User user, boolean includeBalance) {
+        return new User(
+            user.getId(),
+            user.getFullName(),
+            user.getDateOfBirth(),
+            user.getEmail(),
+            user.getPhone(),
+            user.getAddress(),
+            user.getUsername(),
+            null,
+            user.getRole(),
+            user.getCreatedAt(),
+            user.getUpdatedAt(),
+            includeBalance ? user.getBalance() : BigDecimal.ZERO,
+            user.getRating(),
+            user.getCompletedSalesCount()
+        );
     }
 
     private String validateFullName(String fullName) {
@@ -253,6 +353,20 @@ public class UserService extends BaseService {
         return cleanPhone;
     }
 
+    private String validateAddress(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            return null;
+        }
+
+        String cleanAddress = address.trim();
+
+        if (cleanAddress.length() > 255) {
+            throw AppException.validation("Address must not exceed 255 characters.");
+        }
+
+        return cleanAddress;
+    }
+
     private String validateUsername(String username) {
         String cleanUsername = normalizeRequiredText(username, "Username is required.");
 
@@ -265,33 +379,15 @@ public class UserService extends BaseService {
         return cleanUsername;
     }
 
-    private String validatePassword(String password) {
-        String cleanPassword = normalizeRequiredText(password, "Password is required.");
-
-        if (cleanPassword.length() < 6) {
-            throw AppException.validation("Password must contain at least 6 characters.");
-        }
-
-        return cleanPassword;
-    }
-
-    private BigDecimal validateBalance(BigDecimal balance) {
-        if (balance == null) {
-            return BigDecimal.ZERO;
-        }
-
-        if (balance.compareTo(BigDecimal.ZERO) < 0) {
-            throw AppException.validation("Balance cannot be negative.");
-        }
-
-        return balance;
-    }
-
     private String normalizeRequiredText(String value, String errorMessage) {
         if (value == null || value.trim().isEmpty()) {
             throw AppException.validation(errorMessage);
         }
 
         return value.trim();
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

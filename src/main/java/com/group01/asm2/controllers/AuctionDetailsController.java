@@ -1,16 +1,23 @@
 package com.group01.asm2.controllers;
 
+/**
+ * @author Group 01
+ */
+
+import com.group01.asm2.dtos.AuctionDetailDto;
 import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.models.*;
+import com.group01.asm2.services.AuctionService;
 import com.group01.asm2.utils.ScrollUtils;
 import com.group01.asm2.utils.UiMessageUtils;
-import javafx.scene.control.ScrollPane;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import com.group01.asm2.services.ItemService;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -24,10 +31,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.math.RoundingMode;
 
 public class AuctionDetailsController {
     @FXML private ScrollPane detailScrollPane;
+
+    @FXML private ImageView mainItemImageView;
 
     @FXML private Label headerStatusBadge;
     @FXML private Label auctionTitleLabel;
@@ -58,11 +66,12 @@ public class AuctionDetailsController {
 
     @FXML private VBox relatedAuctionsList;
 
-    // --- CÁC BIẾN MODEL CHÍNH ---
+    private final AuctionService auctionService = new AuctionService();
+
+    private AuctionDetailDto currentDetail;
     private Auction currentAuction;
     private Item currentItem;
-    private String sellerName; // Mock tên người bán (tương lai thay bằng model User)
-    private final ItemService itemService = new ItemService();
+    private String sellerName;
 
     private BigDecimal startingPrice;
     private BigDecimal currentHighestBid;
@@ -70,7 +79,7 @@ public class AuctionDetailsController {
     private final List<AuctionBidEntry> bidHistory = new ArrayList<>();
 
     private final DateTimeFormatter dateTimeFormatter =
-            DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+        DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
     @FXML
     public void initialize() {
@@ -78,108 +87,124 @@ public class AuctionDetailsController {
     }
 
     /**
-     * Hàm nhận data từ màn hình danh sách và bắt đầu render giao diện
+     * Called by NavigationService when user opens the auction detail page.
      */
     public void loadAuctionDetails(Auction auction) {
-        if (auction == null) {
-            System.err.println("ERROR: auction is null.");
+        if (auction == null || auction.getId() == null) {
+            showFatalPageError("Auction data is not available.");
             return;
         }
 
-        this.currentAuction = auction;
-
-        if (auction.getItemId() == null) {
-            System.err.println("ERROR: auction itemId is null.");
-            auctionTitleLabel.setText("Unknown Item");
-            return;
-        }
-
-        this.currentItem = itemService.readItem(auction.getItemId());
-
-        if (currentItem == null) {
-            System.err.println("ERROR: Cannot find item with id: " + auction.getItemId());
-            auctionTitleLabel.setText("Unknown Item");
-            return;
-        }
-
-        auctionTitleLabel.setText(currentItem.getTitle());
-        sellerName = getSellerNameByItemId(auction.getItemId());
-
-        sellerNameLabel.setText(sellerName);
-        sellerSectionNameLabel.setText(sellerName);
-
-        startDateLabel.setText(formatDateTime(auction.getStartDateTime()));
-        endDateLabel.setText(formatDateTime(auction.getEndDateTime()));
-
-        auctionIdLabel.setText(valueOrNA(auction.getId()));
-        itemIdLabel.setText(valueOrNA(auction.getItemId()));
-
-        // Các field khác
-        startingPriceLabel.setText(
-                currentItem.getStartingPrice() != null
-                        ? "$" + currentItem.getStartingPrice().toPlainString()
-                        : "N/A"
-        );
-
-        currentBidLabel.setText(
-                auction.getFinalSalePrice() != null
-                        ? "$" + auction.getFinalSalePrice().toPlainString()
-                        : "N/A"
-        );
-
-        headerStatusBadge.setText(
-                auction.getStatus() != null
-                        ? auction.getStatus().name()
-                        : "N/A"
-        );
+        loadAuctionDetailsById(auction.getId());
     }
 
-    private void loadAuctionDetailData(Integer itemId) {
-        this.currentItem = getItemById(itemId);
-        this.sellerName = getSellerNameByItemId(itemId);
+    /**
+     * Loads full auction detail from database through AuctionDetailDto.
+     */
+    public void loadAuctionDetailsById(Integer auctionId) {
+        try {
+            currentDetail = auctionService.readAuction(auctionId);
 
-        bidHistory.clear();
-        bidHistory.addAll(getMockBidHistory(currentAuction));
+            if (currentDetail == null || currentDetail.getAuction() == null) {
+                showFatalPageError("Auction data is not available.");
+                return;
+            }
+
+            currentAuction = currentDetail.getAuction();
+            currentItem = currentDetail.getItem();
+
+            if (currentItem == null) {
+                showFatalPageError("Item data is not available.");
+                return;
+            }
+
+            sellerName = resolveSellerName(currentDetail);
+            startingPrice = getStartingPrice(currentItem);
+            currentHighestBid = currentDetail.getCurrentBidAmount();
+
+            bidHistory.clear();
+            bidHistory.addAll(mapRecentBidsToUiEntries(currentDetail));
+
+            renderAuctionDetails();
+
+        } catch (Exception exception) {
+            showFatalPageError(exception.getMessage());
+        }
+    }
+
+    private void renderAuctionDetails() {
+        auctionTitleLabel.setText(valueOrNA(currentItem.getTitle()));
+
+        sellerNameLabel.setText(valueOrNA(sellerName));
+        sellerSectionNameLabel.setText(valueOrNA(sellerName));
+
+        currentBidLabel.setText(formatCurrentBid(currentHighestBid));
+        startingPriceLabel.setText(formatMoney(startingPrice));
+
+        minimumNextBidLabel.setText(formatMoney(
+            getMinimumNextBid(currentHighestBid, startingPrice)
+        ));
+
+        numberOfBidsLabel.setText(String.valueOf(currentDetail.getBidCount()));
+        bidHistoryCountLabel.setText(currentDetail.getBidCount() + " bids");
+
+        startDateLabel.setText(formatDateTime(currentAuction.getStartDateTime()));
+        endDateLabel.setText(formatDateTime(currentAuction.getEndDateTime()));
+
+        auctionIdLabel.setText(valueOrNA(currentAuction.getId()));
+        itemIdLabel.setText(valueOrNA(currentAuction.getItemId()));
+
+        loadPrimaryImage();
+
+        updateStatusBadge(currentAuction);
+        updateTimeRemaining(currentAuction);
+        updateBidAvailability(currentAuction);
+
+        populateAuctionInfoGrid(currentAuction);
+        populateProductDetailsGrid();
+        populateDescription();
+        populateBidHistory();
+
+        populateRelatedAuctions();
+    }
+
+    private void loadPrimaryImage() {
+        if (mainItemImageView == null) {
+            return;
+        }
+
+        String imageUrl = currentDetail.getPrimaryImageUrl();
+
+        if (imageUrl == null || imageUrl.isBlank()) {
+            mainItemImageView.setImage(null);
+            return;
+        }
+
+        try {
+            Image image = new Image(imageUrl, true);
+            mainItemImageView.setImage(image);
+        } catch (Exception exception) {
+            mainItemImageView.setImage(null);
+        }
     }
 
     @FXML
     public void handlePlaceBid() {
-        UiMessageUtils.clearMessage(bidMessageLabel);
-
-        BidResult result = placeBid(
-                currentAuction,
-                bidAmountField.getText(),
-                currentHighestBid,
-                startingPrice,
-                bidHistory
+        UiMessageUtils.showInfo(
+            bidMessageLabel,
+            "Bidding service is not connected yet."
         );
-
-        if (!result.isSuccess()) {
-            UiMessageUtils.showError(bidMessageLabel, result.getMessage());
-            return;
-        }
-
-        currentHighestBid = result.getNewHighestBid();
-
-        bidHistory.clear();
-        bidHistory.addAll(result.getUpdatedBidHistory());
-
-        bidAmountField.clear();
-
-        refreshBidSection();
-
-        UiMessageUtils.showSuccess(bidMessageLabel, result.getMessage());
     }
 
     private void refreshBidSection() {
-        currentBidLabel.setText(formatMoney(currentHighestBid));
+        currentBidLabel.setText(formatCurrentBid(currentHighestBid));
 
         minimumNextBidLabel.setText(formatMoney(
-                getMinimumNextBid(currentHighestBid, startingPrice)
+            getMinimumNextBid(currentHighestBid, startingPrice)
         ));
 
-        numberOfBidsLabel.setText(String.valueOf(bidHistory.size()));
-        bidHistoryCountLabel.setText(bidHistory.size() + " bids");
+        numberOfBidsLabel.setText(String.valueOf(currentDetail.getBidCount()));
+        bidHistoryCountLabel.setText(currentDetail.getBidCount() + " bids");
 
         populateAuctionInfoGrid(currentAuction);
         populateBidHistory();
@@ -188,21 +213,31 @@ public class AuctionDetailsController {
     @FXML
     public void handleAddToWatchlist() {
         UiMessageUtils.showInfo(
-                bidMessageLabel,
-                "This auction has been added to your watchlist."
-        );    }
+            bidMessageLabel,
+            "This auction has been added to your watchlist."
+        );
+    }
 
     @FXML
     public void handleContactSeller() {
         UiMessageUtils.showInfo(
-                bidMessageLabel,
-                "Contact seller feature is ready to connect with your messaging service."
-        );    }
+            bidMessageLabel,
+            "Contact seller feature is ready to connect with your messaging service."
+        );
+    }
 
     public String formatMoney(BigDecimal amount) {
         if (amount == null) return "N/A";
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
         return currencyFormat.format(amount);
+    }
+
+    private String formatCurrentBid(BigDecimal amount) {
+        if (amount == null) {
+            return "No bids yet";
+        }
+
+        return formatMoney(amount);
     }
 
     public String formatDateTime(LocalDateTime dateTime) {
@@ -231,12 +266,17 @@ public class AuctionDetailsController {
     private void setStatusBadge(String text, String statusClass) {
         headerStatusBadge.setText(text);
         headerStatusBadge.getStyleClass().removeAll(
-                "active-status", "ended-status", "sold-status", "cancelled-status", "pending-status"
+            "active-status",
+            "ended-status",
+            "sold-status",
+            "cancelled-status",
+            "pending-status"
         );
 
         if (!headerStatusBadge.getStyleClass().contains("status-badge")) {
             headerStatusBadge.getStyleClass().add("status-badge");
         }
+
         headerStatusBadge.getStyleClass().add(statusClass);
     }
 
@@ -268,7 +308,11 @@ public class AuctionDetailsController {
     }
 
     private void updateBidAvailability(Auction auction) {
-        boolean canBid = auction != null && auction.isActive() && !auction.isDue(LocalDateTime.now());
+        boolean canBid = currentDetail != null
+            && currentDetail.canBid()
+            && auction != null
+            && auction.isActive()
+            && !auction.isDue(LocalDateTime.now());
 
         bidAmountField.setDisable(!canBid);
         placeBidButton.setDisable(!canBid);
@@ -279,8 +323,10 @@ public class AuctionDetailsController {
 
             if (auction != null && auction.getStatus() == AuctionStatus.CANCELLED) {
                 auctionWarningLabel.setText("This auction has been cancelled. Bidding is no longer available.");
+            } else if (currentDetail != null && currentDetail.isOwner()) {
+                auctionWarningLabel.setText("You own this auction, so you cannot place a bid on it.");
             } else {
-                auctionWarningLabel.setText("This auction has ended. You can review the result but cannot place a new bid.");
+                auctionWarningLabel.setText("This auction is not available for bidding.");
             }
         } else {
             auctionWarningLabel.setVisible(false);
@@ -291,32 +337,57 @@ public class AuctionDetailsController {
 
     private void populateAuctionInfoGrid(Auction auction) {
         auctionInfoGrid.getChildren().clear();
+
         addDetailRow(auctionInfoGrid, 0, "Auction ID", valueOrNA(auction.getId()));
         addDetailRow(auctionInfoGrid, 1, "Item ID", valueOrNA(auction.getItemId()));
-        addDetailRow(auctionInfoGrid, 2, "Current Highest Bid ID", valueOrNA(auction.getCurrentHighestBidId()));
-        addDetailRow(auctionInfoGrid, 3, "Winner ID", valueOrNA(auction.getWinnerId()));
-        addDetailRow(auctionInfoGrid, 4, "Final Sale Price", formatMoney(auction.getFinalSalePrice()));
-        addDetailRow(auctionInfoGrid, 5, "Start Date", formatDateTime(auction.getStartDateTime()));
-        addDetailRow(auctionInfoGrid, 6, "End Date", formatDateTime(auction.getEndDateTime()));
-        addDetailRow(auctionInfoGrid, 7, "Created At", formatDateTime(auction.getCreatedAt()));
-        addDetailRow(auctionInfoGrid, 8, "Updated At", formatDateTime(auction.getUpdatedAt()));
-        addDetailRow(auctionInfoGrid, 9, "Status", auction.getStatus() == null ? "N/A" : auction.getStatus().name());
+        addDetailRow(auctionInfoGrid, 2, "Current Highest Bid ID", valueOrNA(currentDetail.getCurrentHighestBidId()));
+        addDetailRow(auctionInfoGrid, 3, "Highest Bidder", valueOrNA(currentDetail.getCurrentHighestBidderUsername()));
+        addDetailRow(auctionInfoGrid, 4, "Winner ID", valueOrNA(auction.getWinnerId()));
+        addDetailRow(auctionInfoGrid, 5, "Current Bid", formatCurrentBid(currentDetail.getCurrentBidAmount()));
+        addDetailRow(auctionInfoGrid, 6, "Final Sale Price", formatMoney(auction.getFinalSalePrice()));
+        addDetailRow(auctionInfoGrid, 7, "Start Date", formatDateTime(auction.getStartDateTime()));
+        addDetailRow(auctionInfoGrid, 8, "End Date", formatDateTime(auction.getEndDateTime()));
+        addDetailRow(auctionInfoGrid, 9, "Created At", formatDateTime(auction.getCreatedAt()));
+        addDetailRow(auctionInfoGrid, 10, "Updated At", formatDateTime(auction.getUpdatedAt()));
+        addDetailRow(auctionInfoGrid, 11, "Status", auction.getStatus() == null ? "N/A" : auction.getStatus().name());
     }
 
     private void populateProductDetailsGrid() {
         productDetailsGrid.getChildren().clear();
-        addDetailRow(productDetailsGrid, 0, "Item Name", currentItem.getTitle());
-        addDetailRow(productDetailsGrid, 1, "Category ID", valueOrNA(currentItem.getCategoryId())); // Tương lai ánh xạ ra tên Category
-        addDetailRow(productDetailsGrid, 5, "Seller", sellerName);
+
+        String categoryName = currentDetail.getCategory() == null
+            ? "N/A"
+            : currentDetail.getCategory().getName();
+
+        addDetailRow(productDetailsGrid, 0, "Item Name", valueOrNA(currentItem.getTitle()));
+        addDetailRow(productDetailsGrid, 1, "Category", valueOrNA(categoryName));
+        addDetailRow(productDetailsGrid, 2, "Category ID", valueOrNA(currentItem.getCategoryId()));
+        addDetailRow(productDetailsGrid, 3, "Condition", valueOrNA(currentItem.getCondition()));
+        addDetailRow(productDetailsGrid, 4, "Starting Price", formatMoney(currentItem.getStartingPrice()));
+        addDetailRow(productDetailsGrid, 5, "Reserve Price", formatMoney(currentItem.getReservePrice()));
+        addDetailRow(productDetailsGrid, 6, "Seller", valueOrNA(sellerName));
     }
 
     private void populateDescription() {
-        descriptionLabel.setText(currentItem.getDescription());
+        String description = currentItem.getDescription();
+
+        descriptionLabel.setText(
+            description == null || description.isBlank()
+                ? "No description provided."
+                : description
+        );
     }
 
     private void populateBidHistory() {
         bidHistoryList.getChildren().clear();
-        bidHistoryCountLabel.setText(bidHistory.size() + " bids");
+        bidHistoryCountLabel.setText(currentDetail.getBidCount() + " bids");
+
+        if (bidHistory.isEmpty()) {
+            Label emptyLabel = new Label("No bids have been placed yet.");
+            emptyLabel.getStyleClass().add("muted-text");
+            bidHistoryList.getChildren().add(emptyLabel);
+            return;
+        }
 
         for (AuctionBidEntry entry : bidHistory) {
             bidHistoryList.getChildren().add(createBidHistoryCard(entry));
@@ -329,6 +400,7 @@ public class AuctionDetailsController {
         card.getStyleClass().add("bid-history-card");
 
         VBox bidderBox = new VBox(4);
+
         Label bidderNameLabel = new Label(entry.bidderName());
         bidderNameLabel.getStyleClass().add("bidder-name");
 
@@ -344,6 +416,7 @@ public class AuctionDetailsController {
         amountLabel.getStyleClass().add("bid-amount");
 
         Label statusBadgeLabel = new Label(entry.status());
+
         switch (entry.status().toLowerCase()) {
             case "highest" -> statusBadgeLabel.getStyleClass().add("highest-bid-badge");
             case "outbid" -> statusBadgeLabel.getStyleClass().add("outbid-badge");
@@ -357,18 +430,10 @@ public class AuctionDetailsController {
     private void populateRelatedAuctions() {
         relatedAuctionsList.getChildren().clear();
 
-        List<RelatedAuction> relatedAuctions =
-                getRelatedAuctions(currentAuction.getItemId());
+        Label emptyLabel = new Label("Related auctions are not connected yet.");
+        emptyLabel.getStyleClass().add("muted-text");
 
-        for (RelatedAuction auction : relatedAuctions) {
-            relatedAuctionsList.getChildren().add(
-                    createRelatedAuctionCard(
-                            auction.title(),
-                            auction.price(),
-                            auction.meta()
-                    )
-            );
-        }
+        relatedAuctionsList.getChildren().add(emptyLabel);
     }
 
     private VBox createRelatedAuctionCard(String title, BigDecimal price, String meta) {
@@ -401,238 +466,109 @@ public class AuctionDetailsController {
         grid.add(valueLabel, 1, rowIndex);
     }
 
+    private List<AuctionBidEntry> mapRecentBidsToUiEntries(AuctionDetailDto detail) {
+        List<AuctionBidEntry> entries = new ArrayList<>();
+
+        if (detail == null || detail.getRecentBids() == null) {
+            return entries;
+        }
+
+        for (Bid bid : detail.getRecentBids()) {
+            String bidderName = resolveBidderName(detail, bid);
+            String status = bid.getId() != null
+                && bid.getId().equals(detail.getCurrentHighestBidId())
+                ? "Highest"
+                : "Outbid";
+
+            entries.add(new AuctionBidEntry(
+                bidderName,
+                bid.getAmount(),
+                bid.getBidDateTime(),
+                status
+            ));
+        }
+
+        return entries;
+    }
+
+    private String resolveBidderName(AuctionDetailDto detail, Bid bid) {
+        if (detail == null || bid == null || bid.getBidderId() == null) {
+            return "Unknown Bidder";
+        }
+
+        if (bid.getBidderId().equals(detail.getCurrentHighestBidderId())
+            && detail.getCurrentHighestBidderUsername() != null
+            && !detail.getCurrentHighestBidderUsername().isBlank()) {
+            return detail.getCurrentHighestBidderUsername();
+        }
+
+        return "Bidder #" + bid.getBidderId();
+    }
+
+    private String resolveSellerName(AuctionDetailDto detail) {
+        if (detail == null || detail.getSeller() == null) {
+            return "Unknown Seller";
+        }
+
+        String username = detail.getSeller().getUsername();
+
+        if (username == null || username.isBlank()) {
+            return "Seller #" + detail.getSeller().getId();
+        }
+
+        return username;
+    }
+
     private String valueOrNA(Object value) {
         return value == null ? "N/A" : String.valueOf(value);
     }
 
-    private Item getItemById(Integer itemId) {
-//        Item item = new Item(
-//                itemId,
-//                99,
-//                101,
-//                "Item #" + itemId,
-//                "Detailed description for item ID #" + itemId,
-//                "Used",
-//                "Unknown Brand",
-//                "Ho Chi Minh City, Vietnam",
-//                new BigDecimal("100.00"),
-//                null,
-//                LocalDateTime.now(),
-//                LocalDateTime.now()
-//        );
-
-        if (itemId == 1) {
-//            item.setTitle("Đồng hồ Rolex Submariner 2020");
-////            item.setBrand("Rolex");
-////            item.setCondition("Like New");
-//            item.setDescription("Đồng hồ Rolex nguyên bản, đầy đủ giấy tờ, hộp sổ thẻ. Tình trạng hoàn hảo, chưa qua đánh bóng. Phù hợp cho giới sưu tầm.");
-//            item.setStartingPrice(new BigDecimal("150000000.00"));
-        } else if (itemId == 2) {
-//            item.setTitle("Bức tranh sơn dầu thế kỷ 19");
-//            item.setCondition("Vintage");
-//            item.setDescription("Tác phẩm nghệ thuật độc bản từ thế kỷ 19. Đã được thẩm định bởi chuyên gia mỹ thuật quốc tế.");
-//            item.setStartingPrice(new BigDecimal("50000000.00"));
-        } else if (itemId == 3) {
-//            item.setTitle("Siêu xe Ford Mustang 1969 Classic");
-//            item.setBrand("Ford");
-//            item.setDescription("Xe cơ bắp Mỹ cổ điển, động cơ V8 mạnh mẽ, đã phục chế toàn bộ nội ngoại thất giữ nguyên bản sắc năm 1969.");
-//            item.setStartingPrice(new BigDecimal("800000000.00"));
+    private BigDecimal getStartingPrice(Item item) {
+        if (item == null || item.getStartingPrice() == null) {
+            return BigDecimal.ZERO;
         }
 
-        return null;
-    }
-
-    private String getSellerNameByItemId(Integer itemId) {
-        return "Premium Seller";
-    }
-
-    private List<AuctionBidEntry> getMockBidHistory(Auction auction) {
-        List<AuctionBidEntry> mockBidHistory = new ArrayList<>();
-
-        if (auction == null) {
-            return mockBidHistory;
-        }
-
-        BigDecimal bid1 = auction.getFinalSalePrice() != null
-                ? auction.getFinalSalePrice()
-                : new BigDecimal("100");
-
-        BigDecimal bid2 = bid1.subtract(new BigDecimal("5000000"));
-        BigDecimal bid3 = bid2.subtract(new BigDecimal("10000000"));
-
-        mockBidHistory.add(new AuctionBidEntry("Minh T.", bid1, LocalDateTime.now().minusHours(1), "Highest"));
-        mockBidHistory.add(new AuctionBidEntry("Alex N.", bid2, LocalDateTime.now().minusHours(3), "Outbid"));
-
-        if (bid3.compareTo(BigDecimal.ZERO) > 0) {
-            mockBidHistory.add(new AuctionBidEntry("Sarah L.", bid3, LocalDateTime.now().minusHours(5), "Outbid"));
-        }
-
-        return mockBidHistory;
-    }
-
-    private BidResult placeBid(
-            Auction auction,
-            String rawAmount,
-            BigDecimal currentHighestBid,
-            BigDecimal startingPrice,
-            List<AuctionBidEntry> currentBidHistory
-    ) {
-        if (auction == null) {
-            return new BidResult(false, "Auction data is not available.", currentHighestBid, currentBidHistory);
-        }
-
-        if (rawAmount == null || rawAmount.trim().isEmpty()) {
-            return new BidResult(false, "Please enter a bid amount.", currentHighestBid, currentBidHistory);
-        }
-
-        BigDecimal bidAmount;
-
-        try {
-            bidAmount = new BigDecimal(rawAmount.trim()).setScale(2, RoundingMode.HALF_UP);
-        } catch (NumberFormatException ex) {
-            return new BidResult(false, "Bid amount must be a valid number.", currentHighestBid, currentBidHistory);
-        }
-
-        String validationMessage = validateBid(
-                auction,
-                bidAmount,
-                currentHighestBid,
-                startingPrice
-        );
-
-        if (validationMessage != null) {
-            return new BidResult(false, validationMessage, currentHighestBid, currentBidHistory);
-        }
-
-        auction.setCurrentHighestBidId(generateMockBidId(currentBidHistory.size()));
-
-        List<AuctionBidEntry> updatedBidHistory = new ArrayList<>();
-
-        updatedBidHistory.add(new AuctionBidEntry(
-                "You",
-                bidAmount,
-                LocalDateTime.now(),
-                "Highest"
-        ));
-
-        for (AuctionBidEntry entry : currentBidHistory) {
-            if ("Highest".equalsIgnoreCase(entry.status())) {
-                updatedBidHistory.add(new AuctionBidEntry(
-                        entry.bidderName(),
-                        entry.amount(),
-                        entry.bidTime(),
-                        "Outbid"
-                ));
-            } else {
-                updatedBidHistory.add(entry);
-            }
-        }
-
-        return new BidResult(
-                true,
-                "Your bid has been placed successfully.",
-                bidAmount,
-                updatedBidHistory
-        );
-    }
-
-    private String validateBid(
-            Auction auction,
-            BigDecimal bidAmount,
-            BigDecimal currentHighestBid,
-            BigDecimal startingPrice
-    ) {
-        if (auction == null) {
-            return "Auction data is not available.";
-        }
-
-        if (bidAmount == null) {
-            return "Please enter a bid amount.";
-        }
-
-        if (bidAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            return "Bid amount must be greater than 0.";
-        }
-
-        if (!auction.isActive()) {
-            return "You cannot bid because this auction is not active.";
-        }
-
-        if (auction.isDue(LocalDateTime.now())) {
-            return "You cannot bid because this auction is already due.";
-        }
-
-        BigDecimal minimumRequiredBid = getMinimumNextBid(currentHighestBid, startingPrice);
-
-        if (bidAmount.compareTo(minimumRequiredBid) < 0) {
-            return "Your bid must be at least " + minimumRequiredBid.toPlainString() + ".";
-        }
-
-        return null;
-    }
-
-    private int generateMockBidId(int bidHistorySize) {
-        return 3000 + bidHistorySize + 1;
+        return item.getStartingPrice();
     }
 
     private BigDecimal getMinimumNextBid(
-            BigDecimal currentHighestBid,
-            BigDecimal startingPrice
+        BigDecimal currentHighestBid,
+        BigDecimal startingPrice
     ) {
         BigDecimal minimumBidIncrement = new BigDecimal("5.00");
 
-        BigDecimal baseAmount = currentHighestBid != null
-                ? currentHighestBid
-                : startingPrice;
-
-        if (baseAmount == null) {
-            baseAmount = BigDecimal.ZERO;
+        if (currentHighestBid != null && currentHighestBid.compareTo(BigDecimal.ZERO) > 0) {
+            return currentHighestBid.add(minimumBidIncrement);
         }
 
-        return baseAmount.add(minimumBidIncrement);
+        if (startingPrice != null) {
+            return startingPrice;
+        }
+
+        return BigDecimal.ZERO;
     }
 
-    private List<RelatedAuction> getRelatedAuctions(Integer itemId) {
-        List<RelatedAuction> relatedAuctions = new ArrayList<>();
+    private void showFatalPageError(String message) {
+        String safeMessage = message == null || message.isBlank()
+            ? "Could not load auction details."
+            : message;
 
-        relatedAuctions.add(new RelatedAuction(
-                "Gaming Mouse Wireless",
-                new BigDecimal("45.00"),
-                "Ends in 8h"
-        ));
-
-        relatedAuctions.add(new RelatedAuction(
-                "USB-C Docking Station",
-                new BigDecimal("78.00"),
-                "Ends in 1d 4h"
-        ));
-
-        relatedAuctions.add(new RelatedAuction(
-                "Mechanical Keycap Set",
-                new BigDecimal("32.00"),
-                "Ends in 3d"
-        ));
-
-        return relatedAuctions;
-    }
-
-    private BigDecimal getCurrentHighestBid(Auction auction) {
-        if (auction == null || auction.getFinalSalePrice() == null) {
-            return BigDecimal.ZERO;
+        if (auctionTitleLabel != null) {
+            auctionTitleLabel.setText("Auction unavailable");
         }
 
-        return auction.getFinalSalePrice();
-    }
-
-    private BigDecimal getStartingPrice(Item item, BigDecimal currentHighestBid) {
-        if (item != null && item.getStartingPrice() != null) {
-            return item.getStartingPrice();
+        if (auctionWarningLabel != null) {
+            auctionWarningLabel.setVisible(true);
+            auctionWarningLabel.setManaged(true);
+            auctionWarningLabel.setText(safeMessage);
         }
 
-        if (currentHighestBid == null) {
-            return BigDecimal.ZERO;
+        if (bidAmountField != null) {
+            bidAmountField.setDisable(true);
         }
 
-        return currentHighestBid.multiply(new BigDecimal("0.7"));
+        if (placeBidButton != null) {
+            placeBidButton.setDisable(true);
+        }
     }
 }
