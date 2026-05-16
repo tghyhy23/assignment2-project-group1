@@ -16,11 +16,12 @@ public class Person {
     private UserRole role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String address;
 
     public Person() {
     }
 
-    public Person(Integer id, String fullName, LocalDate dateOfBirth, String email, String phone,
+    public Person(Integer id, String fullName, LocalDate dateOfBirth, String email, String phone, String address,
                   String username, String password, UserRole role,
                   LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
@@ -28,6 +29,7 @@ public class Person {
         this.dateOfBirth = dateOfBirth;
         this.email = email;
         this.phone = phone;
+        this.address = address;
         this.username = username;
         this.password = password;
         this.role = role;
@@ -95,6 +97,10 @@ public class Person {
         return phone;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
     public void setPhone(String phone) {
         this.phone = phone;
     }
@@ -111,7 +117,11 @@ public class Person {
         this.username = username;
     }
 
-    public void setpassword(String password) {
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setPassword(String password) {
         this.password = password;
     }
 

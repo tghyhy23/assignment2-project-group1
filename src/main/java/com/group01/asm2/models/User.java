@@ -19,11 +19,11 @@ public class User extends Person {
         this.completedSalesCount = 0;
     }
 
-    public User(Integer id, String fullName, LocalDate dateOfBirth, String email, String phone,
+    public User(Integer id, String fullName, LocalDate dateOfBirth, String email, String phone, String address,
                 String username, String password, UserRole role,
                 LocalDateTime createdAt, LocalDateTime updatedAt,
                 BigDecimal balance, double rating, int completedSalesCount) {
-        super(id, fullName, dateOfBirth, email, phone, username, password,
+        super(id, fullName, dateOfBirth, email, phone, address, username, password,
             validateUserRole(role), createdAt, updatedAt);
 
         this.balance = balance != null ? balance : BigDecimal.ZERO;
