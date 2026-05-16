@@ -15,9 +15,9 @@ import com.group01.asm2.models.Category;
 import com.group01.asm2.models.Item;
 import com.group01.asm2.models.ItemImage;
 import com.group01.asm2.models.Person;
-import com.group01.asm2.repositories.ItemImageRepository;
 import com.group01.asm2.repositories.AuctionRepository;
 import com.group01.asm2.repositories.CategoryRepository;
+import com.group01.asm2.repositories.ItemImageRepository;
 import com.group01.asm2.repositories.ItemRepository;
 import com.group01.asm2.security.Permission;
 import com.group01.asm2.utils.CloudinaryUploaderUtil;
@@ -26,11 +26,14 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
+/**
+ * @author Group 01
+ */
 public class ItemService extends BaseService {
     private static final int MAX_TITLE_LENGTH = 120;
     private static final int MAX_DESCRIPTION_LENGTH = 2000;
@@ -41,8 +44,8 @@ public class ItemService extends BaseService {
     private final ItemRepository itemRepository;
     private final AuctionRepository auctionRepository;
     private final CategoryRepository categoryRepository;
-    private final ActivityLogService activityLogService;
     private final ItemImageRepository itemImageRepository;
+    private final ActivityLogService activityLogService;
 
     public ItemService() {
         this(
@@ -54,11 +57,13 @@ public class ItemService extends BaseService {
         );
     }
 
-    public ItemService(ItemRepository itemRepository,
-                       AuctionRepository auctionRepository,
-                       CategoryRepository categoryRepository,
-                       ItemImageRepository itemImageRepository,
-                       ActivityLogService activityLogService) {
+    public ItemService(
+        ItemRepository itemRepository,
+        AuctionRepository auctionRepository,
+        CategoryRepository categoryRepository,
+        ItemImageRepository itemImageRepository,
+        ActivityLogService activityLogService
+    ) {
         this.itemRepository = itemRepository;
         this.auctionRepository = auctionRepository;
         this.categoryRepository = categoryRepository;
@@ -66,22 +71,22 @@ public class ItemService extends BaseService {
         this.activityLogService = activityLogService;
     }
 
-    public CreatedListingResult createItem(String title,
-                                           String description,
-                                           Integer categoryId,
-                                           BigDecimal startingPrice,
-                                           BigDecimal reservePrice,
-                                           ItemCondition condition,
-                                           List<File> imageFiles) {
-        // 1. Check current user and authorization
+    public CreatedListingResult createItem(
+        String title,
+        String description,
+        Integer categoryId,
+        BigDecimal startingPrice,
+        BigDecimal reservePrice,
+        ItemCondition condition,
+        List<File> imageFiles
+    ) {
         Person currentUser = getCurrentUserOrThrow();
         requireCurrentUser(Permission.CREATE_ITEM);
 
-        if (!isRegisteredUser(currentUser)) {
-            throw AppException.authorization("Only registered users can create item listings.");
+        if (!currentUser.isSeller()) {
+            throw AppException.authorization("Only sellers can create item listings.");
         }
 
-        // 2. Normalize and validate item input
         String normalizedTitle = normalizeRequiredText(title, "Item title", MAX_TITLE_LENGTH);
         String normalizedDescription = normalizeRequiredText(description, "Item description", MAX_DESCRIPTION_LENGTH);
         Integer validCategoryId = validateId(categoryId, "Category ID");
@@ -89,18 +94,15 @@ public class ItemService extends BaseService {
         validatePrice(startingPrice, "Starting price", true);
         validateReservePrice(startingPrice, reservePrice);
         validateCondition(condition);
+        validateRequiredImageFiles(imageFiles);
 
-        // 3. Check category exists
         Category category = categoryRepository.readCategoryById(validCategoryId);
         if (category == null) {
             throw AppException.notFound("Category not found.");
         }
 
-        // 4. Validate and upload item images
-        List<String> imageUrls = uploadImagesIfPresent(imageFiles);
-        String primaryImageUrl = imageUrls.isEmpty() ? null : imageUrls.get(0);
+        List<String> imageUrls = uploadImagesSafely(imageFiles);
 
-        // 5. Build item
         Item item = new Item();
         item.setTitle(normalizedTitle);
         item.setDescription(normalizedDescription);
@@ -111,12 +113,14 @@ public class ItemService extends BaseService {
         item.setCondition(condition);
         item.setStatus(ItemStatus.ACTIVE);
 
-        // 6. Create item, item images, and auction in one transaction
+        Item createdItem;
+        Auction createdAuction;
+
         try (Connection conn = DatabaseConfig.getConnection()) {
             conn.setAutoCommit(false);
 
             try {
-                Item createdItem = itemRepository.createItem(conn, item);
+                createdItem = itemRepository.createItem(conn, item);
 
                 List<ItemImage> itemImages = buildItemImages(createdItem.getId(), imageUrls);
                 List<ItemImage> createdImages = itemImageRepository.createItemImages(conn, itemImages);
@@ -134,27 +138,9 @@ public class ItemService extends BaseService {
                 auction.setEndDateTime(now.plusDays(DEFAULT_AUCTION_DAYS));
                 auction.setRecommended(false);
 
-                Auction createdAuction = auctionRepository.createAuction(conn, auction);
+                createdAuction = auctionRepository.createAuction(conn, auction);
 
                 conn.commit();
-
-                // 7. Record activity logs
-                activityLogService.createActivityLog(
-                    ActivityActionType.CREATE_ITEM,
-                    "Item",
-                    createdItem.getId(),
-                    "Created item listing: " + createdItem.getTitle()
-                );
-
-                activityLogService.createActivityLog(
-                    ActivityActionType.CREATE_AUCTION,
-                    "Auction",
-                    createdAuction.getId(),
-                    "Automatically created auction for item ID " + createdItem.getId()
-                );
-
-                // 8. Return created listing result
-                return new CreatedListingResult(createdItem, createdAuction);
 
             } catch (Exception exception) {
                 conn.rollback();
@@ -164,8 +150,13 @@ public class ItemService extends BaseService {
         } catch (AppException exception) {
             throw exception;
         } catch (Exception exception) {
+            exception.printStackTrace();
             throw AppException.database("Could not create item listing.");
         }
+
+        recordListingCreationLogsSafely(createdItem, createdAuction);
+
+        return new CreatedListingResult(createdItem, createdAuction);
     }
 
     public Item readItem(Integer itemId) {
@@ -208,6 +199,12 @@ public class ItemService extends BaseService {
             Person owner = getCurrentUserOrThrow();
             items = itemRepository.readItemsBySellerId(owner.getId());
 
+        } else if (safeFilter.getSellerId() != null && safeFilter.getCategoryId() != null) {
+            items = itemRepository.readItemsBySellerIdAndCategoryId(
+                safeFilter.getSellerId(),
+                safeFilter.getCategoryId()
+            );
+
         } else if (safeFilter.getSellerId() != null) {
             items = itemRepository.readItemsBySellerId(safeFilter.getSellerId());
 
@@ -218,7 +215,7 @@ public class ItemService extends BaseService {
             items = itemRepository.readActiveItems();
         }
 
-        // 4. Apply visibility and filter rules
+        // 4. Apply visibility and remaining filter rules
         List<Item> result = items.stream()
             .filter(item -> {
                 Auction auction = auctionRepository.readAuctionByItemId(item.getId());
@@ -234,14 +231,42 @@ public class ItemService extends BaseService {
         return result;
     }
 
-    public Item updateItem(Integer itemId,
-                           String title,
-                           String description,
-                           Integer categoryId,
-                           BigDecimal startingPrice,
-                           BigDecimal reservePrice,
-                           ItemCondition condition,
-                           List<File> newImageFiles) {
+    public List<Item> readItemsBySellerId(Integer sellerId) {
+        // 1. Validate seller id
+        Integer validSellerId = validateId(sellerId, "Seller ID");
+
+        // 2. Use normal secured read flow
+        ItemFilter filter = new ItemFilter();
+        filter.setSellerId(validSellerId);
+
+        return readItems(filter);
+    }
+
+    public List<Item> readItemsBySellerId(Integer sellerId, Integer categoryId) {
+        // 1. Validate seller id
+        Integer validSellerId = validateId(sellerId, "Seller ID");
+
+        // 2. Use normal secured read flow
+        ItemFilter filter = new ItemFilter();
+        filter.setSellerId(validSellerId);
+
+        if (categoryId != null) {
+            filter.setCategoryId(validateId(categoryId, "Category ID"));
+        }
+
+        return readItems(filter);
+    }
+
+    public Item updateItem(
+        Integer itemId,
+        String title,
+        String description,
+        Integer categoryId,
+        BigDecimal startingPrice,
+        BigDecimal reservePrice,
+        ItemCondition condition,
+        List<File> newImageFiles
+    ) {
         // 1. Check current user
         Person currentUser = getCurrentUserOrThrow();
 
@@ -348,14 +373,14 @@ public class ItemService extends BaseService {
         } catch (AppException exception) {
             throw exception;
         } catch (Exception exception) {
+            exception.printStackTrace();
             throw AppException.database("Could not update item.");
         }
     }
 
     public void deleteItem(Integer itemId) {
-        // 1. Check current user and authorization
-        getCurrentUserOrThrow();
-        requireCurrentUser(Permission.MODERATE_ITEM);
+        // 1. Check current user
+        Person currentUser = getCurrentUserOrThrow();
 
         // 2. Validate target item ID
         Integer validItemId = validateId(itemId, "Item ID");
@@ -371,10 +396,30 @@ public class ItemService extends BaseService {
             throw AppException.notFound("Auction for item not found.");
         }
 
-        // 4. Decide hard delete or soft remove
+        // 4. Check authorization
+        boolean owner = item.isOwnedBy(currentUser.getId());
+
+        if (owner) {
+            requireCurrentUser(Permission.DELETE_OWN_ITEM);
+        } else {
+            requireCurrentUser(Permission.MODERATE_ITEM);
+        }
+
+        // 5. Check delete rules
         boolean hasBids = auctionRepository.hasBids(auction.getId());
         boolean hasPayment = auctionRepository.hasPayment(auction.getId());
 
+        if (owner) {
+            if (!auction.isActive()) {
+                throw AppException.conflict("Cannot delete item because the auction is no longer active.");
+            }
+
+            if (hasBids || hasPayment) {
+                throw AppException.conflict("Cannot delete item because the auction already has bids or payment records.");
+            }
+        }
+
+        // 6. Delete or remove item
         try (Connection conn = DatabaseConfig.getConnection()) {
             conn.setAutoCommit(false);
 
@@ -400,16 +445,51 @@ public class ItemService extends BaseService {
         } catch (AppException exception) {
             throw exception;
         } catch (Exception exception) {
+            exception.printStackTrace();
             throw AppException.database("Could not delete item.");
         }
 
-        // 5. Record activity log
+        // 7. Record activity log
         activityLogService.createActivityLog(
-            ActivityActionType.DELETE_ITEM,
+            owner ? ActivityActionType.DELETE_ITEM : ActivityActionType.MODERATE_ITEM,
             "Item",
             validItemId,
-            "Deleted or removed item ID " + validItemId
+            owner
+                ? "Deleted own item ID " + validItemId
+                : "Moderated item ID " + validItemId
         );
+    }
+
+    private List<String> uploadImagesSafely(List<File> imageFiles) {
+        try {
+            return uploadImagesIfPresent(imageFiles);
+        } catch (AppException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw AppException.database("Could not upload item image.");
+        }
+    }
+
+    private void recordListingCreationLogsSafely(Item createdItem, Auction createdAuction) {
+        try {
+            activityLogService.createActivityLog(
+                ActivityActionType.CREATE_ITEM,
+                "Item",
+                createdItem.getId(),
+                "Created item listing: " + createdItem.getTitle()
+            );
+
+            activityLogService.createActivityLog(
+                ActivityActionType.CREATE_AUCTION,
+                "Auction",
+                createdAuction.getId(),
+                "Automatically created auction for item ID " + createdItem.getId()
+            );
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
     }
 
     private boolean canViewItem(Person currentUser, Item item, Auction auction) {
@@ -496,9 +576,23 @@ public class ItemService extends BaseService {
             validatePrice(filter.getMaxPrice(), "Maximum price", false);
         }
 
-        if (filter.getMinPrice() != null && filter.getMaxPrice() != null
+        if (filter.getMinPrice() != null
+            && filter.getMaxPrice() != null
             && filter.getMaxPrice().compareTo(filter.getMinPrice()) < 0) {
             throw AppException.validation("Maximum price cannot be lower than minimum price.");
+        }
+    }
+
+    private void validateRequiredImageFiles(List<File> imageFiles) {
+        if (imageFiles == null || imageFiles.isEmpty()) {
+            throw AppException.validation("At least one item image is required.");
+        }
+
+        boolean hasValidFile = imageFiles.stream()
+            .anyMatch(file -> file != null && file.exists() && file.isFile());
+
+        if (!hasValidFile) {
+            throw AppException.validation("At least one valid item image is required.");
         }
     }
 
@@ -638,10 +732,6 @@ public class ItemService extends BaseService {
         if (condition == null) {
             throw AppException.validation("Item condition is required.");
         }
-    }
-
-    private boolean isRegisteredUser(Person person) {
-        return person.getRole() == UserRole.BUYER || person.getRole() == UserRole.SELLER;
     }
 
     private boolean isAdmin(Person person) {

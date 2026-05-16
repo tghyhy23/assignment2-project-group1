@@ -439,7 +439,7 @@
 
                 <HBox spacing="10" alignment="CENTER_LEFT">
 
-                    <Label text="Add New Auction Item"
+                    <Label text="Add New Item"
                            styleClass="modal-title"/>
 
                     <Region HBox.hgrow="ALWAYS"/>

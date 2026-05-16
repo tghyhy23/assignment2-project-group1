@@ -1,24 +1,23 @@
 package com.group01.asm2.controllers;
 
-import com.group01.asm2.dtos.ItemFilter;
 import com.group01.asm2.dtos.UserProfileStatisticsDto;
 import com.group01.asm2.dtos.UserProfileViewDto;
+import com.group01.asm2.enums.ItemCondition;
 import com.group01.asm2.exceptions.AppException;
-import com.group01.asm2.models.Item;
 import com.group01.asm2.models.TopUpRequest;
 import com.group01.asm2.models.User;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.services.UserService;
 import com.group01.asm2.utils.ScrollUtils;
 import com.group01.asm2.utils.TopUpValidator;
+import com.group01.asm2.models.Category;
+import com.group01.asm2.services.CategoryService;
 
-import javafx.animation.TranslateTransition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
@@ -28,10 +27,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.SVGPath;
 import javafx.stage.FileChooser;
-import javafx.util.Duration;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -40,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @author Group 01
@@ -48,6 +45,10 @@ public class ProfileController {
 
     private final UserService userService = new UserService();
     private final ItemService itemService = new ItemService();
+    private final CategoryService categoryService = new CategoryService();
+
+    private final Map<String, Integer> categoryNameToId = new HashMap<>();
+    private final Map<Integer, String> categoryIdToName = new HashMap<>();
 
     private UserProfileViewDto currentProfile;
     private UserProfileStatisticsDto currentStatistics;
@@ -121,7 +122,7 @@ public class ProfileController {
 
     @FXML private StackPane addListingOverlay;
     @FXML private VBox addListingModal;
-    @FXML private ComboBox<String> addListingCategoryComboBox;
+    @FXML private ComboBox<CategoryOption> addListingCategoryComboBox;
     @FXML private TextField addListingStartingPriceField;
     @FXML private TextField addListingTitleField;
     @FXML private TextArea addListingDescriptionArea;
@@ -140,10 +141,15 @@ public class ProfileController {
     @FXML private BarChart<String, Number> averageSalePriceChart;
     @FXML private LineChart<String, Number> listingTrendChart;
 
+    /*
+     * Controller injected from:
+     * <fx:include fx:id="profileListings" source="./components/all_auctions.fxml"/>
+     */
+    @FXML private AuctionsController profileListingsController;
+
     private File selectedListingImageFile;
     private String selectedListingCategory = "All";
 
-    private final ObservableList<Item> listings = FXCollections.observableArrayList();
     private final ObservableList<ActivityLog> activities = FXCollections.observableArrayList();
     private final List<TopUpRequest> topUpRequests = new ArrayList<>();
 
@@ -198,7 +204,6 @@ public class ProfileController {
     }
 
     private void loadDataFromServices() {
-        listings.clear();
         activities.clear();
 
         if (currentProfile == null || profileUser == null) {
@@ -214,27 +219,86 @@ public class ProfileController {
         }
     }
 
-    private void loadListingsForProfile() {
+    private void loadCategoryOptions() {
         try {
-            /*
-             * Temporary:
-             * This still reads from the existing ItemService method.
-             * Later, replace with itemService.readItemsBySellerId(profileUser.getId())
-             * when we add that method.
-             */
-            ItemFilter filter = new ItemFilter();
-            listings.setAll(itemService.readItems(filter));
+            List<Category> categories = categoryService.readCategories();
 
+            categoryNameToId.clear();
+            categoryIdToName.clear();
+
+            ObservableList<CategoryOption> categoryOptions = FXCollections.observableArrayList();
+
+            for (Category category : categories) {
+                if (category == null || category.getId() == null) {
+                    continue;
+                }
+
+                String categoryName = defaultText(
+                    category.getName(),
+                    "Category " + category.getId()
+                );
+
+                CategoryOption option = new CategoryOption(category.getId(), categoryName);
+
+                categoryOptions.add(option);
+                categoryNameToId.put(categoryName, category.getId());
+                categoryIdToName.put(category.getId(), categoryName);
+            }
+
+            addListingCategoryComboBox.setItems(categoryOptions);
+            selectDefaultCategoryOption("Electronics");
+
+        } catch (AppException exception) {
+            addListingErrorLabel.setText(exception.getMessage());
         } catch (Exception exception) {
-            listings.clear();
+            exception.printStackTrace();
+            addListingErrorLabel.setText("Could not load categories.");
         }
+    }
+
+    private void selectDefaultCategoryOption(String preferredCategoryName) {
+        if (addListingCategoryComboBox.getItems() == null
+            || addListingCategoryComboBox.getItems().isEmpty()) {
+            addListingCategoryComboBox.setValue(null);
+            return;
+        }
+
+        for (CategoryOption option : addListingCategoryComboBox.getItems()) {
+            if (option.getName().equalsIgnoreCase(preferredCategoryName)) {
+                addListingCategoryComboBox.setValue(option);
+                return;
+            }
+        }
+
+        addListingCategoryComboBox.getSelectionModel().selectFirst();
+    }
+
+    private void loadListingsForProfile() {
+        if (profileUser == null || profileUser.getId() == null) {
+            return;
+        }
+
+        if (profileListingsController == null) {
+            return;
+        }
+
+        boolean canManageSellerListings =
+            currentProfile != null
+                && currentProfile.isOwner()
+                && currentProfile.isSellerProfile();
+
+        profileListingsController.enableProfileMode(
+            profileUser.getId(),
+            canManageSellerListings
+        );
+
+        filterListings();
     }
 
     private void loadActivityLogsForProfile() {
         /*
-         * Temporary:
-         * Real data should later come from ActivityLogService.
-         * For now, keep this empty instead of fake mock logs.
+         * Later replace with ActivityLogService.readProfileLogs(profileUser.getId()).
+         * For now, keep the table empty instead of fake mock logs.
          */
         activities.clear();
     }
@@ -515,15 +579,12 @@ public class ProfileController {
     }
 
     private void setupAddListingModal() {
-        addListingCategoryComboBox.setItems(FXCollections.observableArrayList(
-            "Electronics", "Fashion", "Collectibles", "Home", "Books", "Other"
-        ));
+        loadCategoryOptions();
 
         addListingConditionComboBox.setItems(FXCollections.observableArrayList(
             "New", "Used", "Refurbished"
         ));
 
-        addListingCategoryComboBox.setValue("Electronics");
         addListingConditionComboBox.setValue("Used");
     }
 
@@ -701,7 +762,7 @@ public class ProfileController {
 
         String title = safeTrim(addListingTitleField.getText());
         String description = safeTrim(addListingDescriptionArea.getText());
-        String category = addListingCategoryComboBox.getValue();
+        CategoryOption selectedCategory = addListingCategoryComboBox.getValue();
         String condition = addListingConditionComboBox.getValue();
         String startingPriceText = safeTrim(addListingStartingPriceField.getText());
         String reservePriceText = safeTrim(addListingReservePriceField.getText());
@@ -716,7 +777,7 @@ public class ProfileController {
             return;
         }
 
-        if (category == null || category.trim().isEmpty()) {
+        if (selectedCategory == null || selectedCategory.getId() == null) {
             addListingErrorLabel.setText("Category is required.");
             return;
         }
@@ -744,8 +805,10 @@ public class ProfileController {
                 return;
             }
 
+            BigDecimal reservePrice = null;
+
             if (!reservePriceText.isEmpty()) {
-                BigDecimal reservePrice = new BigDecimal(reservePriceText);
+                reservePrice = new BigDecimal(reservePriceText);
 
                 if (reservePrice.compareTo(BigDecimal.ZERO) <= 0) {
                     addListingErrorLabel.setText("Reserve price must be greater than 0.");
@@ -758,17 +821,28 @@ public class ProfileController {
                 }
             }
 
-            /*
-             * Temporary:
-             * Real creation should later call ItemService.createItem(...)
-             * using the same seller-owned flow we designed.
-             */
-            addActivity("Created item", "Created new item: " + title + ".");
+            itemService.createItem(
+                title,
+                description,
+                selectedCategory.getId(),
+                startingPrice,
+                reservePrice,
+                convertCondition(condition),
+                List.of(selectedListingImageFile)
+            );
+
+            selectedListingCategory = "All";
+            updateCategoryChipStyles();
+
             handleCloseAddListing();
             refreshProfilePage();
-
         } catch (NumberFormatException exception) {
             addListingErrorLabel.setText("Please enter valid price numbers.");
+        } catch (AppException exception) {
+            addListingErrorLabel.setText(exception.getMessage());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            addListingErrorLabel.setText("Could not create item listing.");
         }
     }
 
@@ -804,7 +878,7 @@ public class ProfileController {
         addListingReservePriceField.clear();
         addListingErrorLabel.setText("");
 
-        addListingCategoryComboBox.setValue("Electronics");
+        selectDefaultCategoryOption("Electronics");
         addListingConditionComboBox.setValue("Used");
 
         selectedListingImageFile = null;
@@ -814,15 +888,16 @@ public class ProfileController {
         addListingImagePreviewBox.setManaged(false);
     }
 
-    private void reloadListingsFromService() {
-        loadListingsForProfile();
-        renderSummaryLabels();
-    }
-
     private void filterListings() {
-        /*
-         * Not used now because profile listings are currently rendered by included all_auctions.fxml.
-         */
+        if (profileListingsController == null || profileUser == null) {
+            return;
+        }
+
+        Integer categoryId = "All".equalsIgnoreCase(selectedListingCategory)
+            ? null
+            : convertCategoryToId(selectedListingCategory);
+
+        profileListingsController.applyProfileCategoryFilter(categoryId);
     }
 
     @FXML private void handleCategoryAll() { changeCategory("All"); }
@@ -834,7 +909,7 @@ public class ProfileController {
     @FXML private void handleCategoryOther() { changeCategory("Other"); }
 
     private void changeCategory(String category) {
-        selectedListingCategory = category;
+        selectedListingCategory = category == null ? "All" : category;
         updateCategoryChipStyles();
         filterListings();
     }
@@ -868,19 +943,11 @@ public class ProfileController {
     }
 
     private Integer convertCategoryToId(String category) {
-        if (category == null) {
-            return 106;
+        if (category == null || "All".equalsIgnoreCase(category)) {
+            return null;
         }
 
-        return switch (category) {
-            case "Electronics" -> 101;
-            case "Fashion" -> 102;
-            case "Collectibles" -> 103;
-            case "Home" -> 104;
-            case "Books" -> 105;
-            case "Other" -> 106;
-            default -> 106;
-        };
+        return categoryNameToId.get(category);
     }
 
     private String convertCategoryToName(Integer categoryId) {
@@ -888,14 +955,19 @@ public class ProfileController {
             return "Other";
         }
 
-        return switch (categoryId) {
-            case 101 -> "Electronics";
-            case 102 -> "Fashion";
-            case 103 -> "Collectibles";
-            case 104 -> "Home";
-            case 105 -> "Books";
-            case 106 -> "Other";
-            default -> "Other";
+        return categoryIdToName.getOrDefault(categoryId, "Category " + categoryId);
+    }
+
+    private ItemCondition convertCondition(String condition) {
+        if (condition == null) {
+            return ItemCondition.USED;
+        }
+
+        return switch (condition) {
+            case "New" -> ItemCondition.NEW;
+            case "Used" -> ItemCondition.USED;
+            case "Refurbished" -> ItemCondition.REFURBISHED;
+            default -> ItemCondition.USED;
         };
     }
 
@@ -953,10 +1025,6 @@ public class ProfileController {
 
     private String formatRating(double rating) {
         return String.format("%.1f / 5.0", rating);
-    }
-
-    private String formatPrice(double value) {
-        return String.format("$%,.2f", value);
     }
 
     private String formatPrice(BigDecimal value) {
@@ -1025,6 +1093,29 @@ public class ProfileController {
 
         public String getDescription() {
             return description.get();
+        }
+    }
+
+    private static class CategoryOption {
+        private final Integer id;
+        private final String name;
+
+        public CategoryOption(Integer id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
         }
     }
 }
