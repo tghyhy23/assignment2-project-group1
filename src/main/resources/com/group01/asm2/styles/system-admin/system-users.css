@@ -1,0 +1,329 @@
+/* ================= MAIN ROOT & SCROLL PANE ================= */
+.system-root {
+    -fx-background-color: #0b1020;
+    -fx-background: #0b1020;
+}
+
+.dashboard-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.dashboard-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+}
+
+/* ================= INPUTS & FILTERS ==================== */
+.filter-field {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #64748b;
+    -fx-padding: 8 16;
+}
+
+.combo-box.filter-field {
+    -fx-padding: 4 12;
+}
+.combo-box.filter-field > .list-cell {
+    -fx-text-fill: white !important;
+}
+.combo-box.filter-field .arrow {
+    -fx-background-color: white;
+}
+.combo-box.filter-field .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-radius: 4;
+}
+.combo-box-popup .list-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-background-color: transparent;
+    -fx-padding: 8 12;
+}
+.combo-box-popup .list-cell:hover,
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #1e293b;
+}
+
+/* ================= BUTTONS ============================= */
+.action-btn {
+    -fx-background-color: linear-gradient(to right, #2563eb, #38bdf8);
+    -fx-text-fill: white;
+    -fx-font-weight: 600;
+    -fx-background-radius: 6;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+.action-btn:hover {
+    -fx-background-color: linear-gradient(to right, #1d4ed8, #0ea5e9);
+}
+
+.btn-delete {
+    -fx-background-color: transparent;
+    -fx-border-color: #ef4444;
+    -fx-border-radius: 6;
+    -fx-text-fill: #ef4444;
+}
+.btn-delete:hover {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: #ffffff;
+}
+
+.btn-add-primary {
+    -fx-background-color: #10b981; /* Màu xanh ngọc */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+.btn-add-primary:hover {
+    -fx-background-color: #059669;
+}
+
+/* ================= TABLE VIEW ========================== */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #334155;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 0;
+}
+.table-view .column-header-background {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 8 8 0 0;
+}
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-size: 40px;
+}
+.table-view .column-header .label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-alignment: center-left;
+    -fx-padding: 0 10 0 16;
+}
+.table-view .table-row-cell {
+    -fx-background-color: #152033;
+    -fx-border-color: transparent transparent #1e293b transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cell-size: 45px;
+}
+.table-view .table-row-cell:odd {
+    -fx-background-color: #111827;
+}
+.table-view .table-row-cell:hover {
+    -fx-background-color: #1e293b;
+}
+.table-view .table-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-alignment: center-left;
+    -fx-font-size: 13px;
+    -fx-padding: 0 10 0 16;
+}
+.table-view .filler,
+.table-view .column-header-background .filler,
+.table-view .corner {
+    -fx-background-color: #0f172a;
+}
+.table-view .placeholder .label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 14px;
+}
+
+/* ================= SCROLLBAR ================= */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: #0b1020;
+}
+.scroll-bar:vertical { -fx-pref-width: 12px; }
+.scroll-bar:horizontal { -fx-pref-height: 12px; }
+.scroll-bar .thumb {
+    -fx-background-color: #3b4b5e;
+    -fx-background-radius: 6px;
+}
+.scroll-bar .thumb:hover {
+    -fx-background-color: #556a84;
+}
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0px;
+    -fx-pref-width: 0px;
+    -fx-padding: 0;
+}
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+}
+
+/* ================= MODAL STYLING ================= */
+.modal-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-box {
+    -fx-background-color: #152033;
+    -fx-border-color: #334155;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 24 32;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 5);
+}
+
+.modal-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.modal-label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.btn-cancel {
+    -fx-background-color: transparent;
+    -fx-border-color: #475569;
+    -fx-border-radius: 6;
+    -fx-text-fill: #cbd5e1;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+.btn-cancel:hover {
+    -fx-background-color: #334155;
+}
+
+.btn-save {
+    -fx-background-color: #38bdf8;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+.btn-save:hover {
+    -fx-background-color: #0284c7;
+}
+
+.btn-close-modal {
+    -fx-background-color: transparent;
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 0 4;
+}
+.btn-close-modal:hover {
+    -fx-text-fill: #ef4444;
+}
+
+/* ========================================================= */
+/* ================= DATE PICKER (CHỌN NGÀY) =============== */
+/* ========================================================= */
+
+/* 1. Ô nhập liệu và Nút mũi tên bên ngoài */
+.date-picker.filter-field {
+-fx-padding: 0;
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+.date-picker.filter-field > .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #f8fafc;
+    -fx-padding: 8 12;
+}
+.date-picker.filter-field > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 6 10;
+}
+.date-picker.filter-field > .arrow-button > .arrow {
+    -fx-background-color: #94a3b8;
+}
+
+/* 2. Tổng thể Popup (Lõi cuốn lịch) */
+.date-picker-popup {
+    -fx-background-color: #0f172a;
+    -fx-control-inner-background: #0f172a;
+    -fx-border-color: #38bdf8;
+    -fx-border-radius: 6;
+}
+
+/* 3. Phần Header (Tháng / Năm) - FIX MÀU TRẮNG LÓA */
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #152033; /* Đổi sang nền tối */
+    -fx-padding: 6;
+}
+.date-picker-popup .month-year-pane .label {
+    -fx-text-fill: #f8fafc; /* Chữ trắng */
+    -fx-font-weight: bold;
+}
+.date-picker-popup .spinner .button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+.date-picker-popup .spinner .button .left-arrow,
+.date-picker-popup .spinner .button .right-arrow {
+    -fx-background-color: #94a3b8;
+}
+
+/* 4. Hàng Thứ (Sun, Mon, Tue...) */
+.date-picker-popup .day-name-cell {
+    -fx-text-fill: #94a3b8;
+    -fx-font-weight: bold;
+    -fx-background-color: #0f172a;
+    -fx-padding: 8 4;
+}
+
+/* 5. Lưới Lịch & Từng ô ngày */
+.date-picker-popup .calendar-grid {
+    -fx-background-color: #0f172a;
+    -fx-padding: 0;
+}
+.date-picker-popup .day-cell {
+    -fx-background-color: #0f172a;
+    -fx-text-fill: #cbd5e1;
+    -fx-border-color: #1e293b; /* Viền mờ ngăn cách các ô cho đẹp */
+    -fx-border-width: 0.5px;
+    -fx-padding: 6;
+    -fx-cursor: hand;
+}
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #1e293b;
+}
+.date-picker-popup .day-cell:selected {
+    -fx-background-color: #38bdf8;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+.date-picker-popup .today {
+    -fx-border-color: #38bdf8;
+    -fx-border-width: 1px;
+}
+.date-picker-popup .day-cell:out-of-this-month {
+    -fx-text-fill: #475569; /* Làm mờ các ngày của tháng khác */
+}

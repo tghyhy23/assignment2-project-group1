@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.group01.asm2.controllers.SystemCategoriesController"
+           stylesheets="@../../styles/system-admin/system-users.css"> <ScrollPane fx:id="mainScrollPane" fitToWidth="true" styleClass="system-root">
+    <VBox spacing="20" fillWidth="true">
+        <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+
+        <VBox spacing="5">
+            <Label text="Categories Management" styleClass="dashboard-title"/>
+            <Label text="Manage item categories for the entire system." styleClass="dashboard-subtitle"/>
+        </VBox>
+
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <TextField fx:id="searchField" promptText="Search categories..." styleClass="filter-field" prefWidth="300"/>
+            <ComboBox fx:id="statusFilterCombo" promptText="Status" styleClass="filter-field" prefWidth="150"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="+ Add Category" onAction="#openAddModal" styleClass="btn-add-primary"/>
+        </HBox>
+
+        <TableView fx:id="categoriesTable" VBox.vgrow="ALWAYS" minHeight="500">
+            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            <columns>
+                <TableColumn text="ID" prefWidth="60" maxWidth="80">
+                    <cellValueFactory><PropertyValueFactory property="id"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Category Name" prefWidth="200" minWidth="150">
+                    <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Description" prefWidth="300" minWidth="200">
+                    <cellValueFactory><PropertyValueFactory property="description"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Status" prefWidth="150" maxWidth="150">
+                    <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="actionCol" text="Actions" prefWidth="200" minWidth="200" maxWidth="200"/>
+            </columns>
+        </TableView>
+    </VBox>
+</ScrollPane>
+
+    <StackPane fx:id="modalOverlay" visible="false" styleClass="modal-overlay">
+        <VBox styleClass="modal-box" spacing="20" maxWidth="450" maxHeight="-Infinity" alignment="CENTER_LEFT">
+            <HBox alignment="CENTER_LEFT">
+                <Label fx:id="modalTitle" text="Add Category" styleClass="modal-title"/>
+                <Button text="✕" onAction="#closeModal" styleClass="btn-close-modal"/>
+            </HBox>
+            <VBox spacing="15">
+                <VBox spacing="5">
+                    <Label text="Category Name" styleClass="modal-label"/>
+                    <TextField fx:id="nameInput" styleClass="filter-field"/>
+                </VBox>
+                <VBox spacing="5">
+                    <Label text="Description" styleClass="modal-label"/>
+                    <TextField fx:id="descInput" styleClass="filter-field"/>
+                </VBox>
+                <VBox spacing="5">
+                    <Label text="Status" styleClass="modal-label"/>
+                    <ComboBox fx:id="statusInput" styleClass="filter-field" maxWidth="Infinity"/>
+                </VBox>
+            </VBox>
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Cancel" onAction="#closeModal" styleClass="btn-cancel"/>
+                <Button text="Save" onAction="#saveCategory" styleClass="btn-save"/>
+            </HBox>
+        </VBox>
+    </StackPane>
+</StackPane>
