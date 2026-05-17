@@ -8,6 +8,7 @@ import com.group01.asm2.dtos.AuctionDetailDto;
 import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.models.*;
 import com.group01.asm2.services.AuctionService;
+import com.group01.asm2.services.NavigationService;
 import com.group01.asm2.utils.ScrollUtils;
 import com.group01.asm2.utils.UiMessageUtils;
 import javafx.fxml.FXML;
@@ -22,6 +23,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -34,9 +36,7 @@ import java.util.Locale;
 
 public class AuctionDetailsController {
     @FXML private ScrollPane detailScrollPane;
-
     @FXML private ImageView mainItemImageView;
-
     @FXML private Label headerStatusBadge;
     @FXML private Label auctionTitleLabel;
     @FXML private Label currentBidLabel;
@@ -53,21 +53,20 @@ public class AuctionDetailsController {
     @FXML private TextField bidAmountField;
     @FXML private Button placeBidButton;
     @FXML private Label bidMessageLabel;
-
-    @FXML private Label sellerSectionNameLabel;
+    @FXML private Button viewSellerButton;
 
     @FXML private GridPane auctionInfoGrid;
     @FXML private GridPane productDetailsGrid;
-
+    @FXML private Label sellerSectionNameLabel;
     @FXML private Label descriptionLabel;
-
-    @FXML private VBox bidHistoryList;
     @FXML private Label bidHistoryCountLabel;
 
+    @FXML private VBox bidHistoryList;
     @FXML private VBox relatedAuctionsList;
 
     private final AuctionService auctionService = new AuctionService();
 
+    private Pane contentArea;
     private AuctionDetailDto currentDetail;
     private Auction currentAuction;
     private Item currentItem;
@@ -77,7 +76,6 @@ public class AuctionDetailsController {
     private BigDecimal currentHighestBid;
 
     private final List<AuctionBidEntry> bidHistory = new ArrayList<>();
-
     private final DateTimeFormatter dateTimeFormatter =
         DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
@@ -126,7 +124,6 @@ public class AuctionDetailsController {
             bidHistory.addAll(mapRecentBidsToUiEntries(currentDetail));
 
             renderAuctionDetails();
-
         } catch (Exception exception) {
             showFatalPageError(exception.getMessage());
         }
@@ -164,8 +161,19 @@ public class AuctionDetailsController {
         populateProductDetailsGrid();
         populateDescription();
         populateBidHistory();
-
         populateRelatedAuctions();
+    }
+
+    private void updateViewSellerButton() {
+        if (viewSellerButton == null) {
+            return;
+        }
+
+        boolean hasSeller = currentDetail != null
+            && currentDetail.getSeller() != null
+            && currentDetail.getSeller().getId() != null;
+
+        viewSellerButton.setDisable(!hasSeller);
     }
 
     private void loadPrimaryImage() {
@@ -226,6 +234,37 @@ public class AuctionDetailsController {
         );
     }
 
+    @FXML
+    public void handleViewSeller() {
+        if (currentDetail == null || currentDetail.getSeller() == null) {
+            UiMessageUtils.showInfo(
+                bidMessageLabel,
+                "Seller information is not available."
+            );
+            return;
+        }
+
+        Integer sellerId = currentDetail.getSeller().getId();
+
+        if (sellerId == null) {
+            UiMessageUtils.showInfo(
+                bidMessageLabel,
+                "Seller ID is not available."
+            );
+            return;
+        }
+
+        if (contentArea == null) {
+            UiMessageUtils.showInfo(
+                bidMessageLabel,
+                "Cannot open seller profile because the navigation area is not available."
+            );
+            return;
+        }
+
+        NavigationService.goToProfilePage(contentArea, sellerId);
+    }
+
     public String formatMoney(BigDecimal amount) {
         if (amount == null) return "N/A";
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
@@ -278,6 +317,10 @@ public class AuctionDetailsController {
         }
 
         headerStatusBadge.getStyleClass().add(statusClass);
+    }
+
+    public void setContentArea(Pane contentArea) {
+        this.contentArea = contentArea;
     }
 
     public void updateTimeRemaining(Auction auction) {

@@ -318,8 +318,10 @@
                         <Label text="98%" styleClass="seller-stat-value" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
                     </GridPane>
 
-                    <Button text="View Seller"
+                    <Button fx:id="viewSellerButton"
+                            text="View Seller"
                             alignment="CENTER"
+                            onAction="#handleViewSeller"
                             styleClass="secondary-button"/>
                 </HBox>
                 <!-- Main Content + Sidebar -->
