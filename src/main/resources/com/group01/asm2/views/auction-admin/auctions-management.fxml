@@ -8,7 +8,7 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group01.asm2.controllers.AdminAuctionController"
-            stylesheets="@../../styles/admin/admin-auction.css"
+            stylesheets="@../../styles/auction-admin/admin-auction.css"
             styleClass="admin-auction-root">
 
     <VBox spacing="18" fillWidth="true" AnchorPane.topAnchor="0.0"
