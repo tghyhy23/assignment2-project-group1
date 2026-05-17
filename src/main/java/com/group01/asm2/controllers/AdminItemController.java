@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import java.util.Optional; // Cần import cái này cho cái Alert (Confirm Dialog)
 
 public class AdminItemController {
 
@@ -125,31 +126,51 @@ public class AdminItemController {
     }
 
     /**
-     * Khởi tạo nút "Review" vào cột Actions của bảng
+     * Khởi tạo các nút "Moderate" và "Remove" vào cột Actions của bảng
      */
     private void setupActionColumn() {
         actionCol.setCellFactory(param -> new TableCell<>() {
-            private final Button reviewBtn = new Button("Review");
-            private final HBox pane = new HBox(reviewBtn);
+            private final Button moderateBtn = new Button("Moderate");
+            private final Button removeBtn = new Button("Remove");
+
+            // Đặt 2 nút vào chung 1 HBox, khoảng cách 8px
+            private final HBox pane = new HBox(8, moderateBtn, removeBtn);
 
             {
                 pane.setAlignment(Pos.CENTER);
                 getStyleClass().add("action-cell");
 
                 // Gắn CSS class cho nút
-                reviewBtn.getStyleClass().add("action-btn");
+                moderateBtn.getStyleClass().add("action-btn");
+                removeBtn.getStyleClass().addAll("action-btn", "btn-delete");
 
-                // BẤM NÚT REVIEW SẼ MỞ MODAL
-                reviewBtn.setOnAction(e -> {
-                    // Lấy Item tại dòng được click
+                // 1. NÚT MODERATE: MỞ MODAL
+                moderateBtn.setOnAction(e -> {
                     currentEditingItem = getTableView().getItems().get(getIndex());
 
-                    // Điền thông tin vào Modal để Admin xem
                     itemInfoLabel.setText("ID: #" + currentEditingItem.getId() + " - " + currentEditingItem.getName() + " (Seller: " + currentEditingItem.getSellerId() + ")");
                     statusUpdateCombo.setValue(currentEditingItem.getStatus());
 
-                    // Hiện Modal mờ
                     modalOverlay.setVisible(true);
+                });
+
+                // 2. NÚT REMOVE: HIỆN CẢNH BÁO XÓA TRỰC TIẾP
+                removeBtn.setOnAction(e -> {
+                    Item item = getTableView().getItems().get(getIndex());
+
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirm.setTitle("Remove Item");
+                    confirm.setHeaderText(null);
+                    confirm.setContentText("Are you sure you want to remove '" + item.getName() + "' for violating policies?");
+
+                    Optional<ButtonType> result = confirm.showAndWait();
+                    if (result.isPresent() && result.get() == ButtonType.OK) {
+                        // TODO: Gọi lệnh xóa trong Database ở đây
+
+                        // Xóa khỏi bảng hiện tại
+                        itemList.remove(item);
+                        System.out.println("Item Removed: " + item.getName());
+                    }
                 });
             }
 

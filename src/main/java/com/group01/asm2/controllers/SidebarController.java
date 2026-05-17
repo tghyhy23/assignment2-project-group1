@@ -183,7 +183,7 @@ public class SidebarController {
     @FXML
     private void showReports() {
         setActiveButton(reportsButton);
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/reports.fxml");
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/report-management.fxml");
     }
 
     // =========================
