@@ -3,6 +3,7 @@ package com.group01.asm2.services;
 import com.group01.asm2.core.SessionManager;
 import com.group01.asm2.dtos.UserProfileStatisticsDto;
 import com.group01.asm2.dtos.UserProfileViewDto;
+import com.group01.asm2.dtos.reports.BuyerBiddingHistoryReportDto;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.models.User;
@@ -10,6 +11,18 @@ import com.group01.asm2.enums.ActivityActionType;
 import com.group01.asm2.constants.ActivityTarget;
 import com.group01.asm2.repositories.UserRepository;
 import com.group01.asm2.security.Permission;
+import com.group01.asm2.utils.CsvWriterUtil;
+
+import com.group01.asm2.dtos.reports.BuyerBiddingHistoryReportDto;
+import com.group01.asm2.dtos.reports.BuyerPurchaseSummaryReportDto;
+import com.group01.asm2.dtos.reports.SellerActivitySummaryReportDto;
+import com.group01.asm2.repositories.AuctionRepository;
+import com.group01.asm2.repositories.BidRepository;
+import com.group01.asm2.utils.CsvWriterUtil;
+
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,21 +49,50 @@ public class UserService extends BaseService {
     );
 
     private static final BigDecimal DEFAULT_COMMISSION_RATE = new BigDecimal("0.05");
+    private static final DateTimeFormatter REPORT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final UserRepository userRepository;
     private final ActivityLogService activityLogService;
+    private final BidRepository bidRepository;
+    private final AuctionRepository auctionRepository;
 
     public UserService() {
-        this(new UserRepository(), new ActivityLogService());
+        this(
+            new UserRepository(),
+            new ActivityLogService(),
+            new BidRepository(),
+            new AuctionRepository()
+        );
     }
 
     public UserService(UserRepository userRepository) {
-        this(userRepository, new ActivityLogService());
+        this(
+            userRepository,
+            new ActivityLogService(),
+            new BidRepository(),
+            new AuctionRepository()
+        );
     }
 
     public UserService(UserRepository userRepository, ActivityLogService activityLogService) {
+        this(
+            userRepository,
+            activityLogService,
+            new BidRepository(),
+            new AuctionRepository()
+        );
+    }
+
+    public UserService(
+        UserRepository userRepository,
+        ActivityLogService activityLogService,
+        BidRepository bidRepository,
+        AuctionRepository auctionRepository
+    ) {
         this.userRepository = userRepository;
         this.activityLogService = activityLogService;
+        this.bidRepository = bidRepository;
+        this.auctionRepository = auctionRepository;
     }
 
     public User readUserProfile() {
@@ -283,6 +325,158 @@ public class UserService extends BaseService {
         }
 
         return deletedRows;
+    }
+
+    public Path exportMyBiddingHistory(Path outputPath) {
+        User currentUser = requireCurrentRegisteredUserProfileForExport();
+
+        List<BuyerBiddingHistoryReportDto> rows =
+            bidRepository.readBuyerBiddingHistoryReport(currentUser.getId());
+
+        return CsvWriterUtil.writeCsv(
+            outputPath,
+            List.of(
+                "Bid ID",
+                "Auction ID",
+                "Item Title",
+                "Category",
+                "Bid Amount",
+                "Bid Date Time",
+                "Auction Status",
+                "Current Highest Bid",
+                "Bid Result"
+            ),
+            rows,
+            row -> List.of(
+                text(row.getBidId()),
+                text(row.getAuctionId()),
+                text(row.getItemTitle()),
+                text(row.getCategoryName()),
+                money(row.getBidAmount()),
+                dateTime(row.getBidDateTime()),
+                text(row.getAuctionStatus()),
+                money(row.getCurrentHighestBid()),
+                text(row.getBidResult())
+            )
+        );
+    }
+
+    public Path exportMyPurchaseSummary(Path outputPath) {
+//        User currentUser = requireCurrentRegisteredUserProfileForExport();
+//
+//        List<BuyerPurchaseSummaryReportDto> rows =
+//            paymentRepository.readBuyerPurchaseSummaryReport(currentUser.getId());
+//
+//        return CsvWriterUtil.writeCsv(
+//            outputPath,
+//            List.of(
+//                "Payment ID",
+//                "Auction ID",
+//                "Item Title",
+//                "Seller Username",
+//                "Final Sale Price",
+//                "Commission Amount",
+//                "Seller Payout",
+//                "Payment Status",
+//                "Payment Date Time"
+//            ),
+//            rows,
+//            row -> List.of(
+//                text(row.getPaymentId()),
+//                text(row.getAuctionId()),
+//                text(row.getItemTitle()),
+//                text(row.getSellerUsername()),
+//                money(row.getFinalSalePrice()),
+//                money(row.getCommissionAmount()),
+//                money(row.getSellerPayout()),
+//                text(row.getPaymentStatus()),
+//                dateTime(row.getPaymentDateTime())
+//            )
+//        );
+        return null;
+    }
+
+    public Path exportMySellerActivitySummary(Path outputPath) {
+        User currentUser = requireCurrentRegisteredUserProfileForExport();
+
+        if (!currentUser.isSeller()) {
+            throw AppException.validation("Only sellers can export seller activity summary.");
+        }
+
+        List<SellerActivitySummaryReportDto> rows = auctionRepository.readSellerActivitySummaryReport(currentUser.getId());
+
+        return CsvWriterUtil.writeCsv(
+            outputPath,
+            List.of(
+                "Item ID",
+                "Auction ID",
+                "Item Title",
+                "Category",
+                "Condition",
+                "Starting Price",
+                "Reserve Price",
+                "Auction Status",
+                "Final Sale Price",
+                "Winner Username",
+                "Commission Amount",
+                "Seller Payout",
+                "Start Date Time",
+                "End Date Time"
+            ),
+            rows,
+            row -> List.of(
+                text(row.getItemId()),
+                text(row.getAuctionId()),
+                text(row.getItemTitle()),
+                text(row.getCategoryName()),
+                text(row.getCondition()),
+                money(row.getStartingPrice()),
+                money(row.getReservePrice()),
+                text(row.getAuctionStatus()),
+                money(row.getFinalSalePrice()),
+                text(row.getWinnerUsername()),
+                money(row.getCommissionAmount()),
+                money(row.getSellerPayout()),
+                dateTime(row.getStartDateTime()),
+                dateTime(row.getEndDateTime())
+            )
+        );
+    }
+
+    private User requireCurrentRegisteredUserProfileForExport() {
+        Person currentPerson = getCurrentUserOrThrow();
+
+        if (!currentPerson.isRegisteredUser()) {
+            throw AppException.validation("Only registered users can export personal reports.");
+        }
+
+        User currentUser = userRepository.readUserProfile(currentPerson.getId());
+
+        if (currentUser == null) {
+            throw AppException.notFound("User profile not found.");
+        }
+
+        return currentUser;
+    }
+
+    private String text(Object value) {
+        return value == null ? "" : String.valueOf(value);
+    }
+
+    private String money(BigDecimal value) {
+        if (value == null) {
+            return "0.00";
+        }
+
+        return value.setScale(2, RoundingMode.HALF_UP).toPlainString();
+    }
+
+    private String dateTime(LocalDateTime value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.format(REPORT_DATE_TIME_FORMATTER);
     }
 
     private BigDecimal calculateCommissionFees(BigDecimal totalRevenue) {

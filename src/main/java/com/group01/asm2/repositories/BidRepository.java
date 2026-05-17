@@ -6,6 +6,7 @@ package com.group01.asm2.repositories;
 
 import com.group01.asm2.db.SqlExecutor;
 import com.group01.asm2.dtos.BidHistoryDto;
+import com.group01.asm2.dtos.reports.BuyerBiddingHistoryReportDto;
 import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.enums.ItemCondition;
 import com.group01.asm2.enums.ItemStatus;
@@ -302,6 +303,58 @@ public class BidRepository {
             sql,
             ps -> ps.setInt(1, bidderId),
             this::mapBidHistoryRow
+        );
+    }
+
+    public List<BuyerBiddingHistoryReportDto> readBuyerBiddingHistoryReport(Integer buyerId) {
+        String sql = """
+        SELECT
+            b.id AS bid_id,
+            a.id AS auction_id,
+            i.title AS item_title,
+            c.name AS category_name,
+            b.amount AS bid_amount,
+            b.bid_date_time AS bid_date_time,
+            a.status AS auction_status,
+            COALESCE(highest_bid.amount, i.starting_price) AS current_highest_bid,
+            CASE
+                WHEN a.status = 'CANCELLED' THEN 'CANCELLED'
+                WHEN a.status = 'ACTIVE'
+                     AND a.current_highest_bid_id = b.id THEN 'CURRENTLY_WINNING'
+                WHEN a.status = 'ACTIVE' THEN 'OUTBID'
+                WHEN a.status = 'SOLD'
+                     AND a.current_highest_bid_id = b.id
+                     AND a.winner_id = b.bidder_id THEN 'WON'
+                WHEN a.status IN ('ENDED', 'UNSOLD', 'SOLD') THEN 'LOST'
+                ELSE 'BID_PLACED'
+            END AS bid_result
+        FROM bids b
+        JOIN auctions a
+            ON b.auction_id = a.id
+        JOIN items i
+            ON b.item_id = i.id
+        LEFT JOIN categories c
+            ON i.category_id = c.id
+        LEFT JOIN bids highest_bid
+            ON highest_bid.id = a.current_highest_bid_id
+        WHERE b.bidder_id = ?
+        ORDER BY b.bid_date_time DESC, b.id DESC
+        """;
+
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> ps.setInt(1, buyerId),
+            rs -> new BuyerBiddingHistoryReportDto(
+                rs.getInt("bid_id"),
+                rs.getInt("auction_id"),
+                rs.getString("item_title"),
+                rs.getString("category_name"),
+                rs.getBigDecimal("bid_amount"),
+                toLocalDateTime(rs.getTimestamp("bid_date_time")),
+                rs.getString("auction_status"),
+                rs.getBigDecimal("current_highest_bid"),
+                rs.getString("bid_result")
+            )
         );
     }
 

@@ -3,6 +3,7 @@ package com.group01.asm2.repositories;
 import com.group01.asm2.db.SqlExecutor;
 import com.group01.asm2.dtos.AuctionDetailDto;
 import com.group01.asm2.dtos.WonAuctionDto;
+import com.group01.asm2.dtos.reports.SellerActivitySummaryReportDto;
 import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.enums.ItemCondition;
 import com.group01.asm2.enums.ItemStatus;
@@ -233,6 +234,65 @@ public class AuctionRepository {
             ps -> ps.setInt(1, auctionId),
             rs -> true
         ).orElse(false);
+    }
+
+    public List<SellerActivitySummaryReportDto> readSellerActivitySummaryReport(Integer sellerId) {
+        String sql = """
+        SELECT
+            i.id AS item_id,
+            a.id AS auction_id,
+            i.title AS item_title,
+            c.name AS category_name,
+            i.condition AS item_condition,
+            i.starting_price AS starting_price,
+            i.reserve_price AS reserve_price,
+            a.status AS auction_status,
+            a.final_sale_price AS final_sale_price,
+            winner.username AS winner_username,
+            payment_summary.commission_amount AS commission_amount,
+            payment_summary.seller_payout AS seller_payout,
+            a.start_date_time AS start_date_time,
+            a.end_date_time AS end_date_time
+        FROM items i
+        JOIN auctions a
+            ON a.item_id = i.id
+        LEFT JOIN categories c
+            ON i.category_id = c.id
+        LEFT JOIN persons winner
+            ON a.winner_id = winner.id
+        LEFT JOIN LATERAL (
+            SELECT
+                p.commission_amount,
+                p.seller_payout
+            FROM payments p
+            WHERE p.auction_id = a.id
+            ORDER BY p.payment_date_time DESC NULLS LAST, p.id DESC
+            LIMIT 1
+        ) payment_summary ON TRUE
+        WHERE i.seller_id = ?
+        ORDER BY a.end_date_time DESC, a.id DESC
+        """;
+
+        return SqlExecutor.queryMany(
+            sql,
+            ps -> ps.setInt(1, sellerId),
+            rs -> new SellerActivitySummaryReportDto(
+                rs.getInt("item_id"),
+                rs.getInt("auction_id"),
+                rs.getString("item_title"),
+                rs.getString("category_name"),
+                rs.getString("item_condition"),
+                rs.getBigDecimal("starting_price"),
+                rs.getBigDecimal("reserve_price"),
+                rs.getString("auction_status"),
+                rs.getBigDecimal("final_sale_price"),
+                rs.getString("winner_username"),
+                rs.getBigDecimal("commission_amount"),
+                rs.getBigDecimal("seller_payout"),
+                getNullableLocalDateTime(rs, "start_date_time"),
+                getNullableLocalDateTime(rs, "end_date_time")
+            )
+        );
     }
 
     private String getCreateAuctionSql() {
