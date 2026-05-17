@@ -1,57 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.group01.asm2.controllers.AdminDashboardController"
-            stylesheets="@../../styles/admin/admin-categories.css"
-            prefHeight="400.0" prefWidth="600.0">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.group01.asm2.controllers.AdminCategoriesController"
+           stylesheets="@../../styles/admin/admin-categories.css"
+           styleClass="admin-categories-root"
+           prefHeight="600.0" prefWidth="900.0">
 
-    <VBox spacing="18">
-
+    <VBox spacing="18" fillWidth="true">
         <padding>
             <Insets top="30" right="40" bottom="30" left="40"/>
         </padding>
 
         <VBox spacing="4">
-            <Label text="Auction Management" styleClass="dashboard-title"/>
-            <Label text="Auction Management subtitle"
-                   styleClass="dashboard-subtitle"/>
+            <Label text="Categories Management" styleClass="dashboard-title"/>
+            <Label text="Create, update, and delete item categories." styleClass="dashboard-subtitle"/>
         </VBox>
 
-        <GridPane hgap="16" vgap="16">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="searchField" promptText="Search category name..." styleClass="filter-field" prefWidth="300"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="+ Add Category" onAction="#openAddModal" styleClass="action-btn"/>
+        </HBox>
 
-            <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="stat-card">
-                <Label text="Total Users" styleClass="stat-label"/>
-                <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value"/>
-                <Label text="Registered accounts" styleClass="stat-desc"/>
-            </VBox>
-
-            <VBox GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="stat-card">
-                <Label text="Active Auctions" styleClass="stat-label"/>
-                <Label fx:id="activeAuctionsLabel" text="0" styleClass="stat-value"/>
-                <Label text="Currently running" styleClass="stat-desc"/>
-            </VBox>
-
-            <VBox GridPane.rowIndex="0" GridPane.columnIndex="2" styleClass="stat-card">
-                <Label text="Total Items" styleClass="stat-label"/>
-                <Label fx:id="totalItemsLabel" text="0" styleClass="stat-value"/>
-                <Label text="Listed items" styleClass="stat-desc"/>
-            </VBox>
-
-            <VBox GridPane.rowIndex="0" GridPane.columnIndex="3" styleClass="stat-card">
-                <Label text="Pending Top-ups" styleClass="stat-label"/>
-                <Label fx:id="pendingTopupsLabel" text="0" styleClass="stat-value"/>
-                <Label text="Need review" styleClass="stat-desc"/>
-            </VBox>
-
-        </GridPane>
+        <TableView fx:id="categoriesTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn text="ID" prefWidth="80" minWidth="80">
+                    <cellValueFactory><PropertyValueFactory property="id"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Category Name" prefWidth="250" minWidth="200">
+                    <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Description" prefWidth="350" minWidth="250">
+                    <cellValueFactory><PropertyValueFactory property="description"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Commission (%)" prefWidth="120" minWidth="100">
+                    <cellValueFactory><PropertyValueFactory property="commissionRate"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="actionCol" text="Actions" prefWidth="180" minWidth="160"/>
+            </columns>
+        </TableView>
     </VBox>
 
-</AnchorPane>
+
+    <StackPane fx:id="modalOverlay" visible="false" styleClass="modal-overlay">
+
+        <VBox styleClass="modal-box" maxWidth="500" maxHeight="450" spacing="16">
+
+            <HBox alignment="CENTER_LEFT">
+                <Label fx:id="modalTitle" text="Add Category" styleClass="modal-title"/>
+                <Region HBox.hgrow="ALWAYS"/> <Button text="✕" onAction="#closeModal" styleClass="btn-close-modal"/>
+            </HBox>
+
+            <VBox spacing="6">
+                <Label text="Category Name" styleClass="modal-label"/>
+                <TextField fx:id="nameInput" promptText="E.g. Electronics" styleClass="filter-field"/>
+            </VBox>
+
+            <VBox spacing="6" VBox.vgrow="ALWAYS">
+                <Label text="Description" styleClass="modal-label"/>
+                <TextArea fx:id="descInput" promptText="Enter description..." VBox.vgrow="ALWAYS" wrapText="true"/>
+            </VBox>
+
+            <VBox spacing="6">
+                <Label text="Commission Rate (%)" styleClass="modal-label"/>
+                <TextField fx:id="commInput" promptText="E.g. 5.5" styleClass="filter-field"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <HBox spacing="12" alignment="CENTER_RIGHT">
+                <Button text="Cancel" onAction="#closeModal" styleClass="btn-cancel"/>
+                <Button text="Save Category" onAction="#saveCategory" styleClass="btn-save"/>
+            </HBox>
+        </VBox>
+
+    </StackPane>
+
+</StackPane>

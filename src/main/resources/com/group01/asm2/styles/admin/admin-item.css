@@ -23,6 +23,18 @@
         -fx-padding: 8 16;
 }
 
+.status-filter-field {
+-fx-background-color: #0f172a;
+        -fx-border-color: #334155;
+        -fx-border-radius: 6;
+        -fx-text-fill: white;
+        -fx-padding: 4 12;
+}
+
+filter-field {
+ -fx-prompt-text-fill: #64748b;
+}
+
 .action-btn {
     -fx-background-color: linear-gradient(to right, #2563eb, #38bdf8);
             -fx-text-fill: white;
@@ -209,3 +221,50 @@
     -fx-text-fill: #ef4444; /* Đổi sang màu đỏ khi di chuột vào */
     -fx-background-color: transparent;
 }
+
+/* Style đổi tên class gốc theo trang hiện tại */
+.admin-item-root {
+    -fx-background-color: #0b1020;
+}
+
+/* Chữ hiển thị thông tin vật phẩm trong Modal Moderation */
+.item-info-text {
+    -fx-text-fill: #38bdf8; /* Đổi màu xanh cho nổi bật */
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-background-color: #0f172a;
+    -fx-padding: 8 12;
+    -fx-background-radius: 6;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6;
+}
+
+/* Đổi màu chữ hiển thị trên thanh ComboBox */
+.combo-box.status-filter-field > .list-cell {
+    -fx-text-fill: #f8fafc;
+}
+
+/* Đổi màu mũi tên của ComboBox */
+.combo-box.status-filter-field .arrow {
+    -fx-background-color: #f8fafc;
+}
+.combo-box.status-filter-field .arrow-button {
+    -fx-background-color: transparent;
+}
+
+/* Đổi màu nền và chữ của menu xổ xuống khi bấm vào ComboBox */
+.combo-box-popup .list-view {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-radius: 4;
+}
+.combo-box-popup .list-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-background-color: transparent;
+    -fx-padding: 8 12;
+}
+.combo-box-popup .list-cell:hover,
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #1e293b;
+}
+
