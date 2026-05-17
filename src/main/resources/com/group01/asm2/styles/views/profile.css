@@ -941,3 +941,54 @@
 .default-color1.chart-legend-item-symbol {
     -fx-background-color: #f59e0b;
 }
+
+/* ===== Compact Add Listing Modal ===== */
+
+.add-listing-modal {
+    -fx-pref-width: 1200;
+    -fx-max-width: 1200;
+    -fx-max-height: 760;
+    -fx-padding: 28;
+}
+
+.modal-form-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+    -fx-fit-to-width: true;
+}
+
+.modal-form-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.modal-form-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10;
+}
+
+.modal-form-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #334155;
+    -fx-background-radius: 8;
+}
+
+.modal-form-scroll-content {
+    -fx-padding: 0 6 0 0;
+}
+
+.image-preview-box {
+    -fx-pref-height: 110;
+    -fx-min-height: 110;
+    -fx-max-height: 110;
+    -fx-padding: 8;
+    -fx-background-color: #0b1120;
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(255, 255, 255, 0.10);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-alignment: center;
+}
+
+.modal-footer {
+    -fx-padding: 12 0 0 0;
+}

@@ -200,6 +200,10 @@ public class ProfileController {
 
             renderProfilePage();
 
+            Platform.runLater(() -> {
+                updateTabPaneHeight(profileTabPane.getSelectionModel().getSelectedItem());
+            });
+
         } catch (AppException exception) {
             showError(exception.getMessage());
         } catch (Exception exception) {
@@ -566,6 +570,7 @@ public class ProfileController {
         }
     }
 
+
     private int calculateOriginalTabIndex(Tab tab) {
         int index = 0;
 
@@ -591,19 +596,32 @@ public class ProfileController {
         node.setManaged(visible);
     }
 
+    private void updateTabPaneHeight(Tab selectedTab) {
+        if (selectedTab == null) return;
+
+        selectedTabTitleLabel.setText(selectedTab.getText());
+
+        if (selectedTab == myListingsTab) {
+            profileTabPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+            profileTabPane.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            profileTabPane.setMaxHeight(Region.USE_PREF_SIZE);
+            return;
+        }
+
+        Node content = selectedTab.getContent();
+
+        if (content instanceof Region region) {
+            double contentHeight = region.prefHeight(profileTabPane.getWidth());
+
+            profileTabPane.setMinHeight(Region.USE_COMPUTED_SIZE);
+            profileTabPane.setPrefHeight(contentHeight + 70);
+            profileTabPane.setMaxHeight(Region.USE_PREF_SIZE);
+        }
+    }
+
     private void setupTabSwitching() {
         profileTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
-            if (newTab != null) {
-                selectedTabTitleLabel.setText(newTab.getText());
-
-                Node tabContent = newTab.getContent();
-
-                if (tabContent instanceof Region region) {
-                    profileTabPane.setMinHeight(Region.USE_COMPUTED_SIZE);
-                    profileTabPane.setPrefHeight(region.prefHeight(-1) + 50);
-                    profileTabPane.setMaxHeight(Region.USE_PREF_SIZE);
-                }
-            }
+            updateTabPaneHeight(newTab);
         });
     }
 

@@ -5,6 +5,7 @@ package com.group01.asm2.controllers;
  */
 
 import com.group01.asm2.dtos.AuctionFilter;
+import javafx.geometry.Pos;
 import com.group01.asm2.dtos.WonAuctionDto;
 import com.group01.asm2.enums.AuctionStatus;
 import com.group01.asm2.enums.ItemCondition;
@@ -157,6 +158,12 @@ public class AuctionsController {
             paginationBox.setManaged(true);
         }
 
+        if (allAuctionsContainer != null) {
+            allAuctionsContainer.setPrefWrapLength(1040);
+            allAuctionsContainer.setMaxWidth(1040);
+            allAuctionsContainer.setAlignment(Pos.TOP_LEFT);
+        }
+
         setupDefaultFilter();
         loadAllAuctionsToExplore();
     }
@@ -182,8 +189,15 @@ public class AuctionsController {
         }
 
         if (allAuctionsRoot != null) {
-            allAuctionsRoot.setMinHeight(360);
-            allAuctionsRoot.setPrefHeight(360);
+            allAuctionsRoot.setMinHeight(Region.USE_COMPUTED_SIZE);
+            allAuctionsRoot.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            allAuctionsRoot.setMaxHeight(Region.USE_COMPUTED_SIZE);
+        }
+
+        if (allAuctionsContainer != null) {
+            allAuctionsContainer.setPrefWrapLength(Region.USE_COMPUTED_SIZE);
+            allAuctionsContainer.setMaxWidth(Double.MAX_VALUE);
+            allAuctionsContainer.setAlignment(Pos.TOP_LEFT);
         }
 
         setupDefaultFilter();
@@ -487,6 +501,7 @@ public class AuctionsController {
 
     private VBox createAuctionCard(Auction auction) {
         Item item = null;
+        final ImageView[] imageViewRef = new ImageView[1];
 
         try {
             item = itemService.readItem(auction.getItemId());
@@ -512,7 +527,8 @@ public class AuctionsController {
         String imageUrl = resolvePrimaryImageUrl(item);
 
         if (imageUrl != null) {
-            ImageView imageView = new ImageView();
+            imageViewRef[0] = new ImageView();
+            ImageView imageView = imageViewRef[0];
 
             Image image = new Image(imageUrl, true);
 
@@ -623,6 +639,28 @@ public class AuctionsController {
         contentBox.setStyle("-fx-padding: 12;");
 
         VBox card = new VBox(imageWrapper, contentBox);
+
+        if (profileMode && allAuctionsContainer != null) {
+            double gap = allAuctionsContainer.getHgap();
+            int columns = 4;
+            double sidePadding = 100;
+
+            card.prefWidthProperty().bind(
+                    allAuctionsContainer.widthProperty()
+                            .subtract(sidePadding)
+                            .subtract(gap * (columns - 1))
+                            .divide(columns)
+            );
+
+            card.minWidthProperty().bind(card.prefWidthProperty());
+            card.maxWidthProperty().bind(card.prefWidthProperty());
+
+            imageBox.prefWidthProperty().bind(card.prefWidthProperty());
+
+            if (imageViewRef[0] != null) {
+                imageViewRef[0].fitWidthProperty().bind(card.prefWidthProperty());
+            }
+        }
 
         card.setSpacing(8);
         card.setFillWidth(true);

@@ -233,7 +233,9 @@
                         </Tab>
 
                         <Tab fx:id="myListingsTab" text="My Listings">
-                            <VBox spacing="18" styleClass="tab-content listings-section">
+                            <VBox spacing="18"
+                                  styleClass="tab-content listings-section"
+                                  VBox.vgrow="ALWAYS">
 
                                 <fx:include fx:id="profileListings"
                                             source="./components/all_auctions.fxml"/>
@@ -432,8 +434,7 @@
 
         <VBox fx:id="addListingModal"
               spacing="18"
-              styleClass="add-listing-modal"
-              maxHeight="-Infinity">
+              styleClass="add-listing-modal">
 
             <VBox spacing="6" alignment="TOP_LEFT">
 
@@ -455,7 +456,14 @@
 
             </VBox>
 
-            <VBox spacing="12">
+            <ScrollPane fitToWidth="true"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        styleClass="modal-form-scroll"
+                        VBox.vgrow="ALWAYS">
+
+            <VBox spacing="12"
+                  styleClass="modal-form-scroll-content">
 
                 <!-- Title -->
                 <VBox spacing="6">
@@ -528,8 +536,8 @@
                                managed="false"
                                styleClass="image-preview-box">
                         <ImageView fx:id="addListingImagePreview"
-                                   fitWidth="180"
-                                   fitHeight="120"
+                                   fitWidth="120"
+                                   fitHeight="90"
                                    preserveRatio="true"
                                    smooth="true"/>
                     </StackPane>
@@ -540,6 +548,7 @@
                        styleClass="error-label"/>
 
             </VBox>
+            </ScrollPane>
 
             <HBox spacing="12"
                   alignment="CENTER_RIGHT"
