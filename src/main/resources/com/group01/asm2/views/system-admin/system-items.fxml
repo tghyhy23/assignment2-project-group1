@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.group01.asm2.controllers.SystemItemsController"
+           stylesheets="@../../styles/system-admin/system-users.css">
+
+    <ScrollPane fx:id="mainScrollPane" fitToWidth="true" styleClass="system-root">
+        <VBox spacing="20" fillWidth="true">
+            <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+
+            <VBox spacing="5">
+                <Label text="Items Management" styleClass="dashboard-title"/>
+                <Label text="Monitor, approve, flag, or remove all listed items on the platform." styleClass="dashboard-subtitle"/>
+            </VBox>
+
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Search item name or seller..." styleClass="filter-field" prefWidth="300"/>
+                <ComboBox fx:id="statusFilterCombo" promptText="Status" styleClass="filter-field" prefWidth="150"/>
+            </HBox>
+
+            <TableView fx:id="itemsTable" VBox.vgrow="ALWAYS" minHeight="500">
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                <columns>
+                    <TableColumn text="ID" prefWidth="60" maxWidth="80">
+                        <cellValueFactory><PropertyValueFactory property="id"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Item Name" prefWidth="200" minWidth="150">
+                        <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Category" prefWidth="150" minWidth="120">
+                        <cellValueFactory><PropertyValueFactory property="category"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Seller" prefWidth="120" minWidth="100">
+                        <cellValueFactory><PropertyValueFactory property="seller"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Status" prefWidth="100" maxWidth="120">
+                        <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn fx:id="actionCol" text="Actions" prefWidth="200" minWidth="200" maxWidth="200"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </ScrollPane>
+
+    <StackPane fx:id="modalOverlay" visible="false" styleClass="modal-overlay">
+        <VBox styleClass="modal-box" spacing="20" maxWidth="400" maxHeight="-Infinity" alignment="CENTER_LEFT">
+            <HBox alignment="CENTER_LEFT">
+                <Label fx:id="modalTitle" text="Moderate Item" styleClass="modal-title"/>
+                <Button text="✕" onAction="#closeModal" styleClass="btn-close-modal"/>
+            </HBox>
+            <VBox spacing="15">
+                <VBox spacing="5">
+                    <Label text="Change Status" styleClass="modal-label"/>
+                    <ComboBox fx:id="statusInput" styleClass="filter-field" maxWidth="Infinity"/>
+                </VBox>
+            </VBox>
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Cancel" onAction="#closeModal" styleClass="btn-cancel"/>
+                <Button text="Save" onAction="#saveItem" styleClass="btn-save"/>
+            </HBox>
+        </VBox>
+    </StackPane>
+</StackPane>

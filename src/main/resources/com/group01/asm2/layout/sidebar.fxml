@@ -10,116 +10,38 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.group01.asm2.controllers.SidebarController"
-      prefWidth="62"
-      minWidth="62"
-      maxWidth="62"
-      spacing="0"
-      styleClass="sidebar"
-      stylesheets="@../styles/layout/sidebar.css">
+      prefWidth="62" minWidth="62" maxWidth="62" spacing="0"
+      styleClass="sidebar" stylesheets="@../styles/layout/sidebar.css">
 
     <padding>
         <Insets top="0" right="0" bottom="0" left="0"/>
     </padding>
 
-    <Label fx:id="adminSectionTitle"
-           text="ADMIN"
-           maxWidth="Infinity"
-           alignment="CENTER"
-           styleClass="sidebar-section-title"/>
+    <Label fx:id="adminSectionTitle" text="ADMIN" maxWidth="Infinity" alignment="CENTER" styleClass="sidebar-section-title"/>
 
+    <Button fx:id="adminDashboardButton" text="Dashboard" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showAdminDashboard"/>
+    <Button fx:id="usersButton" text="Users" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showUsersManagement"/>
 
+    <Button fx:id="adminAuctionsButton" text="Auctions" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showAuctionsManagement"/>
+    <Button fx:id="categoriesButton" text="Categories" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showCategoriesManagement"/>
+    <Button fx:id="itemsButton" text="Items" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showItemsManagement"/>
 
-<!--    <Button fx:id="adminDashboardButton"-->
-<!--            text="Dashboard"-->
-<!--            contentDisplay="TOP"-->
-<!--            maxWidth="Infinity"-->
-<!--            prefHeight="50"-->
-<!--            styleClass="nav-button"-->
-<!--            onAction="#showAdminDashboard"/>-->
+    <Button fx:id="adminBidsButton" text="Bids" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showAdminBidsManagement"/>
 
-<!--    <Button fx:id="usersButton"-->
-<!--            text="Users"-->
-<!--            contentDisplay="TOP"-->
-<!--            maxWidth="Infinity"-->
-<!--            prefHeight="50"-->
-<!--            styleClass="nav-button"-->
-<!--            onAction="#showUsersManagement"/>-->
+    <Button fx:id="paymentsButton" text="Payments" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showPaymentsManagement"/>
 
-    <Button fx:id="adminAuctionsButton"
-            text="Auctions"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showAuctionsManagement"/>
+    <Button fx:id="reportsButton" text="Reports" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showReports"/>
 
-    <Button fx:id="categoriesButton"
-            text="Categories"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showCategoriesManagement"/>
+    <Button fx:id="systemLogsButton" text="Sys Logs" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showSystemLogs"/>
 
-    <Button fx:id="itemsButton"
-            text="Items"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showItemsManagement"/>
+    <Separator fx:id="adminSeparator" styleClass="sidebar-separator"/>
 
-<!--    <Button fx:id="paymentsButton"-->
-<!--            text="Payments"-->
-<!--            contentDisplay="TOP"-->
-<!--            maxWidth="Infinity"-->
-<!--            prefHeight="50"-->
-<!--            styleClass="nav-button"-->
-<!--            onAction="#showPaymentsManagement"/>-->
-
-    <Button fx:id="reportsButton"
-            text="Reports"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showReports"/>
-
-    <Separator fx:id="adminSeparator"
-               styleClass="sidebar-separator"/>
-
-    <Button fx:id="exploreButton"
-            text="Explore"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showExplore"/>
-
-    <Button fx:id="bidsHistoryButton"
-            text="Bid History"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showBidsHistory"/>
-
-    <Button fx:id="auctionsButton"
-            text="Auction"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showAuctions"/>
+    <Button fx:id="exploreButton" text="Explore" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showExplore"/>
+    <Button fx:id="bidsHistoryButton" text="Bid History" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showBidsHistory"/>
+    <Button fx:id="auctionsButton" text="Auction" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showAuctions"/>
 
     <Region VBox.vgrow="ALWAYS"/>
 
-    <Button fx:id="profileButton"
-            text="Profile"
-            contentDisplay="TOP"
-            maxWidth="Infinity"
-            prefHeight="50"
-            styleClass="nav-button"
-            onAction="#showProfile"/>
+    <Button fx:id="profileButton" text="Profile" contentDisplay="TOP" maxWidth="Infinity" prefHeight="50" styleClass="nav-button" onAction="#showProfile"/>
 
 </VBox>

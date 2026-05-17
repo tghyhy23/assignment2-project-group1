@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fx:id="mainScrollPane"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group01.asm2.controllers.SystemDashboardController"
+            stylesheets="@../../styles/system-admin/system-dashboard.css"
+            styleClass="system-root"
+            fitToWidth="true"
+            prefHeight="700.0" prefWidth="1000.0">
+
+    <VBox spacing="25" fillWidth="true">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <VBox spacing="5">
+            <Label text="System Overview" styleClass="dashboard-title"/>
+            <Label text="Monitor system integrity, user metrics, and global activity logs." styleClass="dashboard-subtitle"/>
+        </VBox>
+
+        <HBox spacing="15">
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="Total Users" styleClass="stat-title"/>
+                <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value-blue"/>
+            </VBox>
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="Active Auctions" styleClass="stat-title"/>
+                <Label fx:id="activeAuctionsLabel" text="0" styleClass="stat-value-purple"/>
+            </VBox>
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="Total Transactions" styleClass="stat-title"/>
+                <Label fx:id="totalRevenueLabel" text="\$0.00" styleClass="stat-value-green"/>
+            </VBox>
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="System Alerts" styleClass="stat-title"/>
+                <Label fx:id="systemAlertsLabel" text="0" styleClass="stat-value-red"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="20" prefHeight="300">
+            <VBox styleClass="chart-container" HBox.hgrow="ALWAYS">
+                <Label text="System Traffic (Last 7 Days)" styleClass="section-title"/>
+                <LineChart fx:id="trafficChart" legendVisible="false" VBox.vgrow="ALWAYS">
+                    <xAxis><CategoryAxis label="Days"/></xAxis>
+                    <yAxis><NumberAxis label="Operations"/></yAxis>
+                </LineChart>
+            </VBox>
+        </HBox>
+
+        <VBox spacing="10" VBox.vgrow="ALWAYS">
+            <Label text="Recent System Logs" styleClass="section-title"/>
+
+            <TableView fx:id="logsTable" VBox.vgrow="ALWAYS" minHeight="250">
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                </columnResizePolicy>
+                <columns>
+                    <TableColumn text="Timestamp" prefWidth="150" minWidth="120" maxWidth="180">
+                        <cellValueFactory><PropertyValueFactory property="timestamp"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="User Role" prefWidth="120" minWidth="100" maxWidth="150">
+                        <cellValueFactory><PropertyValueFactory property="role"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Username" prefWidth="120" minWidth="100">
+                        <cellValueFactory><PropertyValueFactory property="username"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Action" prefWidth="100" minWidth="80" maxWidth="120">
+                        <cellValueFactory><PropertyValueFactory property="action"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Target Entity" prefWidth="120" minWidth="100" maxWidth="150">
+                        <cellValueFactory><PropertyValueFactory property="entity"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Details" prefWidth="300" minWidth="200">
+                        <cellValueFactory><PropertyValueFactory property="details"/></cellValueFactory>
+                    </TableColumn>
+                </columns>
+            </TableView>
+        </VBox>
+    </VBox>
+</ScrollPane>
