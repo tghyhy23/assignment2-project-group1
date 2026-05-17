@@ -9,6 +9,7 @@ import com.group01.asm2.models.User;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.services.UserService;
 import com.group01.asm2.services.TopUpRequestService;
+import com.group01.asm2.services.ActivityLogService;
 import com.group01.asm2.utils.ScrollUtils;
 import com.group01.asm2.utils.TopUpValidator;
 import com.group01.asm2.models.Category;
@@ -48,6 +49,7 @@ public class ProfileController {
     private final ItemService itemService = new ItemService();
     private final CategoryService categoryService = new CategoryService();
     private final TopUpRequestService topUpRequestService = new TopUpRequestService();
+    private final ActivityLogService activityLogService = new ActivityLogService();
 
     private final Map<String, Integer> categoryNameToId = new HashMap<>();
     private final Map<Integer, String> categoryIdToName = new HashMap<>();
@@ -105,10 +107,10 @@ public class ProfileController {
     @FXML private Button categoryBooksButton;
     @FXML private Button categoryOtherButton;
 
-    @FXML private TableView<ActivityLog> activityTable;
-    @FXML private TableColumn<ActivityLog, String> activityDateTimeColumn;
-    @FXML private TableColumn<ActivityLog, String> activityActionColumn;
-    @FXML private TableColumn<ActivityLog, String> activityDescriptionColumn;
+    @FXML private TableView<ActivityLogRow> activityTable;
+    @FXML private TableColumn<ActivityLogRow, String> activityDateTimeColumn;
+    @FXML private TableColumn<ActivityLogRow, String> activityActionColumn;
+    @FXML private TableColumn<ActivityLogRow, String> activityDescriptionColumn;
 
     @FXML private StackPane editProfileOverlay;
     @FXML private VBox editProfileModal;
@@ -153,7 +155,7 @@ public class ProfileController {
     private File selectedListingImageFile;
     private String selectedListingCategory = "All";
 
-    private final ObservableList<ActivityLog> activities = FXCollections.observableArrayList();
+    private final ObservableList<ActivityLogRow> activities = FXCollections.observableArrayList();
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
@@ -217,7 +219,7 @@ public class ProfileController {
             loadListingsForProfile();
         }
 
-        if (currentProfile.canViewActivityLog()) {
+        if (canViewOwnActivityLog()) {
             loadActivityLogsForProfile();
         }
 
@@ -305,11 +307,27 @@ public class ProfileController {
     }
 
     private void loadActivityLogsForProfile() {
-        /*
-         * Later replace with ActivityLogService.readProfileLogs(profileUser.getId()).
-         * For now, keep the table empty instead of fake mock logs.
-         */
         activities.clear();
+
+        if (currentProfile == null || !currentProfile.isOwner()) {
+            return;
+        }
+
+        List<com.group01.asm2.models.ActivityLog> logs = activityLogService.readMyActivityLogs();
+
+        for (com.group01.asm2.models.ActivityLog log : logs) {
+            String dateTime = log.getTimestamp() == null
+                ? "N/A"
+                : log.getTimestamp().format(dateTimeFormatter);
+
+            String action = log.getActionType() == null
+                ? "Activity"
+                : formatActionType(log.getActionType().name());
+
+            String description = defaultText(log.getDescription(), "");
+
+            activities.add(new ActivityLogRow(dateTime, action, description));
+        }
     }
 
     private void renderProfileHeader() {
@@ -500,7 +518,7 @@ public class ProfileController {
 
         setTabAvailable(walletTab, currentProfile.canViewWallet());
         setTabAvailable(myListingsTab, currentProfile.canViewListings());
-        setTabAvailable(activityLogTab, currentProfile.canViewActivityLog());
+        setTabAvailable(activityLogTab, canViewOwnActivityLog());
         setTabAvailable(sellerStatisticsTab, currentProfile.canViewSellerStatistics());
 
         if (!profileTabPane.getTabs().isEmpty()) {
@@ -990,11 +1008,6 @@ public class ProfileController {
         };
     }
 
-    private void addActivity(String action, String description) {
-        String now = LocalDateTime.now().format(dateTimeFormatter);
-        activities.add(0, new ActivityLog(now, action, description));
-    }
-
     private String createInitials(String name) {
         if (name == null || name.trim().isEmpty()) {
             return "U";
@@ -1024,6 +1037,10 @@ public class ProfileController {
         return value.trim();
     }
 
+    private boolean canViewOwnActivityLog() {
+        return currentProfile != null && currentProfile.isOwner();
+    }
+
     private String safeTrim(String value) {
         return value == null ? "" : value.trim();
     }
@@ -1040,6 +1057,30 @@ public class ProfileController {
             case "SYSTEM_ADMINISTRATOR" -> "System Admin";
             default -> role;
         };
+    }
+
+    private String formatActionType(String actionType) {
+        if (actionType == null || actionType.trim().isEmpty()) {
+            return "Activity";
+        }
+
+        String[] parts = actionType.toLowerCase().split("_");
+        StringBuilder result = new StringBuilder();
+
+        for (String part : parts) {
+            if (part.isBlank()) {
+                continue;
+            }
+
+            if (!result.isEmpty()) {
+                result.append(" ");
+            }
+
+            result.append(Character.toUpperCase(part.charAt(0)));
+            result.append(part.substring(1));
+        }
+
+        return result.toString();
     }
 
     private String formatRating(double rating) {
@@ -1091,12 +1132,12 @@ public class ProfileController {
         alert.showAndWait();
     }
 
-    public static class ActivityLog {
+    public static class ActivityLogRow {
         private final SimpleStringProperty dateTime;
         private final SimpleStringProperty action;
         private final SimpleStringProperty description;
 
-        public ActivityLog(String dateTime, String action, String description) {
+        public ActivityLogRow(String dateTime, String action, String description) {
             this.dateTime = new SimpleStringProperty(dateTime);
             this.action = new SimpleStringProperty(action);
             this.description = new SimpleStringProperty(description);
