@@ -24,6 +24,7 @@ public final class PostgreSQLInitializer {
             createItemImagesTable(stmt);
             createAuctionsTable(stmt);
             createBidsTable(stmt);
+            createTopUpRequestsTable(stmt);
             addAuctionCurrentHighestBidForeignKey(stmt);
 
             // 3. Create user feature tables
@@ -202,6 +203,29 @@ public final class PostgreSQLInitializer {
             bid_date_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
             CHECK (amount > 0)
+        )
+    """);
+    }
+
+    private static void createTopUpRequestsTable(Statement stmt) throws Exception {
+        stmt.execute("""
+        CREATE TABLE IF NOT EXISTS top_up_requests (
+            id SERIAL PRIMARY KEY,
+
+            user_id INTEGER NOT NULL REFERENCES persons(id) ON DELETE CASCADE,
+
+            amount NUMERIC(12, 2) NOT NULL,
+            status VARCHAR(30) NOT NULL DEFAULT 'Pending',
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+            CHECK (amount > 0),
+            CHECK (
+                status IN (
+                    'Pending',
+                    'Approved',
+                    'Rejected'
+                )
+            )
         )
     """);
     }

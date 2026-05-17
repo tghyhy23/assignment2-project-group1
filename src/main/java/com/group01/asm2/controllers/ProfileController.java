@@ -8,6 +8,7 @@ import com.group01.asm2.models.TopUpRequest;
 import com.group01.asm2.models.User;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.services.UserService;
+import com.group01.asm2.services.TopUpRequestService;
 import com.group01.asm2.utils.ScrollUtils;
 import com.group01.asm2.utils.TopUpValidator;
 import com.group01.asm2.models.Category;
@@ -46,6 +47,7 @@ public class ProfileController {
     private final UserService userService = new UserService();
     private final ItemService itemService = new ItemService();
     private final CategoryService categoryService = new CategoryService();
+    private final TopUpRequestService topUpRequestService = new TopUpRequestService();
 
     private final Map<String, Integer> categoryNameToId = new HashMap<>();
     private final Map<Integer, String> categoryIdToName = new HashMap<>();
@@ -56,6 +58,7 @@ public class ProfileController {
     private Integer profileUserId;
 
     private final List<Tab> originalProfileTabs = new ArrayList<>();
+    private TopUpRequest currentPendingTopUpRequest;
 
     @FXML private ScrollPane profileScrollPane;
 
@@ -151,7 +154,6 @@ public class ProfileController {
     private String selectedListingCategory = "All";
 
     private final ObservableList<ActivityLog> activities = FXCollections.observableArrayList();
-    private final List<TopUpRequest> topUpRequests = new ArrayList<>();
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
@@ -205,6 +207,7 @@ public class ProfileController {
 
     private void loadDataFromServices() {
         activities.clear();
+        currentPendingTopUpRequest = null;
 
         if (currentProfile == null || profileUser == null) {
             return;
@@ -216,6 +219,12 @@ public class ProfileController {
 
         if (currentProfile.canViewActivityLog()) {
             loadActivityLogsForProfile();
+        }
+
+        if (currentProfile.canViewWallet()) {
+            currentPendingTopUpRequest = topUpRequestService
+                .readMyLatestPendingRequest()
+                .orElse(null);
         }
     }
 
@@ -368,12 +377,31 @@ public class ProfileController {
             walletBalanceLabel.setText("Private");
         }
 
-        if (currentProfile.canRequestTopUp()) {
-            topUpStatusLabel.setText("No pending request");
-            replaceStyle(topUpStatusLabel, "status-neutral");
-        } else {
+        if (!currentProfile.canRequestTopUp()) {
             topUpStatusLabel.setText("Not available");
             replaceStyle(topUpStatusLabel, "status-neutral");
+
+            if (requestTopUpButton != null) {
+                requestTopUpButton.setDisable(true);
+            }
+
+        } else if (currentPendingTopUpRequest != null) {
+            topUpStatusLabel.setText(
+                String.format("Pending approval: $%,.2f", currentPendingTopUpRequest.getAmount())
+            );
+            replaceStyle(topUpStatusLabel, "status-warning");
+
+            if (requestTopUpButton != null) {
+                requestTopUpButton.setDisable(true);
+            }
+
+        } else {
+            topUpStatusLabel.setText("No pending request");
+            replaceStyle(topUpStatusLabel, "status-neutral");
+
+            if (requestTopUpButton != null) {
+                requestTopUpButton.setDisable(false);
+            }
         }
 
         recentAuctionStatusLabel.setText("No recent auction update.");
@@ -676,6 +704,11 @@ public class ProfileController {
             return;
         }
 
+        if (currentPendingTopUpRequest != null) {
+            showError("You already have a pending top-up request.");
+            return;
+        }
+
         topUpAmountField.clear();
         topUpErrorLabel.setText("");
 
@@ -694,45 +727,31 @@ public class ProfileController {
     @FXML
     private void handleSubmitTopUp() {
         try {
-            if (currentProfile == null || profileUser == null || !currentProfile.canRequestTopUp()) {
+            if (currentProfile == null || !currentProfile.canRequestTopUp()) {
                 topUpErrorLabel.setText("You are not allowed to request top-up for this profile.");
                 return;
             }
 
+            if (currentPendingTopUpRequest != null) {
+                topUpErrorLabel.setText("You already have a pending top-up request.");
+                return;
+            }
+
             double amount = TopUpValidator.validateAmount(topUpAmountField.getText());
-
-            /*
-             * Temporary local object.
-             * Later replace with TopUpRequestService.createTopUpRequest(amount).
-             */
-            TopUpRequest request = createTopUpRequest(profileUser.getId(), amount);
-
-            showPendingTopUpStatus(request.getAmount());
-
-            addActivity(
-                "Requested top-up",
-                String.format(
-                    "Requested a top-up of $%,.2f. Waiting for admin approval.",
-                    request.getAmount()
-                )
-            );
+            TopUpRequest request = topUpRequestService.createTopUpRequest(amount);
+            currentPendingTopUpRequest = request;
 
             handleCloseTopUp();
+            refreshProfilePage();
 
         } catch (IllegalArgumentException exception) {
             topUpErrorLabel.setText(exception.getMessage());
+        } catch (AppException exception) {
+            topUpErrorLabel.setText(exception.getMessage());
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            topUpErrorLabel.setText("Could not submit top-up request.");
         }
-    }
-
-    private void showPendingTopUpStatus(double amount) {
-        topUpStatusLabel.setText(String.format("Pending approval: $%,.2f", amount));
-        replaceStyle(topUpStatusLabel, "status-warning");
-    }
-
-    private TopUpRequest createTopUpRequest(int userId, double amount) {
-        TopUpRequest request = new TopUpRequest(userId, amount);
-        topUpRequests.add(request);
-        return request;
     }
 
     @FXML
