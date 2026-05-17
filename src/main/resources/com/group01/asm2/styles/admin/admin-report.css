@@ -1,0 +1,412 @@
+/* ======================================================= */
+/* ================= GLOBAL BASE LAYOUT ================== */
+/* ======================================================= */
+
+/* Dùng chung màu nền cho tất cả các trang Admin */
+.admin-report-root,
+.admin-categories-root,
+.admin-item-root {
+    -fx-background-color: #0b1020;
+    -fx-background: #0b1020; /* Fix màu nền cho ScrollPane */
+}
+
+/* Các Tiêu đề dùng chung */
+.dashboard-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.dashboard-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+}
+
+.section-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* ======================================================= */
+/* ================= INPUTS & FILTERS ==================== */
+/* ======================================================= */
+
+.filter-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Dùng chung cho TextField, ComboBox, DatePicker */
+.filter-field {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #64748b;
+    -fx-padding: 8 16;
+}
+
+/* -- Tùy chỉnh riêng cho phần hiển thị của ComboBox -- */
+.combo-box.filter-field {
+    -fx-padding: 4 12;
+}
+.combo-box.filter-field > .list-cell {
+    -fx-text-fill: white !important;
+}
+.combo-box.filter-field .arrow {
+    -fx-background-color: white;
+}
+.combo-box.filter-field .arrow-button {
+    -fx-background-color: transparent;
+}
+
+/* -- Tùy chỉnh riêng cho phần hiển thị của DatePicker -- */
+.date-picker.filter-field {
+    -fx-padding: 0;
+}
+.date-picker.filter-field > .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 8 12;
+}
+.date-picker.filter-field > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+.date-picker.filter-field > .arrow-button > .arrow {
+    -fx-background-color: #94a3b8;
+}
+.date-picker.filter-field > .arrow-button:hover > .arrow {
+    -fx-background-color: #38bdf8;
+}
+
+/* ======================================================= */
+/* ================= POPUPS (MENUS XỔ XUỐNG) ============= */
+/* ======================================================= */
+
+/* -- Popup của ComboBox -- */
+.combo-box-popup .list-view {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-radius: 4;
+}
+.combo-box-popup .list-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-background-color: transparent;
+    -fx-padding: 8 12;
+}
+.combo-box-popup .list-cell:hover,
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #1e293b;
+}
+
+/* -- Popup Lịch của DatePicker -- */
+.date-picker-popup {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6;
+}
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #152033;
+}
+.date-picker-popup .month-year-pane .label {
+    -fx-text-fill: #f8fafc;
+    -fx-font-weight: bold;
+}
+.date-picker-popup .calendar-grid {
+    -fx-background-color: #0f172a;
+}
+.date-picker-popup .day-cell {
+    -fx-background-color: #0f172a;
+    -fx-text-fill: #94a3b8;
+}
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #1e293b;
+    -fx-text-fill: #f8fafc;
+}
+.date-picker-popup .today {
+    -fx-background-color: #38bdf8;
+    -fx-text-fill: #0b1020;
+    -fx-font-weight: bold;
+}
+.date-picker-popup .day-name-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-font-weight: bold;
+}
+.date-picker-popup .left-arrow,
+.date-picker-popup .right-arrow {
+    -fx-background-color: #f8fafc;
+}
+.date-picker-popup .spinner .button {
+    -fx-background-color: transparent;
+}
+
+/* ======================================================= */
+/* ================= BUTTONS ============================= */
+/* ======================================================= */
+
+.action-btn {
+    -fx-background-color: linear-gradient(to right, #2563eb, #38bdf8);
+    -fx-text-fill: white;
+    -fx-font-weight: 600;
+    -fx-background-radius: 6;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+.action-btn:hover {
+    -fx-background-color: linear-gradient(to right, #1d4ed8, #0ea5e9);
+}
+
+.btn-delete {
+    -fx-background-color: transparent;
+    -fx-border-color: #ef4444;
+    -fx-border-radius: 6;
+    -fx-text-fill: #ef4444;
+}
+.btn-delete:hover {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: #ffffff;
+}
+
+.btn-download {
+    -fx-background-color: #22c55e;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-download:hover {
+    -fx-background-color: #16a34a;
+}
+
+/* ======================================================= */
+/* ================= THỐNG KÊ (STAT CARDS) =============== */
+/* ======================================================= */
+
+.stat-card {
+    -fx-background-color: #152033;
+    -fx-border-color: #334155;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 16 20;
+}
+.stat-title {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 14px;
+}
+.stat-value-green { -fx-text-fill: #22c55e; -fx-font-size: 24px; -fx-font-weight: bold; }
+.stat-value-blue { -fx-text-fill: #38bdf8; -fx-font-size: 24px; -fx-font-weight: bold; }
+.stat-value-purple { -fx-text-fill: #c084fc; -fx-font-size: 24px; -fx-font-weight: bold; }
+
+/* ======================================================= */
+/* ================= TABLE VIEW ========================== */
+/* ======================================================= */
+
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #334155;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 0;
+}
+.table-view .column-header-background {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 8 8 0 0;
+}
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-size: 40px;
+}
+.table-view .column-header .label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-alignment: center-left;
+    -fx-padding: 0 10 0 16;
+}
+.table-view .table-row-cell {
+    -fx-background-color: #152033;
+    -fx-border-color: transparent transparent #1e293b transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cell-size: 45px;
+}
+.table-view .table-row-cell:odd {
+    -fx-background-color: #111827;
+}
+.table-view .table-row-cell:hover {
+    -fx-background-color: #1e293b;
+}
+.table-view .table-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-alignment: center-left;
+    -fx-font-size: 13px;
+    -fx-padding: 0 10 0 16;
+}
+.table-view .filler,
+.table-view .column-header-background .filler,
+.table-view .corner {
+    -fx-background-color: #0f172a;
+}
+.table-view .placeholder .label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 14px;
+}
+.table-view .table-cell.action-cell {
+    -fx-alignment: CENTER;
+}
+.table-view .table-cell.action-cell .hbox {
+    -fx-alignment: CENTER;
+    -fx-spacing: 8px;
+}
+
+/* ======================================================= */
+/* ================= CHARTS (BIỂU ĐỒ) ==================== */
+/* ======================================================= */
+
+.chart-container {
+    -fx-background-color: #152033;
+    -fx-border-color: #334155;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 16;
+}
+.chart { -fx-padding: 10; }
+.chart-content { -fx-background-color: transparent; }
+.chart-plot-background { -fx-background-color: transparent; }
+.chart-vertical-grid-lines, .chart-horizontal-grid-lines {
+    -fx-stroke: #334155;
+}
+.axis { -fx-tick-label-fill: #94a3b8; }
+.axis-tick-mark { -fx-stroke: #94a3b8; }
+.axis-minor-tick-mark { -fx-stroke: transparent; }
+
+/* Bar Chart & Pie Chart Colors */
+.default-color0.chart-bar { -fx-bar-fill: #38bdf8; }
+.chart-pie-label { -fx-fill: #f8fafc; -fx-font-weight: bold; }
+
+/* ======================================================= */
+/* ================= MODAL & TEXT AREA =================== */
+/* ======================================================= */
+
+.modal-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.65);
+}
+.modal-box {
+    -fx-background-color: #152033;
+    -fx-border-color: #334155;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 24 32;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 5);
+}
+.modal-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+.modal-label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.btn-cancel {
+    -fx-background-color: transparent;
+    -fx-border-color: #475569;
+    -fx-border-radius: 6;
+    -fx-text-fill: #cbd5e1;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+.btn-cancel:hover { -fx-background-color: #334155; }
+
+.btn-save {
+    -fx-background-color: #38bdf8;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+.btn-save:hover { -fx-background-color: #7dd3fc; }
+
+.btn-close-modal {
+    -fx-background-color: transparent;
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 0 4;
+}
+.btn-close-modal:hover {
+    -fx-text-fill: #ef4444;
+    -fx-background-color: transparent;
+}
+
+.text-area {
+    -fx-background-color: #0f172a;
+    -fx-control-inner-background: #0f172a;
+    -fx-text-fill: #f8fafc;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-prompt-text-fill: #475569;
+}
+.text-area .viewport,
+.text-area .content {
+    -fx-background-color: transparent;
+}
+
+/* ======================================================= */
+/* ================= SCROLLBAR (THANH CUỘN) ================ */
+/* ======================================================= */
+
+/* 1. Xóa màu viền và làm trong suốt nền của ScrollPane */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+/* Khử màu nền mặc định của viewport bên trong ScrollPane */
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* 2. Tùy chỉnh kích thước và nền của thanh cuộn DỌC và NGANG */
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: #0b1020; /* Màu nền trùng với app */
+}
+
+/* Đặt chiều rộng cho thanh cuộn dọc và chiều cao cho thanh cuộn ngang */
+.scroll-bar:vertical { -fx-pref-width: 12px; }
+.scroll-bar:horizontal { -fx-pref-height: 12px; }
+
+/* 3. Tùy chỉnh thanh nắm cuộn (Thumb) */
+.scroll-bar .thumb {
+    -fx-background-color: #3b4b5e;
+    -fx-background-radius: 6px;
+}
+.scroll-bar .thumb:hover {
+    -fx-background-color: #556a84;
+}
+
+/* 4. Ẩn 2 nút mũi tên lên/xuống ở hai đầu thanh cuộn (giống giao diện web hiện đại) */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0px;
+    -fx-pref-width: 0px;
+    -fx-padding: 0;
+}
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " "; /* Xóa icon mũi tên */
+}

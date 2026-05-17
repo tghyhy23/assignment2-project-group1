@@ -1,0 +1,270 @@
+/* ================= MAIN LAYOUT ================= */
+.admin-categories-root {
+    -fx-background-color: #0b1020;
+}
+
+.dashboard-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.dashboard-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+}
+
+/* ================= INPUTS & BUTTONS ================= */
+.filter-field {
+    -fx-background-color: #0f172a;
+        -fx-border-color: #334155;
+        -fx-border-radius: 6;
+        -fx-text-fill: #f8fafc;
+        -fx-padding: 8 16;
+}
+
+.status-filter-field {
+-fx-background-color: #0f172a;
+        -fx-border-color: #334155;
+        -fx-border-radius: 6;
+        -fx-text-fill: white;
+        -fx-padding: 4 12;
+}
+
+filter-field {
+ -fx-prompt-text-fill: #64748b;
+}
+
+.action-btn {
+    -fx-background-color: linear-gradient(to right, #2563eb, #38bdf8);
+            -fx-text-fill: white;
+            -fx-font-weight: 600;
+            -fx-background-radius: 6;
+            -fx-padding: 8 16;
+            -fx-cursor: hand;
+}
+
+.action-btn:hover {
+    -fx-background-color: linear-gradient(to right, #1d4ed8, #0ea5e9);
+}
+
+.btn-delete {
+    -fx-background-color: transparent;
+    -fx-border-color: #ef4444;
+    -fx-border-radius: 6;
+    -fx-text-fill: #ef4444;
+}
+
+.btn-delete:hover {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: #ffffff;
+}
+
+/* ================= TABLE VIEW ================= */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #334155;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 0;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-size: 40px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-alignment: center-left;
+    -fx-padding: 0 10 0 16;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: #152033;
+    -fx-border-color: transparent transparent #1e293b transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cell-size: 45px;
+}
+
+.table-view .table-row-cell:odd {
+    -fx-background-color: #111827;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: #1e293b;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-alignment: center-left;
+    -fx-font-size: 13px;
+    -fx-padding: 0 10 0 16;
+}
+
+/* Fix lỗi mảng trắng ở góc bảng */
+.table-view .filler,
+.table-view .column-header-background .filler,
+.table-view .corner {
+    -fx-background-color: #0f172a;
+}
+
+.table-view .placeholder .label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 14px;
+}
+
+/* ================= CENTER ACTION BUTTONS ================= */
+
+/* Selector cho các ô trong cột Actions */
+.table-view .table-cell.action-cell {
+    -fx-alignment: CENTER; /* Căn giữa graphic (HBox) trong ô TableCell */
+}
+
+/* Đảm bảo graphic (HBox) có kích thước phù hợp (nếu cần) */
+.table-view .table-cell.action-cell .hbox {
+    -fx-alignment: CENTER; /* Căn giữa các nút bên trong HBox (dòng Pos.CENTER ở Java đã làm điều này, nhưng viết lại CSS cho đồng bộ) */
+    -fx-spacing: 8px; /* Khoảng cách giữa các nút */
+}
+
+/* ================= IN-APP MODAL STYLING ================= */
+
+/* Lớp nền mờ đè lên toàn màn hình */
+.modal-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.65); /* Nền đen trong suốt 65% */
+}
+
+/* Cái hộp form ở chính giữa */
+.modal-box {
+    -fx-background-color: #152033;
+    -fx-border-color: #334155;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 24 32;
+    /* Đổ bóng cho nổi bật */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 5);
+}
+
+.modal-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.modal-label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* Nút Cancel trong Modal */
+.btn-cancel {
+    -fx-background-color: transparent;
+    -fx-border-color: #475569;
+    -fx-border-radius: 6;
+    -fx-text-fill: #cbd5e1;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+.btn-cancel:hover {
+    -fx-background-color: #334155;
+}
+
+/* Nút Save trong Modal */
+.btn-save {
+    -fx-background-color: #38bdf8;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+.btn-save:hover {
+    -fx-background-color: #7dd3fc;
+}
+
+/* Style cho TextArea mô tả */
+.text-area {
+    -fx-background-color: #0f172a;
+    -fx-control-inner-background: #0f172a; /* Màu nền chính */
+    -fx-text-fill: #f8fafc;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-prompt-text-fill: #475569;
+}
+
+.text-area .viewport,
+.text-area .content {
+    -fx-background-color: transparent; /* Xóa nền trắng mặc định của viewport */
+}
+
+/* Style cho nút X đóng Modal */
+.btn-close-modal {
+    -fx-background-color: transparent;
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 0 4;
+}
+
+.btn-close-modal:hover {
+    -fx-text-fill: #ef4444; /* Đổi sang màu đỏ khi di chuột vào */
+    -fx-background-color: transparent;
+}
+
+/* Style đổi tên class gốc theo trang hiện tại */
+.admin-item-root {
+    -fx-background-color: #0b1020;
+}
+
+/* Chữ hiển thị thông tin vật phẩm trong Modal Moderation */
+.item-info-text {
+    -fx-text-fill: #38bdf8; /* Đổi màu xanh cho nổi bật */
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-background-color: #0f172a;
+    -fx-padding: 8 12;
+    -fx-background-radius: 6;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6;
+}
+
+/* Đổi màu chữ hiển thị trên thanh ComboBox */
+.combo-box.status-filter-field > .list-cell {
+    -fx-text-fill: #f8fafc;
+}
+
+/* Đổi màu mũi tên của ComboBox */
+.combo-box.status-filter-field .arrow {
+    -fx-background-color: #f8fafc;
+}
+.combo-box.status-filter-field .arrow-button {
+    -fx-background-color: transparent;
+}
+
+/* Đổi màu nền và chữ của menu xổ xuống khi bấm vào ComboBox */
+.combo-box-popup .list-view {
+    -fx-background-color: #0f172a;
+    -fx-border-color: #334155;
+    -fx-border-radius: 4;
+}
+.combo-box-popup .list-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-background-color: transparent;
+    -fx-padding: 8 12;
+}
+.combo-box-popup .list-cell:hover,
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #1e293b;
+}
+

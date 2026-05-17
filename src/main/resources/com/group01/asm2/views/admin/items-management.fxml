@@ -1,14 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.group01.asm2.controllers.AdminDashboardController"
-            prefHeight="400.0" prefWidth="600.0">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.group01.asm2.controllers.AdminItemController"
+           stylesheets="@../../styles/admin/admin-item.css"
+           styleClass="admin-item-root"
+           prefHeight="600.0" prefWidth="900.0">
 
-</AnchorPane>
+    <VBox spacing="18" fillWidth="true">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <VBox spacing="4">
+            <Label text="Item Moderation" styleClass="dashboard-title"/>
+            <Label text="Moderate item listings, update status, and enforce policies." styleClass="dashboard-subtitle"/>
+        </VBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="searchField" promptText="Search item name or ID..." styleClass="filter-field" prefWidth="300"/>
+            <ComboBox fx:id="statusFilterCombo" promptText="Filter by Status" styleClass="status-filter-field"/>
+        </HBox>
+
+        <TableView fx:id="itemsTable" VBox.vgrow="ALWAYS" minWidth="850">
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+            <columns>
+                <TableColumn text="ID" prefWidth="80" minWidth="80" maxWidth="100">
+                    <cellValueFactory><PropertyValueFactory property="id"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Item Name" prefWidth="250" minWidth="200">
+                    <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Category" prefWidth="150" minWidth="120">
+                    <cellValueFactory><PropertyValueFactory property="category"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Seller ID" prefWidth="100" minWidth="80" maxWidth="120">
+                    <cellValueFactory><PropertyValueFactory property="sellerId"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Status" prefWidth="120" minWidth="100">
+                    <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="actionCol" text="Actions" prefWidth="220" minWidth="220" maxWidth="220"/>
+            </columns>
+        </TableView>
+    </VBox>
+
+    <StackPane fx:id="modalOverlay" visible="false" styleClass="modal-overlay">
+
+        <VBox styleClass="modal-box" maxWidth="450" maxHeight="300" spacing="16">
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Moderate Item" styleClass="modal-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="✕" onAction="#closeModal" styleClass="btn-close-modal"/>
+            </HBox>
+
+            <VBox spacing="4">
+                <Label text="Selected Item:" styleClass="modal-label"/>
+                <Label fx:id="itemInfoLabel" text="ID: #123 - iPhone 15 Pro Max" styleClass="item-info-text" wrapText="true"/>
+            </VBox>
+
+            <VBox spacing="6" VBox.vgrow="ALWAYS">
+                <Label text="Update Status" styleClass="modal-label"/>
+                <ComboBox fx:id="statusUpdateCombo" styleClass="filter-field" maxWidth="Infinity"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <HBox spacing="12" alignment="CENTER_RIGHT">
+                <Button text="Cancel" onAction="#closeModal" styleClass="btn-cancel"/>
+                <Button text="Save Status" onAction="#saveModeration" styleClass="btn-save"/>
+            </HBox>
+        </VBox>
+
+    </StackPane>
+</StackPane>
