@@ -159,19 +159,19 @@ public class SidebarController {
     @FXML
     private void showAuctionsManagement() {
         setActiveButton(adminAuctionsButton);
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/auctions-management.fxml");
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/auction-admin/auctions-management.fxml");
     }
 
     @FXML
     private void showCategoriesManagement() {
         setActiveButton(categoriesButton);
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/categories-management.fxml");
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/auction-admin/categories-management.fxml");
     }
 
     @FXML
     private void showItemsManagement() {
         setActiveButton(itemsButton);
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/items-management.fxml");
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/auction-admin/items-management.fxml");
     }
 
 //    @FXML
@@ -183,7 +183,7 @@ public class SidebarController {
     @FXML
     private void showReports() {
         setActiveButton(reportsButton);
-        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/admin/report-management.fxml");
+        NavigationService.loadPage(contentArea, "/com/group01/asm2/views/auction-admin/report-management.fxml");
     }
 
     // =========================

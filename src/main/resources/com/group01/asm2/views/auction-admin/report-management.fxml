@@ -10,7 +10,7 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group01.asm2.controllers.AdminReportController"
             fx:id="mainScrollPane"
-            stylesheets="@../../styles/admin/admin-report.css"
+            stylesheets="@../../styles/auction-admin/admin-report.css"
             styleClass="admin-report-root"
             fitToWidth="true"
             prefHeight="700.0" prefWidth="1000.0">
