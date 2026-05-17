@@ -15,6 +15,7 @@ import com.group01.asm2.utils.TopUpValidator;
 import com.group01.asm2.models.Category;
 import com.group01.asm2.services.CategoryService;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -58,6 +59,7 @@ public class ProfileController {
     private UserProfileStatisticsDto currentStatistics;
     private User profileUser;
     private Integer profileUserId;
+    private boolean profileLoadRequestedExternally = false;
 
     private final List<Tab> originalProfileTabs = new ArrayList<>();
     private TopUpRequest currentPendingTopUpRequest;
@@ -173,12 +175,21 @@ public class ProfileController {
         setupResponsiveLayout();
         updateCategoryChipStyles();
 
-        loadProfile(null);
+        Platform.runLater(() -> {
+            if (!profileLoadRequestedExternally) {
+                loadProfile(null);
+            }
+        });
     }
 
     public void loadProfile(Integer userId) {
+        profileLoadRequestedExternally = true;
         this.profileUserId = userId;
         refreshProfilePage();
+    }
+
+    public void loadProfileByUserId(Integer userId) {
+        loadProfile(userId);
     }
 
     private void refreshProfilePage() {

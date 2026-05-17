@@ -17,6 +17,8 @@ import javafx.scene.shape.Shape;
 public class SidebarController {
 
     private AnchorPane contentArea;
+    private boolean initialized = false;
+    private boolean defaultPageLoaded = false;
 
     // Biến lưu trữ quyền của User hiện tại để dùng cho việc điều hướng
     private boolean isSystemAdmin = false;
@@ -52,6 +54,12 @@ public class SidebarController {
 
     public void setContentArea(AnchorPane contentArea) {
         this.contentArea = contentArea;
+
+        if (contentArea != null) {
+            NavigationService.setMainContentArea(contentArea);
+        }
+
+        loadDefaultPageIfReady();
     }
 
     @FXML
@@ -84,13 +92,8 @@ public class SidebarController {
         applyRoleVisibility();
 
         // 4. Mở trang mặc định
-        if (isSystemAdmin) {
-            showAdminDashboard();
-        } else if (isAuctionAdmin) {
-            showAuctionsManagement();
-        } else {
-            showExplore();
-        }
+        initialized = true;
+        loadDefaultPageIfReady();
     }
 
     private void applyRoleVisibility() {
@@ -131,6 +134,30 @@ public class SidebarController {
         bidsHistoryButton.setManaged(showUserFeatures);
         auctionsButton.setVisible(showUserFeatures);
         auctionsButton.setManaged(showUserFeatures);
+    }
+
+    private void loadDefaultPageIfReady() {
+        if (!initialized) {
+            return;
+        }
+
+        if (defaultPageLoaded) {
+            return;
+        }
+
+        if (contentArea == null) {
+            return;
+        }
+
+        defaultPageLoaded = true;
+
+        if (isSystemAdmin) {
+            showAdminDashboard();
+        } else if (isAuctionAdmin) {
+            showAuctionsManagement();
+        } else {
+            showExplore();
+        }
     }
 
     private void setActiveButton(Button activeButton) {
