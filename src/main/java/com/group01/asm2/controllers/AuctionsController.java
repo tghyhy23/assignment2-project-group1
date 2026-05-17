@@ -15,6 +15,9 @@ import com.group01.asm2.models.Item;
 import com.group01.asm2.services.AuctionService;
 import com.group01.asm2.services.ItemService;
 import com.group01.asm2.services.NavigationService;
+import com.group01.asm2.models.ItemImage;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import javafx.animation.TranslateTransition;
 import javafx.beans.binding.Bindings;
@@ -505,6 +508,28 @@ public class AuctionsController {
         StackPane imageBox = new StackPane();
         imageBox.getStyleClass().add("auction-image-placeholder");
         imageBox.setMaxWidth(Double.MAX_VALUE);
+
+        String imageUrl = resolvePrimaryImageUrl(item);
+
+        if (imageUrl != null) {
+            ImageView imageView = new ImageView();
+
+            Image image = new Image(imageUrl, true);
+
+            imageView.setImage(image);
+            imageView.setFitWidth(230);
+            imageView.setFitHeight(160);
+            imageView.setPreserveRatio(false);
+            imageView.setSmooth(true);
+
+            imageView.getStyleClass().add("auction-image");
+
+            imageBox.getChildren().add(imageView);
+        } else {
+            Label noImageLabel = new Label("No image");
+            noImageLabel.getStyleClass().add("auction-image-empty-label");
+            imageBox.getChildren().add(noImageLabel);
+        }
 
         StackPane imageWrapper = new StackPane();
         imageWrapper.getChildren().add(imageBox);
@@ -997,6 +1022,23 @@ public class AuctionsController {
 
     private String formatText(String value) {
         return value == null || value.isBlank() ? "N/A" : value;
+    }
+
+    private String resolvePrimaryImageUrl(Item item) {
+        if (item == null) {
+            return null;
+        }
+
+        if (item.getImages() == null || item.getImages().isEmpty()) {
+            return null;
+        }
+
+        return item.getImages().stream()
+            .filter(image -> image != null && image.getImageUrl() != null && !image.getImageUrl().isBlank())
+            .sorted((first, second) -> Integer.compare(first.getDisplayOrder(), second.getDisplayOrder()))
+            .map(ItemImage::getImageUrl)
+            .findFirst()
+            .orElse(null);
     }
 
     private void showError(String message) {
