@@ -37,5 +37,8 @@ public enum ActivityActionType {
     UPDATE_PAYMENT_STATUS,
 
     READ_REPORT,
-    EXPORT_REPORT
+    EXPORT_REPORT,
+
+    ADD_TO_WATCHLIST,
+    REMOVE_FROM_WATCHLIST
 }

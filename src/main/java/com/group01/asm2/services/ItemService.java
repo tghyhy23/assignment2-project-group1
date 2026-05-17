@@ -1,6 +1,7 @@
 package com.group01.asm2.services;
 
 import com.group01.asm2.configs.DatabaseConfig;
+import com.group01.asm2.constants.ActivityTarget;
 import com.group01.asm2.core.SessionManager;
 import com.group01.asm2.dtos.CreatedListingResult;
 import com.group01.asm2.dtos.ItemFilter;
@@ -140,6 +141,22 @@ public class ItemService extends BaseService {
 
                 createdAuction = auctionRepository.createAuction(conn, auction);
 
+                activityLogService.createActivityLog(
+                    conn,
+                    ActivityActionType.CREATE_ITEM,
+                    ActivityTarget.ITEM,
+                    createdItem.getId(),
+                    "Created item listing: " + createdItem.getTitle() + "."
+                );
+
+                activityLogService.createActivityLog(
+                    conn,
+                    ActivityActionType.CREATE_AUCTION,
+                    ActivityTarget.AUCTION,
+                    createdAuction.getId(),
+                    "Automatically created auction for item ID " + createdItem.getId() + "."
+                );
+
                 conn.commit();
 
             } catch (Exception exception) {
@@ -153,8 +170,6 @@ public class ItemService extends BaseService {
             exception.printStackTrace();
             throw AppException.database("Could not create item listing.");
         }
-
-        recordListingCreationLogsSafely(createdItem, createdAuction);
 
         return new CreatedListingResult(createdItem, createdAuction);
     }
@@ -352,15 +367,18 @@ public class ItemService extends BaseService {
                     updatedItem.setImages(itemImageRepository.readItemImagesByItemId(conn, updatedItem.getId()));
                 }
 
-                conn.commit();
-
                 // 10. Record activity log
                 activityLogService.createActivityLog(
+                    conn,
                     owner ? ActivityActionType.UPDATE_ITEM : ActivityActionType.MODERATE_ITEM,
-                    "Item",
+                    ActivityTarget.ITEM,
                     updatedItem.getId(),
-                    "Updated item: " + updatedItem.getTitle()
+                    owner
+                        ? "Updated own item listing: " + updatedItem.getTitle() + "."
+                        : "Moderated item listing: " + updatedItem.getTitle() + "."
                 );
+
+                conn.commit();
 
                 // 11. Return updated item
                 return updatedItem;
@@ -427,12 +445,48 @@ public class ItemService extends BaseService {
                 if (!hasBids && !hasPayment) {
                     auctionRepository.deleteAuction(conn, auction.getId());
                     itemRepository.deleteItem(conn, item.getId());
+
+                    activityLogService.createActivityLog(
+                        conn,
+                        ActivityActionType.DELETE_AUCTION,
+                        ActivityTarget.AUCTION,
+                        auction.getId(),
+                        "Deleted auction because related item was deleted. Item ID: " + item.getId() + "."
+                    );
+
+                    activityLogService.createActivityLog(
+                        conn,
+                        owner ? ActivityActionType.DELETE_ITEM : ActivityActionType.MODERATE_ITEM,
+                        ActivityTarget.ITEM,
+                        item.getId(),
+                        owner
+                            ? "Deleted own item listing: " + item.getTitle() + "."
+                            : "Moderated item by deleting listing: " + item.getTitle() + "."
+                    );
                 } else {
                     item.setStatus(ItemStatus.REMOVED);
                     auction.setStatus(AuctionStatus.CANCELLED);
 
                     itemRepository.updateItem(conn, item);
                     auctionRepository.updateAuction(conn, auction);
+
+                    activityLogService.createActivityLog(
+                        conn,
+                        ActivityActionType.CANCEL_AUCTION,
+                        ActivityTarget.AUCTION,
+                        auction.getId(),
+                        "Cancelled auction because related item was removed. Item ID: " + item.getId() + "."
+                    );
+
+                    activityLogService.createActivityLog(
+                        conn,
+                        ActivityActionType.MODERATE_ITEM,
+                        ActivityTarget.ITEM,
+                        item.getId(),
+                        owner
+                            ? "Removed own item listing: " + item.getTitle() + "."
+                            : "Moderated item by removing listing: " + item.getTitle() + "."
+                    );
                 }
 
                 conn.commit();
@@ -448,16 +502,6 @@ public class ItemService extends BaseService {
             exception.printStackTrace();
             throw AppException.database("Could not delete item.");
         }
-
-        // 7. Record activity log
-        activityLogService.createActivityLog(
-            owner ? ActivityActionType.DELETE_ITEM : ActivityActionType.MODERATE_ITEM,
-            "Item",
-            validItemId,
-            owner
-                ? "Deleted own item ID " + validItemId
-                : "Moderated item ID " + validItemId
-        );
     }
 
     private List<String> uploadImagesSafely(List<File> imageFiles) {
@@ -468,27 +512,6 @@ public class ItemService extends BaseService {
         } catch (Exception exception) {
             exception.printStackTrace();
             throw AppException.database("Could not upload item image.");
-        }
-    }
-
-    private void recordListingCreationLogsSafely(Item createdItem, Auction createdAuction) {
-        try {
-            activityLogService.createActivityLog(
-                ActivityActionType.CREATE_ITEM,
-                "Item",
-                createdItem.getId(),
-                "Created item listing: " + createdItem.getTitle()
-            );
-
-            activityLogService.createActivityLog(
-                ActivityActionType.CREATE_AUCTION,
-                "Auction",
-                createdAuction.getId(),
-                "Automatically created auction for item ID " + createdItem.getId()
-            );
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
         }
     }
 

@@ -1,5 +1,7 @@
 package com.group01.asm2.services;
 
+import com.group01.asm2.constants.ActivityTarget;
+import com.group01.asm2.enums.ActivityActionType;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Category;
 import com.group01.asm2.repositories.CategoryRepository;
@@ -8,18 +10,27 @@ import com.group01.asm2.security.Permission;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * @author Group 01
+ */
 public class CategoryService extends BaseService {
     private static final int MAX_NAME_LENGTH = 80;
     private static final int MAX_DESCRIPTION_LENGTH = 500;
 
     private final CategoryRepository categoryRepository;
+    private final ActivityLogService activityLogService;
 
     public CategoryService() {
-        this(new CategoryRepository());
+        this(new CategoryRepository(), new ActivityLogService());
     }
 
     public CategoryService(CategoryRepository categoryRepository) {
+        this(categoryRepository, new ActivityLogService());
+    }
+
+    public CategoryService(CategoryRepository categoryRepository, ActivityLogService activityLogService) {
         this.categoryRepository = categoryRepository;
+        this.activityLogService = activityLogService;
     }
 
     public Category createCategory(String name, String description, BigDecimal commissionRate) {
@@ -45,7 +56,17 @@ public class CategoryService extends BaseService {
         category.setCommissionRate(commissionRate);
 
         // 6. Save category
-        return categoryRepository.createCategory(category);
+        Category createdCategory = categoryRepository.createCategory(category);
+
+        // 7. Create activity log
+        activityLogService.createActivityLog(
+            ActivityActionType.CREATE_CATEGORY,
+            ActivityTarget.CATEGORY,
+            createdCategory.getId(),
+            "Created category: " + createdCategory.getName() + "."
+        );
+
+        return createdCategory;
     }
 
     public Category readCategory(Integer categoryId) {
@@ -101,6 +122,14 @@ public class CategoryService extends BaseService {
             throw AppException.notFound("Category not found.");
         }
 
+        // 8. Create activity log
+        activityLogService.createActivityLog(
+            ActivityActionType.UPDATE_CATEGORY,
+            ActivityTarget.CATEGORY,
+            updatedCategory.getId(),
+            "Updated category: " + updatedCategory.getName() + "."
+        );
+
         return updatedCategory;
     }
 
@@ -124,6 +153,14 @@ public class CategoryService extends BaseService {
 
         // 5. Delete category
         categoryRepository.deleteCategory(validCategoryId);
+
+        // 6. Create activity log
+        activityLogService.createActivityLog(
+            ActivityActionType.DELETE_CATEGORY,
+            ActivityTarget.CATEGORY,
+            validCategoryId,
+            "Deleted category: " + existingCategory.getName() + "."
+        );
     }
 
     private Integer validateCategoryId(Integer categoryId) {

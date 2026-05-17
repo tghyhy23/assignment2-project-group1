@@ -1,15 +1,13 @@
 package com.group01.asm2.services;
 
-/**
- * @author Group 01
- */
-
 import com.group01.asm2.core.SessionManager;
 import com.group01.asm2.dtos.UserProfileStatisticsDto;
 import com.group01.asm2.dtos.UserProfileViewDto;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.Person;
 import com.group01.asm2.models.User;
+import com.group01.asm2.enums.ActivityActionType;
+import com.group01.asm2.constants.ActivityTarget;
 import com.group01.asm2.repositories.UserRepository;
 import com.group01.asm2.security.Permission;
 
@@ -18,6 +16,10 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
+
+/**
+ * @author Group 01
+ */
 
 public class UserService extends BaseService {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
@@ -36,13 +38,19 @@ public class UserService extends BaseService {
     private static final BigDecimal DEFAULT_COMMISSION_RATE = new BigDecimal("0.05");
 
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
 
     public UserService() {
-        this(new UserRepository());
+        this(new UserRepository(), new ActivityLogService());
     }
 
     public UserService(UserRepository userRepository) {
+        this(userRepository, new ActivityLogService());
+    }
+
+    public UserService(UserRepository userRepository, ActivityLogService activityLogService) {
         this.userRepository = userRepository;
+        this.activityLogService = activityLogService;
     }
 
     public User readUserProfile() {
@@ -160,6 +168,13 @@ public class UserService extends BaseService {
 
         List<User> users = userRepository.readUsers();
 
+        activityLogService.createActivityLog(
+            ActivityActionType.READ_USER,
+            ActivityTarget.USER,
+            null,
+            "Viewed user account list."
+        );
+
         return users.stream()
             .map(user -> toPrivateUserProfile(user, true))
             .toList();
@@ -220,6 +235,17 @@ public class UserService extends BaseService {
 
         User updatedUser = userRepository.updateUserProfile(existingUser);
 
+        boolean updatingOwnProfile = targetUserId.equals(currentUser.getId());
+
+        activityLogService.createActivityLog(
+            ActivityActionType.UPDATE_PROFILE,
+            ActivityTarget.USER,
+            updatedUser.getId(),
+            updatingOwnProfile
+                ? "Updated own profile information."
+                : "Updated user profile: " + updatedUser.getUsername() + "."
+        );
+
         return toPrivateUserProfile(updatedUser, true);
     }
 
@@ -245,7 +271,18 @@ public class UserService extends BaseService {
             throw AppException.notFound("User profile not found.");
         }
 
-        return userRepository.deleteUser(userId);
+        int deletedRows = userRepository.deleteUser(userId);
+
+        if (deletedRows > 0) {
+            activityLogService.createActivityLog(
+                ActivityActionType.DELETE_USER,
+                ActivityTarget.USER,
+                userId,
+                "Deleted user account: " + existingUser.getUsername() + "."
+            );
+        }
+
+        return deletedRows;
     }
 
     private BigDecimal calculateCommissionFees(BigDecimal totalRevenue) {

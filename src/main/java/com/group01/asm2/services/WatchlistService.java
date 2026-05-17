@@ -1,10 +1,8 @@
 package com.group01.asm2.services;
 
-/**
- * @author Group 01
- */
-
+import com.group01.asm2.constants.ActivityTarget;
 import com.group01.asm2.dtos.AuctionCardDto;
+import com.group01.asm2.enums.ActivityActionType;
 import com.group01.asm2.exceptions.AppException;
 import com.group01.asm2.models.AuctionWatchlist;
 import com.group01.asm2.models.Person;
@@ -12,9 +10,27 @@ import com.group01.asm2.repositories.AuctionWatchlistRepository;
 
 import java.util.List;
 
+/**
+ * @author Group 01
+ */
 public class WatchlistService extends BaseService {
 
-    private final AuctionWatchlistRepository auctionWatchlistRepository = new AuctionWatchlistRepository();
+    private final AuctionWatchlistRepository auctionWatchlistRepository;
+    private final ActivityLogService activityLogService;
+
+    public WatchlistService() {
+        this(new AuctionWatchlistRepository(), new ActivityLogService());
+    }
+
+    public WatchlistService(AuctionWatchlistRepository auctionWatchlistRepository) {
+        this(auctionWatchlistRepository, new ActivityLogService());
+    }
+
+    public WatchlistService(AuctionWatchlistRepository auctionWatchlistRepository,
+                            ActivityLogService activityLogService) {
+        this.auctionWatchlistRepository = auctionWatchlistRepository;
+        this.activityLogService = activityLogService;
+    }
 
     public AuctionWatchlist watchAuction(Integer auctionId) {
         // 1. Check current user
@@ -47,7 +63,17 @@ public class WatchlistService extends BaseService {
             null
         );
 
-        return auctionWatchlistRepository.createAuctionWatchlist(watchlist);
+        AuctionWatchlist createdWatchlist = auctionWatchlistRepository.createAuctionWatchlist(watchlist);
+
+        // 7. Create activity log
+        activityLogService.createActivityLog(
+            ActivityActionType.ADD_TO_WATCHLIST,
+            ActivityTarget.WATCHLIST,
+            createdWatchlist.getId(),
+            "Added auction ID " + auctionId + " to watchlist."
+        );
+
+        return createdWatchlist;
     }
 
     public void unwatchAuction(Integer auctionId) {
@@ -72,6 +98,14 @@ public class WatchlistService extends BaseService {
         auctionWatchlistRepository.deleteAuctionWatchlistByUserIdAndAuctionId(
             currentUser.getId(),
             auctionId
+        );
+
+        // 6. Create activity log
+        activityLogService.createActivityLog(
+            ActivityActionType.REMOVE_FROM_WATCHLIST,
+            ActivityTarget.WATCHLIST,
+            existingWatchlist.getId(),
+            "Removed auction ID " + auctionId + " from watchlist."
         );
     }
 
